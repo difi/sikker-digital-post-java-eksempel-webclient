@@ -5,12 +5,13 @@
 - Muliggjør funksjonell testing av meldingsformidler og postbokser via et web-grensesnitt
 - Muliggjør ytelsestesting av meldingsformidler og postbokser via et web-grensesnitt
 - Viser hvordan postavsendere kan ta i bruk sikker digital post og kan være et utgangspunkt for postavsenderes egne integrasjoner
-- Inkluderer out-of-the-box integrasjon uten at det er nødvendig å sette opp egne integrasjoner mot testmiljø for oppslagstjenesten, meldingsformidleren og postkassene
+- Inkluderer out-of-the-box integrasjon uten at det er nødvendig å sette opp egne integrasjoner mot testmiljø for oppslagstjenesten og meldingsformidleren
+- Kan prøves på http://avsender-sdp.difi.no/
 
 ## Forutsetninger
 
-- Må bygge med Apache Maven med Java development kit (JDK) 1.7 eller nyere
-- Må kjøre i Java runtime environment (JRE) 1.7 eller nyere
+- Må bygges med Apache Maven med Java development kit (JDK) 1.7 eller nyere
+- Må kjøres i Java runtime environment (JRE) 1.7 eller nyere
 - Java cryptography extension (JCE) unlimited strength må være installert i JRE- se http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 ## Kjøring / installasjon
@@ -41,7 +42,8 @@ For å sette opp egen integrasjon må en:
 
 1. Integrere mot et testmiljø for oppsalgstjenesten - se http://begrep.difi.no/Oppslagstjenesten/
 2. Integrere mot et testmiljø for meldingsformidler - se http://begrep.difi.no/SikkerDigitalPost/
-2. Oppdatere konfigurasjon av integrasjon under `/src/main/resources/` fra roten av Git-prosjektet til å reflektere egen integrasjon (se punkt 1 og 2)
+3. Oppdatere konfigurasjon av integrasjon under `/src/main/resources/` fra roten av Git-prosjektet til å reflektere egen integrasjon (se punkt 1 og 2)
+4. Bygge Testavsender på nytt `mvn clean install`
 
 ## Mer informasjon om sikker digital post
 
