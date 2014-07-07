@@ -23,7 +23,8 @@ public  abstract class AssertValue<T> extends ArgumentMatcher<T> {
         return true;
     }
 
-    protected Object privateValue(Object o, String field){
+    @SuppressWarnings("rawtypes")
+	protected Object privateValue(Object o, String field){
 
         assert(o != null);
 
@@ -46,7 +47,8 @@ public  abstract class AssertValue<T> extends ArgumentMatcher<T> {
         return null;
     }
 
-    private Object readField(Object o, Class clazz, String field ) {
+    @SuppressWarnings("rawtypes")
+	private Object readField(Object o, Class clazz, String field ) {
     	 final Field fields[] = clazz.getDeclaredFields();
          for (int i = 0; i < fields.length; ++i) {
              if (field.equals(fields[i].getName())) {
