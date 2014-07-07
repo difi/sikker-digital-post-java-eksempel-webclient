@@ -1,4 +1,4 @@
-package no.difi.sdp.client.service;
+package no.difi.sdp.webclient.service;
 
 import no.difi.begrep.Epostadresse;
 import no.difi.begrep.Kontaktinformasjon;
@@ -16,7 +16,7 @@ import no.difi.sdp.client.domain.Forsendelse;
 import no.difi.sdp.client.domain.digital_post.EpostVarsel;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.client.domain.digital_post.SmsVarsel;
-import no.difi.sdp.util.AssertValue;
+import no.difi.sdp.test.AssertValue;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.domain.Message;

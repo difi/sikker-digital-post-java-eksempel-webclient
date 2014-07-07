@@ -1,4 +1,4 @@
-package no.difi.sdp.util;
+package no.difi.sdp.test;
 
 import org.mockito.ArgumentMatcher;
 
