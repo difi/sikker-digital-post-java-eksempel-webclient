@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:spring="http://www.springframework.org/tags">
+	<jsp:directive.page contentType="text/html" />
+	<jsp:output omit-xml-declaration="yes" doctype-system="about:legacy-compat" doctype-root-element="html"/>
+	<head>
+		<title>Testavsender</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Testavsender <small>Testklient for meldingsutsending gjennom Sikker Digital Post</small></h1>
+			</div>
+			<ul class="nav nav-tabs">
+				<spring:url value="/client/messages" var="showMessagesUrl" />
+				<spring:url value="/client/" var="sendMessageUrl" />
+				<li><a href="${sendMessageUrl}">Send melding</a></li>
+				<li class="active"><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
+			</ul>
+			<br />
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Mottakers fødselsnummer</th>
+						<th>Tittel</th>
+						<th>Handlinger</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${messages}" var="message">
+						<tr>
+							<spring:url value="/client/messages/${message.id}" var="messageUrl" />
+							<spring:url value="/client/messages/${message.id}/delete" var="deleteMessageUrl" />
+							<td>${message.ssn}</td>
+							<td><a href="${messageUrl}">${message.sensitiveTitle}</a></td>
+							<td>
+								<form method="POST" action="${deleteMessageUrl}">
+									<button type="submit" class="btn btn-warning btn-xs">Slett</button>
+								</form>
+							</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+			<spring:url value="/client/messages/delete" var="deleteAllMessagesUrl" />
+			<form method="POST" action="${deleteAllMessagesUrl}">
+				<button type="submit" class="btn btn-danger">Slett alle meldinger</button>
+			</form>
+		</div>
+	</body>
+</html>

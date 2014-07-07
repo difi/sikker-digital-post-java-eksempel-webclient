@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:form="http://www.springframework.org/tags/form" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:spring="http://www.springframework.org/tags" xmlns:fmt="http://java.sun.com/jsp/jstl/fmt">
+	<jsp:directive.page contentType="text/html" />
+	<jsp:output omit-xml-declaration="yes" doctype-system="about:legacy-compat" doctype-root-element="html"/>
+	<head>
+		<title>Testavsender</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Testavsender <small>Testklient for meldingsutsending gjennom Sikker Digital Post</small></h1>
+			</div>
+			<div class="alert alert-info">
+				<em>${avsenderIdentifikator}</em> med organisasjonsnummer <em>${avsenderOrganisasjonsnummer}</em> er integrert mot oppslagstjenesten på <em>${oppslagstjenestenUrl}</em> og meldingsformidler på <em>${meldingsformidlerUrl}</em>
+			</div>
+			<ul class="nav nav-tabs">
+				<spring:url value="/client/messages" var="showMessagesUrl" />
+				<spring:url value="/client/" var="sendMessageUrl" />
+				<li class="active"><a href="${sendMessageUrl}">Send melding</a></li>
+				<li><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
+			</ul>
+			<br />
+			<form:form method="POST" action="messages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">
+				<div class="form-group ${errors.hasFieldErrors('ssn') ? 'has-error' : ''}">
+					<form:label path="ssn" cssClass="col-sm-2 control-label">Fødselsnummer</form:label>
+					<div class="col-sm-10">
+						<input name="ssn" id="ssn" type="text" class="form-control" autocomplete="off" placeholder="Oppgi mottakers fødselsnummer" value="${messageCommand.ssn}"/>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('sensitiveTitle') ? 'has-error' : ''}">
+					<form:label path="sensitiveTitle" cssClass="col-sm-2 control-label">Tittel (sensitiv)</form:label>
+					<div class="col-sm-10">
+						<input name="sensitiveTitle" id="sensitiveTitle" type="text" class="form-control" autocomplete="off" placeholder="Oppgi tittel (sensitiv)" value="${messageCommand.sensitiveTitle}"/>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('insensitiveTitle') ? 'has-error' : ''}">
+					<form:label path="insensitiveTitle" cssClass="col-sm-2 control-label">Tittel (ikke-sensitiv)</form:label>
+					<div class="col-sm-10">
+						<input name="insensitiveTitle" id="insensitiveTitle" type="text" class="form-control" autocomplete="off" placeholder="Oppgi tittel (ikke-sensitiv)" value="${messageCommand.insensitiveTitle}"/>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('attachment') ? 'has-error' : ''}">
+					<form:label path="attachment" cssClass="col-sm-2 control-label">Vedlegg</form:label>
+					<div class="col-sm-10">
+						<input name="attachment" id="attachment" type="file" />
+					</div> 
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('securityLevel') ? 'has-error' : ''}">
+ 					<form:label path="securityLevel" cssClass="col-sm-2 control-label">Sikkerhetsnivå</form:label>
+ 					<div class="col-sm-10">
+ 						<c:choose>
+	 						<c:when test="${messageCommand.securityLevel == 'NIVAA_4' }">
+		 						<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel3" value="NIVAA_3" /> Sikkerhetsnivå 3</label>
+								<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel4" value="NIVAA_4" checked="checked" /> Sikkerhetsnivå 4</label>
+							</c:when>
+	 						<c:otherwise>
+		 						<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel3" value="NIVAA_3" checked="checked" /> Sikkerhetsnivå 3</label>
+								<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel4" value="NIVAA_4" /> Sikkerhetsnivå 4</label>
+	 						</c:otherwise>
+	 					</c:choose>
+						<span class="help-block">Oppgi hvilket sikkerhetsnivå som mottaker må logge seg inn til sin postkasse med for å lese meldingen.</span>
+ 					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('emailNotification') ? 'has-error' : ''}">
+					<form:label path="emailNotification" cssClass="col-sm-2 control-label">Epost-varsel til mottaker</form:label>
+					<div class="col-sm-10">
+						<textarea name="emailNotification" id="emailNotification" class="form-control" rows="1" placeholder="Oppgi tekst for epost dersom du ønsker at mottaker skal bli varslet per epost når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.emailNotification}" /></textarea>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('emailNotificationSchedule') ? 'has-error' : ''}">
+					<form:label path="emailNotificationSchedule" cssClass="col-sm-2 control-label">Gjentatt epost-varsling</form:label>
+					<div class="col-sm-10">
+						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager etter første epost-varsel dersom du ønsker å sende flere epost-varsel" value="${messageCommand.emailNotificationSchedule}"/>
+						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('mobileNotification') ? 'has-error' : ''}">
+					<form:label path="mobileNotification" cssClass="col-sm-2 control-label">SMS-varsel til mottaker</form:label>
+					<div class="col-sm-10">
+						<textarea name="mobileNotification" id="mobileNotification" class="form-control" rows="1" placeholder="Oppgi tekst for SMS dersom du ønsker at mottaker skal bli varslet per SMS når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.mobileNotification}" /></textarea>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('mobileNotificationSchedule') ? 'has-error' : ''}">
+					<form:label path="mobileNotificationSchedule" cssClass="col-sm-2 control-label">Gjentatt SMS-varsling</form:label>
+					<div class="col-sm-10">
+						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager etter første SMS-varsel dersom du ønsker å sende flere SMS-varsel" value="${messageCommand.mobileNotificationSchedule}" />
+						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('requiresMessageOpenedReciept') ? 'has-error' : ''}">
+					<form:label path="requiresMessageOpenedReciept" cssClass="col-sm-2 control-label">Motta åpningskvittering</form:label>
+					<div class="col-sm-10">
+						<c:choose>
+							<c:when test="${messageCommand.requiresMessageOpenedReciept}">
+								<label class="checkbox-inline"><input type="checkbox" name="requiresMessageOpenedReciept" id="requiresMessageOpenedReciept" checked="checked"/> Motta åpningskvittering</label>
+							</c:when>
+							<c:otherwise>
+								<label class="checkbox-inline"><input type="checkbox" name="requiresMessageOpenedReciept" id="requiresMessageOpenedReciept" /> Motta åpningskvittering</label>
+							</c:otherwise>
+						</c:choose>
+					</div>
+				</div>
+				<div class="form-group ${errors.hasFieldErrors('delayedAvailabilityDate') ? 'has-error' : ''}">
+					<form:label path="delayedAvailabilityDate" cssClass="col-sm-2 control-label">Forsinket åpningsdato</form:label>
+					<div class="col-sm-10">
+						<fmt:formatDate value="${messageCommand.delayedAvailabilityDate}" type="both" pattern="yyyy-MM-dd HH:mm:ss" var="delayedAvailabilityDateString"/>
+						<input name="delayedAvailabilityDate" id="delayedAvailabilityDate" type="text" class="form-control" autocomplete="off" placeholder="Oppgi forsinket åpningsdato dersom du ønsker at meldingen ikke skal bli tilgjengelig for mottaker før en bestemt dato" value="${delayedAvailabilityDateString}"/>
+						<span class="help-block">Eksempel: <em>2014-06-12 13:00:00</em></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" class="btn btn-primary">Send melding</button>
+					</div>
+				</div>
+			</form:form>
+		</div>
+	</body>
+</html>

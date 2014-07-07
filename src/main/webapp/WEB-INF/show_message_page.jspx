@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:spring="http://www.springframework.org/tags">
+	<jsp:directive.page contentType="text/html" />
+	<jsp:output omit-xml-declaration="yes" doctype-system="about:legacy-compat" doctype-root-element="html"/>
+	<head>
+		<title>Testavsender</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Testavsender <small>Testklient for meldingsutsending gjennom Sikker Digital Post</small></h1>
+			</div>
+			<ul class="nav nav-tabs">
+				<spring:url value="/client/messages" var="showMessagesUrl" />
+				<spring:url value="/client/" var="sendMessageUrl" />
+				<li><a href="${sendMessageUrl}">Send melding</a></li>
+				<li><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
+			</ul>
+			<br />
+			<h2>Status</h2>
+			<dl class="dl-horizontal">
+				<dt>Status</dt>
+				<dd id="status">${message.status}</dd>
+				<dt>Konversasjonsidentifikator</dt>
+				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
+			</dl>
+			<h2>Data oppgitt til webclient</h2>
+			<dl class="dl-horizontal">
+				<dt>Fødselsnummer</dt>
+				<dd id="ssn">${message.ssn}</dd>
+				<dt>Tittel (sensitiv)</dt>
+				<dd id="sensitiveTitle">${message.sensitiveTitle}</dd>
+				<dt>Tittel (ikke-sensitiv)</dt>
+				<dd id="insensitiveTitle">${message.insensitiveTitle}</dd>
+				<dt>Filnavn for vedlegg</dt>
+				<dd id="attachmentFilename">${message.attachmentFilename}</dd>
+				<dt>Mimetype for vedlegg</dt>
+				<dd id="attachmentMimetype">${message.attachmentMimetype}</dd>
+				<dt>Vedlegg</dt>
+				<dd>
+					<spring:url value="/client/messages/${message.id}/download" var="downloadMessageAttachmentUrl" />
+					<a href="${downloadMessageAttachmentUrl}">Last ned vedlegg</a>
+				</dd>
+				<dt>Sikkerhetsnivå</dt>
+				<dd id="securityLevel">${message.securityLevel}</dd>
+				<dt>Epost-varsel til mottaker</dt>
+				<dd id="emailNotification">${message.emailNotification == null ? "[ikke tilgjengelig]" : message.emailNotification}</dd>
+				<dt>Gjentatt epost-varsling</dt>
+				<dd id="emailNotificationSchedule">${message.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.emailNotificationSchedule}</dd>
+				<dt>SMS-varsel til mottaker</dt>
+				<dd id="mobileNotification">${message.mobileNotification == null ? "[ikke tilgjengelig]" : message.mobileNotification}</dd>
+				<dt>Gjentatt SMS-varsling</dt>
+				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
+				<dt>Motta åpningskvittering</dt>
+				<dd id="requiresMessageOpenedReciept">${message.requiresMessageOpenedReciept}</dd>
+				<dt>Forsinket åpningsdato</dt>
+				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
+			</dl>
+			<h2>Data hentet fra oppslagstjenesten</h2>
+			<dl class="dl-horizontal">
+				<dt>Status i kontaktregisteret</dt>
+				<dd id="contactRegisterStatus">${message.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.contactRegisterStatus}</dd>
+				<dt>Har lagt inn reservasjon mot å motta digital post</dt>
+				<dd id="reservationStatus">${message.reservationStatus == null ? "[ikke tilgjengelig]" : message.reservationStatus}</dd>
+				<dt>Adresse til digital postkasse</dt>
+				<dd id="postboxAddress">${message.postboxAddress == null ? "[ikke tilgjengelig]" : message.postboxAddress}</dd>
+				<dt>Organisasjonsnummer for leverandør av digital postkasse</dt>
+				<dd id="postboxVendorOrgNumber">${message.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.postboxVendorOrgNumber}</dd>
+				<dt>Sertifikat for digital postkasse</dt>
+				<dd id="postboxCertificate">${message.postboxCertificate == null ? "[ikke tilgjengelig]" : message.postboxCertificate}</dd>
+			</dl>
+			<h2>Meldinger</h2>
+			<h3>1. Hent personer fra oppslagstjenesten</h3>
+			<h4>1.1 Forespørsel</h4>
+			<h5>SOAP med WSS-header over HTTP</h5>
+			<textarea id="xmlRetrievePersonsRequest" class="form-control" rows="10">${message.xmlRetrievePersonsRequest == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequest}</textarea>
+			<h5>Forretningsmelding: HentPersonerForespoersel</h5>
+			<textarea id="xmlRetrievePersonsRequestPayload" class="form-control" rows="10">${message.xmlRetrievePersonsRequestPayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequestPayload}</textarea>
+			<h4>1.2 Svar</h4>
+			<h5>SOAP med WSS-header over HTTP</h5>
+			<textarea id="xmlRetrievePersonsResponse" class="form-control" rows="10">${message.xmlRetrievePersonsResponse == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponse}</textarea>
+			<h5>Forretningsmelding: HentPersonerRespons</h5>
+			<textarea id="xmlRetrievePersonsResponsePayload" class="form-control" rows="10">${message.xmlRetrievePersonsResponsePayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponsePayload}</textarea>
+			<h3>2. Send melding til meldingsformidler</h3>
+			<h4>2.1 Forespørsel</h4>
+			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
+			<textarea id="xmlSendMessageRequest" class="form-control" rows="10">${message.xmlSendMessageRequest == null ? "[ikke tilgjengelig]" : message.xmlSendMessageRequest}</textarea>
+			<h5>Forretningsmelding: DigitalPost</h5>
+			<textarea id="xmlSendMessageRequestPayload" class="form-control" rows="10">${message.xmlSendMessageRequestPayload == null ? "[ikke tilgjengelig]" : message.xmlSendMessageRequestPayload}</textarea>
+			<h4>2.2 Svar</h4>
+			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
+			<textarea id="xmlSendMessageResponse" class="form-control" rows="10">${message.xmlSendMessageResponse == null ? "[ikke tilgjengelig]" : message.xmlSendMessageResponse}</textarea>
+			<h3>3. Hent kvittering fra meldingsformidler</h3>
+			<h4>3.1 Forespørsel</h4>
+			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
+			<textarea id="xmlRetrieveMessageRecieptRequest" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptRequest == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptRequest}</textarea>
+			<h4>3.2 Svar</h4>
+			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
+			<textarea id="xmlRetrieveMessageRecieptResponse" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptResponse == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptResponse}</textarea>
+			<h5>Forretningsmelding: KvitteringsMelding</h5>
+			<textarea id="xmlRetrieveMessageRecieptResponsePayload" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptResponsePayload == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptResponsePayload}</textarea>
+		</div>
+	</body>
+</html>
