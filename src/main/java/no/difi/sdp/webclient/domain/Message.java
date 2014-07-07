@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.client.domain.kvittering.Feil.Feiltype;
 import no.difi.sdp.webclient.validation.Ssn;
 
 @Entity
@@ -114,6 +115,29 @@ public class Message {
 	private String xmlRetrieveMessageRecieptResponsePayload;
 	
 	private MessageStatus status;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date deliveredDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date openedDate;
+	
+	private Date smsNotificationErrorDate;
+	
+	private String smsNotificationErrorDescription;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date emailNotificationErrorDate;
+	
+	private String emailNotificationErrorDescription;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date errorDate;
+	
+	@Enumerated(EnumType.STRING)
+	private Feiltype errorType;
+	
+	private String errorDetails;
 	
 	public Long getId() {
 		return id;
@@ -393,6 +417,80 @@ public class Message {
 			intList.add(Integer.valueOf(intString));
 		}
 		return intList;
+	}
+
+	public Date getDeliveredDate() {
+		return deliveredDate;
+	}
+
+	public void setDeliveredDate(Date deliveredDate) {
+		this.deliveredDate = deliveredDate;
+	}
+
+	public Date getOpenedDate() {
+		return openedDate;
+	}
+
+	public void setOpenedDate(Date openedDate) {
+		this.openedDate = openedDate;
+	}
+
+	public Date getSmsNotificationErrorDate() {
+		return smsNotificationErrorDate;
+	}
+
+	public void setSmsNotificationErrorDate(Date smsNotificationErrorDate) {
+		this.smsNotificationErrorDate = smsNotificationErrorDate;
+	}
+
+	public String getSmsNotificationErrorDescription() {
+		return smsNotificationErrorDescription;
+	}
+
+	public void setSmsNotificationErrorDescription(
+			String smsNotificationErrorDescription) {
+		this.smsNotificationErrorDescription = smsNotificationErrorDescription;
+	}
+
+	public Date getEmailNotificationErrorDate() {
+		return emailNotificationErrorDate;
+	}
+
+	public void setEmailNotificationErrorDate(Date emailNotificationErrorDate) {
+		this.emailNotificationErrorDate = emailNotificationErrorDate;
+	}
+
+	public String getEmailNotificationErrorDescription() {
+		return emailNotificationErrorDescription;
+	}
+
+	public void setEmailNotificationErrorDescription(
+			String emailNotificationErrorDescription) {
+		this.emailNotificationErrorDescription = emailNotificationErrorDescription;
+	}
+
+	public Date getErrorDate() {
+		return errorDate;
+	}
+
+	public void setErrorDate(Date errorDate) {
+		this.errorDate = errorDate;
+	}
+
+	public Feiltype getErrorType() {
+		return errorType;
+	}
+
+	public void setErrorType(Feiltype errorType) {
+		this.errorType = errorType;
+	}
+
+	public String getErrorDetails() {
+		return errorDetails;
+	}
+
+	public void setErrorDetails(String errorDetails) {
+		this.errorDetails = errorDetails;
 	}
 
 }

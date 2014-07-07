@@ -25,6 +25,24 @@
 				<dd id="status">${message.status}</dd>
 				<dt>Konversasjonsidentifikator</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
+				<dt>Dato for leveringskvittering</dt>
+				<dd id="deliveredDate">${message.deliveredDate == null ? "[ikke tilgjengelig]" : message.deliveredDate}</dd>
+				<dt>Dato for åpningskvittering</dt>
+				<dd id="openedDate">${message.openedDate == null ? "[ikke tilgjengelig]" : message.openedDate}</dd>
+				<dt>Dato for feilmelding</dt>
+				<dd id="errorDate">${message.errorDate == null ? "[ikke tilgjengelig]" : message.errorDate}</dd>
+				<dt>Feilmeldingstype</dt>
+				<dd id="errorType">${message.errorType == null ? "[ikke tilgjengelig]" : message.errorType}</dd>
+				<dt>Feilmeldingsdetaljer</dt>
+				<dd id="errorDetails">${message.errorDetails == null ? "[ikke tilgjengelig]" : message.errorDetails}</dd>
+				<dt>Dato for varslingfeiletkvittering for SMS</dt>
+				<dd id="smsNotificationErrorDate">${message.smsNotificationErrorDate == null ? "[ikke tilgjengelig]" : message.smsNotificationErrorDate}</dd>
+				<dt>Beskrivelse av varslingfeiletkvittering for SMS</dt>
+				<dd id="smsNotificationErrorDescription">${message.smsNotificationErrorDescription == null ? "[ikke tilgjengelig]" : message.smsNotificationErrorDescription}</dd>
+				<dt>Dato for varslingfeiletkvittering for e-post</dt>
+				<dd id="emailNotificationErrorDate">${message.emailNotificationErrorDate == null ? "[ikke tilgjengelig]" : message.emailNotificationErrorDate}</dd>
+				<dt>Beskrivelse av varslingfeiletkvittering for e-post</dt>
+				<dd id="emailNotificationErrorDescription">${message.emailNotificationErrorDescription == null ? "[ikke tilgjengelig]" : message.emailNotificationErrorDescription}</dd>
 			</dl>
 			<h2>Data oppgitt til webclient</h2>
 			<dl class="dl-horizontal">

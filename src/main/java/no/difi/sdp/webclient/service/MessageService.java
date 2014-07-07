@@ -23,8 +23,13 @@ import no.difi.sdp.client.domain.*;
 import no.difi.sdp.client.domain.digital_post.DigitalPost;
 import no.difi.sdp.client.domain.digital_post.EpostVarsel;
 import no.difi.sdp.client.domain.digital_post.SmsVarsel;
+import no.difi.sdp.client.domain.kvittering.AapningsKvittering;
+import no.difi.sdp.client.domain.kvittering.Feil;
 import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
+import no.difi.sdp.client.domain.kvittering.LeveringsKvittering;
+import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
+import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering.Varslingskanal;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.MessageContext;
 import no.difi.sdp.webclient.domain.*;
@@ -175,10 +180,15 @@ public class MessageService {
     }
 
     private Behandlingsansvarlig buildBehandlingsansvarlig() {
-        String orgNumber = environment.getProperty("meldingsformidler.avsender.organisasjonsnummer");
-            Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig.builder(orgNumber).build();
-            return behandlingsansvarlig;
-        }
+    	String orgNumber = environment.getProperty("meldingsformidler.avsender.organisasjonsnummer");
+    	String avsenderIdentifikator = environment.getProperty("meldingsformidler.avsender.identifikator");
+    	String fakturaReferanse = environment.getProperty("meldingsformidler.avsender.fakturareferanse");
+    	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
+    			.builder(orgNumber)
+    			.avsenderIdentifikator(avsenderIdentifikator)
+    			.fakturaReferanse(fakturaReferanse).build();
+    	return behandlingsansvarlig;
+	}
 
     private Forsendelse buildDigitalForsendelse(Message message) {
     	Mottaker mottaker  = buildMottaker(message);
@@ -275,7 +285,34 @@ public class MessageService {
 			return true;
 		}
 		Message message = messages.get(0);
-		// TODO håndtere alle kvitteringstyper
+		if (forretningsKvittering instanceof Feil) {
+			Feil feil = (Feil) forretningsKvittering;
+			LOGGER.error("Recieved error type " + feil.getFeiltype().toString() + " with details: " + feil.getDetaljer());
+			message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
+			message.setErrorDate(feil.getTidspunkt());
+			message.setErrorDetails(feil.getDetaljer());
+			message.setErrorType(feil.getFeiltype());
+			messageRepository.save(message);
+		} else if (forretningsKvittering instanceof AapningsKvittering) {
+			AapningsKvittering aapningsKvittering = (AapningsKvittering) forretningsKvittering;
+			message.setOpenedDate(aapningsKvittering.getTidspunkt());
+			messageRepository.save(message);
+		} else if (forretningsKvittering instanceof LeveringsKvittering) {
+			LeveringsKvittering leveringsKvittering = (LeveringsKvittering) forretningsKvittering;
+			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+			message.setDeliveredDate(leveringsKvittering.getTidspunkt());
+			messageRepository.save(message);
+		} else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
+			VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
+			if (varslingFeiletKvittering.getVarslingskanal().equals(Varslingskanal.EPOST)) {
+				message.setEmailNotificationErrorDate(varslingFeiletKvittering.getTidspunkt());
+				message.setEmailNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
+			} else {
+				message.setSmsNotificationErrorDate(varslingFeiletKvittering.getTidspunkt());
+				message.setSmsNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
+			}
+			messageRepository.save(message);
+		}
 		try {
 			postklient.bekreft(forretningsKvittering);
 		} catch (Exception e) {
@@ -283,10 +320,6 @@ public class MessageService {
 			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECIEPT);
 			messageRepository.save(message);
 			return true;
-		}
-		if (forretningsKvittering.applikasjonsKvittering.getKvittering().erLevertTilPostkasse()) {
-			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
-			messageRepository.save(message);
 		}
 		return true;
 	}
