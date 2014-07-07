@@ -30,9 +30,9 @@
 			<dl class="dl-horizontal">
 				<dt>Fødselsnummer</dt>
 				<dd id="ssn">${message.ssn}</dd>
-				<dt>Tittel (sensitiv)</dt>
+				<dt>Tittel</dt>
 				<dd id="sensitiveTitle">${message.sensitiveTitle}</dd>
-				<dt>Tittel (ikke-sensitiv)</dt>
+				<dt>Ikke-sensitiv tittel</dt>
 				<dd id="insensitiveTitle">${message.insensitiveTitle}</dd>
 				<dt>Filnavn for vedlegg</dt>
 				<dd id="attachmentFilename">${message.attachmentFilename}</dd>
