@@ -26,68 +26,75 @@
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
 			</dl>
-			<h3>Kvitteringer</h3>
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Dato</th>
-						<th>Type</th>
-						<th>Detaljer</th>
-					</tr>
-				</thead>
-				<tbody>
-					<c:if test="${message.deliveredDate != null}">
-						<tr>
-							<td id="deliveredDate">${message.deliveredDate}</td>
-							<td>Leveringskvittering</td>
-							<td></td>
-						</tr>
-					</c:if>
-					<c:if test="${message.openedDate != null}">
-						<tr>
-							<td id="openedDate">${message.openedDate}</td>
-							<td>Åpningskvittering</td>
-							<td></td>
-						</tr>
-					</c:if>
-					<c:if test="${message.errorDate != null}">
-						<tr>
-							<td id="errorDate">${message.errorDate}</td>
-							<td>Feil</td>
-							<td>
-								<c:if test="${message.errorType != null}">
-									<span id="errorType">${message.errorType}</span>: 
-								</c:if>
-								<c:if test="${message.errorDetails != null}">
-									<span id="errorDetails">${message.errorDetails}</span>
-								</c:if>
-							</td>
-						</tr>
-					</c:if>
-					<c:if test="${message.smsNotificationErrorDate != null}">
-						<tr>
-							<td>${message.smsNotificationErrorDate}</td>
-							<td>SMS-varsling feilet</td>
-							<td>
-								<c:if test="${smsNotificationErrorDescription != null}">
-									${smsNotificationErrorDescription}
-								</c:if>
-							</td>
-						</tr>
-					</c:if>
-					<c:if test="${message.emailNotificationErrorDate != null}">
-						<tr>
-							<td>${message.emailNotificationErrorDate}</td>
-							<td>SMS-varsling feilet</td>
-							<td>
-								<c:if test="${emailNotificationErrorDescription != null}">
-									${emailNotificationErrorDescription}
-								</c:if>
-							</td>
-						</tr>
-					</c:if>
-				</tbody>
-			</table>
+			<h2>Kvitteringer mottatt fra postboks</h2>
+			<c:choose>
+				<c:when test="${message.deliveredDate == null and message.openedDate == null and message.errorDate == null and message.smsNotificationErrorDate == null and message.emailNotificationErrorDate == null}">
+					<p>Ingen kvitteringer mottat fra postboks.</p> 
+				</c:when>
+				<c:otherwise>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Dato</th>
+								<th>Type</th>
+								<th>Detaljer</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:if test="${message.deliveredDate != null}">
+								<tr>
+									<td id="deliveredDate">${message.deliveredDate}</td>
+									<td>Leveringskvittering</td>
+									<td></td>
+								</tr>
+							</c:if>
+							<c:if test="${message.openedDate != null}">
+								<tr>
+									<td id="openedDate">${message.openedDate}</td>
+									<td>Åpningskvittering</td>
+									<td></td>
+								</tr>
+							</c:if>
+							<c:if test="${message.errorDate != null}">
+								<tr>
+									<td id="errorDate">${message.errorDate}</td>
+									<td>Feil</td>
+									<td>
+										<c:if test="${message.errorType != null}">
+											<span id="errorType">${message.errorType}</span>: 
+										</c:if>
+										<c:if test="${message.errorDetails != null}">
+											<span id="errorDetails">${message.errorDetails}</span>
+										</c:if>
+									</td>
+								</tr>
+							</c:if>
+							<c:if test="${message.smsNotificationErrorDate != null}">
+								<tr>
+									<td>${message.smsNotificationErrorDate}</td>
+									<td>SMS-varsling feilet</td>
+									<td>
+										<c:if test="${smsNotificationErrorDescription != null}">
+											${smsNotificationErrorDescription}
+										</c:if>
+									</td>
+								</tr>
+							</c:if>
+							<c:if test="${message.emailNotificationErrorDate != null}">
+								<tr>
+									<td>${message.emailNotificationErrorDate}</td>
+									<td>SMS-varsling feilet</td>
+									<td>
+										<c:if test="${emailNotificationErrorDescription != null}">
+											${emailNotificationErrorDescription}
+										</c:if>
+									</td>
+								</tr>
+							</c:if>
+						</tbody>
+					</table>
+				</c:otherwise>
+			</c:choose>
 			<h2>Data oppgitt til webclient</h2>
 			<dl class="dl-horizontal">
 				<dt>Fødselsnummer</dt>
