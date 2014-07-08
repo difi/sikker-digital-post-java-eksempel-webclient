@@ -180,9 +180,9 @@ public class MessageService {
     }
 
     private Behandlingsansvarlig buildBehandlingsansvarlig() {
-    	String orgNumber = environment.getProperty("meldingsformidler.avsender.organisasjonsnummer");
-    	String avsenderIdentifikator = environment.getProperty("meldingsformidler.avsender.identifikator");
-    	String fakturaReferanse = environment.getProperty("meldingsformidler.avsender.fakturareferanse");
+    	String orgNumber = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+    	String avsenderIdentifikator = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.identifikator"));
+    	String fakturaReferanse = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.fakturareferanse"));
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
     			.builder(orgNumber)
     			.avsenderIdentifikator(avsenderIdentifikator)
