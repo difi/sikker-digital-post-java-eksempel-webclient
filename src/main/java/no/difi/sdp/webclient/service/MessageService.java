@@ -69,22 +69,16 @@ public class MessageService {
 	private StringWriter xmlRetrievePersonsResponsePayload;
 	
 	@Autowired
-	private StringWriter xmlSendMessageRequest;
+	private StringWriter postKlientSoapRequest;
 	
 	@Autowired
-	private StringWriter xmlSendMessageRequestPayload;
+	private StringWriter postKlientSoapRequestPayload;
 	
 	@Autowired
-	private StringWriter xmlSendMessageResponse;
+	private StringWriter postKlientSoapResponse;
 	
 	@Autowired
-	private StringWriter xmlRetrieveMessageReceiptRequest;
-	
-	@Autowired
-	private StringWriter xmlRetrieveMessageReceiptResponse;
-	
-	@Autowired
-	private StringWriter xmlRetrieveMessageReceiptResponsePayload;
+	private StringWriter postKlientSoapResponsePayload;
 	
 	@Autowired
 	private CryptoUtil cryptoUtil;
@@ -233,9 +227,10 @@ public class MessageService {
     	message.setXmlRetrievePersonsRequestPayload(nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
     	message.setXmlRetrievePersonsResponse(nullIfEmpty(xmlRetrievePersonsResponse.toString()));
     	message.setXmlRetrievePersonsResponsePayload(nullIfEmpty(xmlRetrievePersonsResponsePayload.toString()));
-    	message.setXmlSendMessageRequest(nullIfEmpty(xmlSendMessageRequest.toString()));
-    	message.setXmlSendMessageResponse(nullIfEmpty(xmlSendMessageResponse.toString()));
-    	message.setXmlSendMessageRequestPayload(nullIfEmpty(xmlSendMessageRequestPayload.toString()));
+    	message.setXmlSendMessageRequest(nullIfEmpty(postKlientSoapRequest.toString()));
+    	message.setXmlSendMessageRequestPayload(postKlientSoapRequestPayload.toString());
+    	message.setXmlSendMessageResponse(nullIfEmpty(postKlientSoapResponse.toString()));
+    	postKlientSoapResponsePayload.toString();
         messageRepository.save(message);
 	}
     
@@ -294,10 +289,11 @@ public class MessageService {
 			return false;
 		}
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.NORMAL).build());
-		// Reading the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
-		String xmlRetrieveMessageReceiptRequestString = nullIfEmpty(xmlRetrieveMessageReceiptRequest.toString());
-		String xmlRetrieveMessageReceiptResponseString = nullIfEmpty(xmlRetrieveMessageReceiptResponse.toString());
-		String xmlRetrieveMessageReceiptResponsePayloadString = nullIfEmpty(xmlRetrieveMessageReceiptResponsePayload.toString());
+		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
+		String xmlRequestString = nullIfEmpty(postKlientSoapRequest.toString());
+		postKlientSoapRequestPayload.toString();
+		String xmlResponseString = nullIfEmpty(postKlientSoapResponse.toString());
+		String xmlResponsePayloadString = nullIfEmpty(postKlientSoapResponsePayload.toString());
     	if (forretningsKvittering == null) {
 			// No available receipts 
 			return false;
@@ -311,9 +307,9 @@ public class MessageService {
 		Receipt receipt = new Receipt();
 		receipt.setMessage(message);
 		receipt.setDate(forretningsKvittering.getTidspunkt());
-		receipt.setXmlRequest(xmlRetrieveMessageReceiptRequestString);
-		receipt.setXmlResponse(xmlRetrieveMessageReceiptResponseString);
-		receipt.setXmlResponsePayload(xmlRetrieveMessageReceiptResponsePayloadString);
+		receipt.setXmlRequest(xmlRequestString);
+		receipt.setXmlResponse(xmlResponseString);
+		receipt.setXmlResponsePayload(xmlResponsePayloadString);
 		messageRepository.save(message);
 		if (forretningsKvittering instanceof Feil) {
 			Feil feil = (Feil) forretningsKvittering;

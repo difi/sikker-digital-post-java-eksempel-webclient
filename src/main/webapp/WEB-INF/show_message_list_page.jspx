@@ -48,5 +48,6 @@
 				<button type="submit" class="btn btn-danger">Slett alle meldinger</button>
 			</form>
 		</div>
+		<br />
 	</body>
 </html>

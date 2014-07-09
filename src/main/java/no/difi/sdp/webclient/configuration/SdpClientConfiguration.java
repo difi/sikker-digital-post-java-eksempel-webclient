@@ -1,5 +1,6 @@
 package no.difi.sdp.webclient.configuration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,12 +31,6 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.protocol.HttpContext;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +66,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.client.WebServiceClientException;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
+import org.springframework.ws.context.MessageContext;
 
 @Configuration
 @ComponentScan( { "no.difi.sdp.webclient.web", "no.difi.sdp.webclient.service" } )
@@ -129,48 +126,55 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 		return new StringWriter();
 	}
 	
-	@Bean
-	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter xmlSendMessageRequest() {
-		return new StringWriter();
-	}
-	
-	@Bean
-	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter xmlSendMessageRequestPayload() {
-		return new StringWriter();
-	}
-	
-	@Bean
-	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter xmlSendMessageResponse() {
-		return new StringWriter();
-	}
-	
+	/**
+	 * Holds the most recently captured postKlient SOAP request for the current thread.
+	 * This bean is scoped to the thread (one instance will be created per thread).
+	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
+	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
+	 * @return
+	 */
 	@Bean
 	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter xmlRetrieveMessageReceiptRequest() {
-		// Uses the thread scope because this message is retrieved async (where there is no request scope)
-		// Uses ClearAfterReadStringWriter because many messages of this type will be retrieved on the same thread (because of polling for several messages from the same thread, and also because of thread pooling with thread reuse)
-		// There are no concurrency issues with using ClearAfterReadStringWriter because it is scoped to the thread and everything is running sequentially within the thread
-		return new ClearAfterReadStringWriter(); 
-	}
-	
-	@Bean
-	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS) // Uses the thread scope because this message is retrieved async
-	public StringWriter xmlRetrieveMessageReceiptResponse() {
-		// Uses the thread scope because this message is retrieved async (where there is no request scope)
-		// Uses ClearAfterReadStringWriter because many messages of this type will be retrieved on the same thread (because of polling for several messages from the same thread, and also because of thread pooling with thread reuse)
-		// There are no concurrency issues with using ClearAfterReadStringWriter because it is scoped to the thread and everything is running sequentially within the thread
+	public StringWriter postKlientSoapRequest() {
 		return new ClearAfterReadStringWriter();
 	}
 	
+	/**
+	 * Holds the most recently captured postKlient SOAP request payload for the current thread.
+	 * This bean is scoped to the thread (one instance will be created per thread).
+	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
+	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
+	 * @return
+	 */
 	@Bean
-	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS) // Uses the thread scope because this message is retrieved async
-	public StringWriter xmlRetrieveMessageReceiptResponsePayload() {
-		// Uses the thread scope because this message is retrieved async (where there is no request scope)
-		// Uses ClearAfterReadStringWriter because many messages of this type will be retrieved on the same thread (because of polling for several messages from the same thread, and also because of thread pooling with thread reuse)
-		// There are no concurrency issues with using ClearAfterReadStringWriter because it is scoped to the thread and everything is running sequentially within the thread
+	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public StringWriter postKlientSoapRequestPayload() {
+		return new ClearAfterReadStringWriter();
+	}
+	
+	/**
+	 * Holds the most recently captured postKlient SOAP response for the current thread.
+	 * This bean is scoped to the thread (one instance will be created per thread).
+	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
+	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
+	 * @return
+	 */
+	@Bean
+	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public StringWriter postKlientSoapResponse() {
+		return new ClearAfterReadStringWriter();
+	}
+	
+	/**
+	 * Holds the most recently captured postKlient SOAP response payload for the current thread.
+	 * This bean is scoped to the thread (one instance will be created per thread).
+	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
+	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
+	 * @return
+	 */
+	@Bean
+	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public StringWriter postKlientSoapResponsePayload() {
 		return new ClearAfterReadStringWriter();
 	}
 	
@@ -246,29 +250,49 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     	return new ClientInterceptor() {
 
 			@Override
-			public void afterCompletion(org.springframework.ws.context.MessageContext messageContext, Exception e) throws WebServiceClientException {
+			public void afterCompletion(MessageContext messageContext, Exception e) throws WebServiceClientException {
 			}
 
 			@Override
-			public boolean handleFault(org.springframework.ws.context.MessageContext messageContext) throws WebServiceClientException {
+			public boolean handleFault(MessageContext messageContext) throws WebServiceClientException {
 				return true;
 			}
 
 			@Override
-			public boolean handleRequest(org.springframework.ws.context.MessageContext messageContext) throws WebServiceClientException {
-				// Intercepts outgoing postklient SOAP messages containing a payload (in practice only the message: Digitalpost)
-				transform(messageContext.getRequest().getPayloadSource(), xmlSendMessageRequestPayload());
+			public boolean handleRequest(MessageContext messageContext) throws WebServiceClientException {
+				// Captures outgoing SOAP requests
+				transform(messageContext.getRequest(), postKlientSoapRequest());
+				// Captures outgoing postklient SOAP message payloads (in practice only the message: Digitalpost)
+				transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload());
 				return true;
 			}
 
 			@Override
-			public boolean handleResponse(org.springframework.ws.context.MessageContext messageContext) throws WebServiceClientException {
-				// Intercepts incoming postklient SOAP messages containing a payload (in practice only the messages: LeveringsKvittering, ÅpningKvittering, Varslingfeilet and Feil)
-				transform(messageContext.getResponse().getPayloadSource(), xmlRetrieveMessageReceiptResponsePayload());
+			public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
+				// Captures incoming SOAP responses
+				transform(messageContext.getResponse(), postKlientSoapResponse());
+				// Captures incoming postklient SOAP message payloads (in practice only the messages: LeveringsKvittering, ÅpningKvittering, Varslingfeilet and Feil)
+				transform(messageContext.getResponse().getPayloadSource(), postKlientSoapResponsePayload());
 				return true;
 			}
     		
     	};
+    }
+    
+    private void transform(WebServiceMessage message, StringWriter stringWriter) {
+    	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			message.writeTo(outputStream);
+		} catch (IOException e) {
+			LOGGER.error("Failed capturing message", e);
+		}
+		stringWriter.write(outputStream.toString());
+		try {
+			outputStream.close();
+		} catch (IOException e) {
+			LOGGER.error("Failed closing outputstream", e);
+		}
+		
     }
     
     private void transform(Source source, StringWriter stringWriter) {
@@ -286,28 +310,6 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     }
     
     @Bean
-    public HttpRequestInterceptor postKlientHttpRequestInterceptor() {
-    	return new HttpRequestInterceptor() {
-			
-			@Override
-			public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
-				// TODO save full http request to xmlSendMessageRequest() 
-			}
-		};
-    }
-    
-    @Bean
-    public HttpResponseInterceptor postKlientHttpResponseInterceptor() {
-    	return new HttpResponseInterceptor() {
-			
-			@Override
-			public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-				// TODO save full http response to xmlSendMessageRequest() 
-			}
-		};
-    }
-    
-    @Bean
     public SikkerDigitalPostKlient postKlient() {
     	KeyStore keyStore = cryptoUtil().loadKeystore(environment.getProperty("meldingsformidler.avsender.keystore.type"), environment.getProperty("meldingsformidler.avsender.keystore.file"), environment.getProperty("meldingsformidler.avsender.keystore.password"));
     	Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, environment.getProperty("meldingsformidler.avsender.key.alias"), environment.getProperty("meldingsformidler.avsender.key.password"));
@@ -315,8 +317,6 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
         KlientKonfigurasjon klientKonfigurasjon = KlientKonfigurasjon.builder()
         		.meldingsformidlerRoot(environment.getProperty("meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
-        		.httpRequestInterceptors(postKlientHttpRequestInterceptor())
-        		.httpResponseInterceptors(postKlientHttpResponseInterceptor())
         		.build();
         SikkerDigitalPostKlient postklient = new SikkerDigitalPostKlient(avsender, klientKonfigurasjon);
         return postklient;
