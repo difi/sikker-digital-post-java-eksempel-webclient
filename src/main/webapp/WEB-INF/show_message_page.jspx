@@ -28,8 +28,8 @@
 			</dl>
 			<h2>Kvitteringer mottatt fra postboks</h2>
 			<c:choose>
-				<c:when test="${message.deliveredDate == null and message.openedDate == null and message.errorDate == null and message.smsNotificationErrorDate == null and message.emailNotificationErrorDate == null}">
-					<p>Ingen kvitteringer mottat fra postboks.</p> 
+				<c:when test="${empty message.receipts}">
+					<p>Ingen kvitteringer mottatt fra postboks.</p> 
 				</c:when>
 				<c:otherwise>
 					<table class="table table-striped">
@@ -41,56 +41,18 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:if test="${message.deliveredDate != null}">
+							<c:forEach items="${message.receipts}" var="receipt">
 								<tr>
-									<td id="deliveredDate">${message.deliveredDate}</td>
-									<td>Leveringskvittering</td>
-									<td></td>
-								</tr>
-							</c:if>
-							<c:if test="${message.openedDate != null}">
-								<tr>
-									<td id="openedDate">${message.openedDate}</td>
-									<td>Åpningskvittering</td>
-									<td></td>
-								</tr>
-							</c:if>
-							<c:if test="${message.errorDate != null}">
-								<tr>
-									<td id="errorDate">${message.errorDate}</td>
-									<td>Feil</td>
+									<td>${receipt.date}</td>
+									<td>${receipt.type}</td>
 									<td>
-										<c:if test="${message.errorType != null}">
-											<span id="errorType">${message.errorType}</span>: 
-										</c:if>
-										<c:if test="${message.errorDetails != null}">
-											<span id="errorDetails">${message.errorDetails}</span>
-										</c:if>
+										${receipt.errorType == null ? "" : receipt.errorType}
+										${receipt.errorDetails == null ? "" : receipt.errorDetails}
+										${receipt.notificationErrorChannel == null ? "" : receipt.notificationErrorChannel}
+										${receipt.notificationErrorDescription == null ? "" : receipt.notificationErrorDescription}
 									</td>
 								</tr>
-							</c:if>
-							<c:if test="${message.smsNotificationErrorDate != null}">
-								<tr>
-									<td>${message.smsNotificationErrorDate}</td>
-									<td>SMS-varsling feilet</td>
-									<td>
-										<c:if test="${smsNotificationErrorDescription != null}">
-											${smsNotificationErrorDescription}
-										</c:if>
-									</td>
-								</tr>
-							</c:if>
-							<c:if test="${message.emailNotificationErrorDate != null}">
-								<tr>
-									<td>${message.emailNotificationErrorDate}</td>
-									<td>SMS-varsling feilet</td>
-									<td>
-										<c:if test="${emailNotificationErrorDescription != null}">
-											${emailNotificationErrorDescription}
-										</c:if>
-									</td>
-								</tr>
-							</c:if>
+							</c:forEach>
 						</tbody>
 					</table>
 				</c:otherwise>
@@ -123,7 +85,7 @@
 				<dt>Gjentatt SMS-varsling</dt>
 				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
 				<dt>Motta åpningskvittering</dt>
-				<dd id="requiresMessageOpenedReciept">${message.requiresMessageOpenedReciept}</dd>
+				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt}</dd>
 				<dt>Forsinket åpningsdato</dt>
 				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
 			</dl>
@@ -156,20 +118,30 @@
 			<h4>2.1 Forespørsel</h4>
 			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
 			<textarea id="xmlSendMessageRequest" class="form-control" rows="10">${message.xmlSendMessageRequest == null ? "[ikke tilgjengelig]" : message.xmlSendMessageRequest}</textarea>
-			<h5>Forretningsmelding: DigitalPost</h5>
+			<h5>SBD med forretningsmelding: DigitalPost</h5>
 			<textarea id="xmlSendMessageRequestPayload" class="form-control" rows="10">${message.xmlSendMessageRequestPayload == null ? "[ikke tilgjengelig]" : message.xmlSendMessageRequestPayload}</textarea>
 			<h4>2.2 Svar</h4>
 			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
 			<textarea id="xmlSendMessageResponse" class="form-control" rows="10">${message.xmlSendMessageResponse == null ? "[ikke tilgjengelig]" : message.xmlSendMessageResponse}</textarea>
-			<h3>3. Hent kvittering fra meldingsformidler</h3>
-			<h4>3.1 Forespørsel</h4>
-			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
-			<textarea id="xmlRetrieveMessageRecieptRequest" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptRequest == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptRequest}</textarea>
-			<h4>3.2 Svar</h4>
-			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
-			<textarea id="xmlRetrieveMessageRecieptResponse" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptResponse == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptResponse}</textarea>
-			<h5>Forretningsmelding: KvitteringsMelding</h5>
-			<textarea id="xmlRetrieveMessageRecieptResponsePayload" class="form-control" rows="10">${message.xmlRetrieveMessageRecieptResponsePayload == null ? "[ikke tilgjengelig]" : message.xmlRetrieveMessageRecieptResponsePayload}</textarea>
+			<h3>3. Kvitteringer</h3>
+			<c:choose>
+				<c:when test="${empty message.receipts}">
+					<p>Ingen kvitteringer mottatt fra postboks.</p> 
+				</c:when>
+				<c:otherwise>
+					<c:forEach items="${message.receipts}" var="receipt">
+						<h4>${receipt.date} ${receipt.type}</h4>
+						<h5>Forespørsel</h5>
+						<h6>SOAP med WSS- og EBMS-header over HTTP</h6>
+						<textarea class="form-control" rows="10">${receipt.xmlRequest}</textarea>
+						<h5>Svar</h5>
+						<h6>SOAP med WSS- og EBMS-header over HTTP</h6>
+						<textarea class="form-control" rows="10">${receipt.xmlResponse}</textarea>
+						<h6>SBD med forretningsmelding</h6>
+						<textarea class="form-control" rows="10">${receipt.xmlResponsePayload}</textarea>
+					</c:forEach>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</body>
 </html>

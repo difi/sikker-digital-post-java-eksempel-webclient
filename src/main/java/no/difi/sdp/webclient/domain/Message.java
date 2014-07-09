@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -20,7 +22,6 @@ import javax.validation.constraints.Size;
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
-import no.difi.sdp.client.domain.kvittering.Feil.Feiltype;
 import no.difi.sdp.webclient.validation.Ssn;
 
 @Entity
@@ -60,7 +61,7 @@ public class Message {
 	
 	private String mobileNotificationSchedule;
 	
-	private boolean requiresMessageOpenedReciept;
+	private boolean requiresMessageOpenedReceipt;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date delayedAvailabilityDate;
@@ -105,39 +106,10 @@ public class Message {
 	@Lob
 	private String xmlSendMessageResponse;
 	
-	@Lob
-	private String xmlRetrieveMessageRecieptRequest;
-	
-	@Lob
-	private String xmlRetrieveMessageRecieptResponse;
-	
-	@Lob
-	private String xmlRetrieveMessageRecieptResponsePayload;
-	
 	private MessageStatus status;
 	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date deliveredDate;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date openedDate;
-	
-	private Date smsNotificationErrorDate;
-	
-	private String smsNotificationErrorDescription;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date emailNotificationErrorDate;
-	
-	private String emailNotificationErrorDescription;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date errorDate;
-	
-	@Enumerated(EnumType.STRING)
-	private Feiltype errorType;
-	
-	private String errorDetails;
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message")
+	private List<Receipt> receipts;
 	
 	public Long getId() {
 		return id;
@@ -147,8 +119,7 @@ public class Message {
 		this.id = id;
 	}
 
-
-    public String getSsn() {
+	public String getSsn() {
 		return ssn;
 	}
 	
@@ -239,12 +210,12 @@ public class Message {
 		this.mobileNotificationSchedule = mobileNotificationSchedule;
 	}
 	
-	public boolean getRequiresMessageOpenedReciept() {
-		return requiresMessageOpenedReciept;
+	public boolean getRequiresMessageOpenedReceipt() {
+		return requiresMessageOpenedReceipt;
 	}
 	
-	public void setRequiresMessageOpenedReciept(boolean requiresMessageOpenedReciept) {
-		this.requiresMessageOpenedReciept = requiresMessageOpenedReciept;
+	public void setRequiresMessageOpenedReceipt(boolean requiresMessageOpenedReceipt) {
+		this.requiresMessageOpenedReceipt = requiresMessageOpenedReceipt;
 	}
 	
 	public Date getDelayedAvailabilityDate() {
@@ -375,36 +346,20 @@ public class Message {
 		this.xmlSendMessageResponse = xmlSendMessageResponse;
 	}
 
-	public String getXmlRetrieveMessageRecieptRequest() {
-		return xmlRetrieveMessageRecieptRequest;
-	}
-
-	public void setXmlRetrieveMessageRecieptRequest(String xmlRetrieveMessageRecieptRequest) {
-		this.xmlRetrieveMessageRecieptRequest = xmlRetrieveMessageRecieptRequest;
-	}
-
-	public String getXmlRetrieveMessageRecieptResponse() {
-		return xmlRetrieveMessageRecieptResponse;
-	}
-
-	public void setXmlRetrieveMessageRecieptResponse(String xmlRetrieveMessageRecieptResponse) {
-		this.xmlRetrieveMessageRecieptResponse = xmlRetrieveMessageRecieptResponse;
-	}
-
-	public String getXmlRetrieveMessageRecieptResponsePayload() {
-		return xmlRetrieveMessageRecieptResponsePayload;
-	}
-
-	public void setXmlRetrieveMessageRecieptResponsePayload(String xmlRetrieveMessageRecieptResponsePayload) {
-		this.xmlRetrieveMessageRecieptResponsePayload = xmlRetrieveMessageRecieptResponsePayload;
-	}
-
 	public MessageStatus getStatus() {
 		return status;
 	}
 
 	public void setStatus(MessageStatus status) {
 		this.status = status;
+	}
+	
+	public List<Receipt> getReceipts() {
+		return receipts;
+	}
+	
+	public void setReceipts(List<Receipt> receipts) {
+		this.receipts = receipts;
 	}
 	
 	public static List<Integer> toIntList(String string) {
@@ -417,80 +372,6 @@ public class Message {
 			intList.add(Integer.valueOf(intString));
 		}
 		return intList;
-	}
-
-	public Date getDeliveredDate() {
-		return deliveredDate;
-	}
-
-	public void setDeliveredDate(Date deliveredDate) {
-		this.deliveredDate = deliveredDate;
-	}
-
-	public Date getOpenedDate() {
-		return openedDate;
-	}
-
-	public void setOpenedDate(Date openedDate) {
-		this.openedDate = openedDate;
-	}
-
-	public Date getSmsNotificationErrorDate() {
-		return smsNotificationErrorDate;
-	}
-
-	public void setSmsNotificationErrorDate(Date smsNotificationErrorDate) {
-		this.smsNotificationErrorDate = smsNotificationErrorDate;
-	}
-
-	public String getSmsNotificationErrorDescription() {
-		return smsNotificationErrorDescription;
-	}
-
-	public void setSmsNotificationErrorDescription(
-			String smsNotificationErrorDescription) {
-		this.smsNotificationErrorDescription = smsNotificationErrorDescription;
-	}
-
-	public Date getEmailNotificationErrorDate() {
-		return emailNotificationErrorDate;
-	}
-
-	public void setEmailNotificationErrorDate(Date emailNotificationErrorDate) {
-		this.emailNotificationErrorDate = emailNotificationErrorDate;
-	}
-
-	public String getEmailNotificationErrorDescription() {
-		return emailNotificationErrorDescription;
-	}
-
-	public void setEmailNotificationErrorDescription(
-			String emailNotificationErrorDescription) {
-		this.emailNotificationErrorDescription = emailNotificationErrorDescription;
-	}
-
-	public Date getErrorDate() {
-		return errorDate;
-	}
-
-	public void setErrorDate(Date errorDate) {
-		this.errorDate = errorDate;
-	}
-
-	public Feiltype getErrorType() {
-		return errorType;
-	}
-
-	public void setErrorType(Feiltype errorType) {
-		this.errorType = errorType;
-	}
-
-	public String getErrorDetails() {
-		return errorDetails;
-	}
-
-	public void setErrorDetails(String errorDetails) {
-		this.errorDetails = errorDetails;
 	}
 
 }

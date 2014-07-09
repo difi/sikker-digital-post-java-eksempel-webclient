@@ -40,7 +40,7 @@ public class MessageCommand {
 	@Pattern(regexp = "^[0-9\\s,]*$", message = "Ugyldig verdi.")
 	private String mobileNotificationSchedule;
 	
-	private boolean requiresMessageOpenedReciept;
+	private boolean requiresMessageOpenedReceipt;
 	
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date delayedAvailabilityDate;
@@ -117,12 +117,12 @@ public class MessageCommand {
 		this.mobileNotificationSchedule = mobileNotificationSchedule;
 	}
 
-	public boolean getRequiresMessageOpenedReciept() {
-		return requiresMessageOpenedReciept;
+	public boolean getRequiresMessageOpenedReceipt() {
+		return requiresMessageOpenedReceipt;
 	}
 
-	public void setRequiresMessageOpenedReciept(boolean requiresMessageOpenedReciept) {
-		this.requiresMessageOpenedReciept = requiresMessageOpenedReciept;
+	public void setRequiresMessageOpenedReceipt(boolean requiresMessageOpenedReceipt) {
+		this.requiresMessageOpenedReceipt = requiresMessageOpenedReceipt;
 	}
 
 	public Date getDelayedAvailabilityDate() {

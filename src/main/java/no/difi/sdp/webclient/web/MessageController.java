@@ -78,7 +78,7 @@ public class MessageController {
 		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
 		message.setMobileNotification(messageCommand.getMobileNotification());
 		message.setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
-		message.setRequiresMessageOpenedReciept(messageCommand.getRequiresMessageOpenedReciept());
+		message.setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
 		message.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
 		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
@@ -90,7 +90,7 @@ public class MessageController {
 		if (message == null) {
 			throw new NotFoundException();
 		}
-		model.addAttribute(message);
+		model.addAttribute("message", message);
 		return "show_message_page";
 	}
 	

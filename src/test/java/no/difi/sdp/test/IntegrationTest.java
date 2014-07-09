@@ -30,8 +30,8 @@ public class IntegrationTest {
 	
 	@Test
 	@Ignore // This test should only be run explicitly
-	public void send_message_and_poll_for_reciepts_for_60_seconds() throws InterruptedException {
-		// Minimal example for sending post and recieving reciept using a actual integration with a test environment for meldingsformidler
+	public void send_message_and_poll_for_receipts_for_60_seconds() throws InterruptedException {
+		// Minimal example for sending post and recieving receipt using a actual integration with a test environment for meldingsformidler
     	CryptoUtil cryptoUtil = new CryptoUtil();
     	KeyStore keyStore = cryptoUtil.loadKeystore("JKS", "avsender.jks", "oBr8YZuZsbic4gpP");
     	Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, "avsender", "oBr8YZuZsbic4gpP");
@@ -50,19 +50,19 @@ public class IntegrationTest {
         Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig.builder("").avsenderIdentifikator("991825827").fakturaReferanse("fakturaref").build();
         Forsendelse forsendelse = Forsendelse.digital(behandlingsansvarlig, digitalPost, dokumentpakke).build();
         postklient.send(forsendelse);
-        LOGGER.info("Post sent, waiting for 10 seconds before attemting to retrieve reciept.");
+        LOGGER.info("Post sent, waiting for 10 seconds before attemting to retrieve receipt.");
         for (int i = 0; i < 6; i++) {
         	Thread.sleep(1000 * 10);
         	ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.PRIORITERT).build());
         	if (forretningsKvittering == null) {
-        		LOGGER.info("No reciept available, waiting for 10 seconds before attemting to retrieve reciept.");
+        		LOGGER.info("No receipt available, waiting for 10 seconds before attemting to retrieve receipt.");
         	} else {
-        		LOGGER.info("Reciept retrieved. Post delivered: " + forretningsKvittering.applikasjonsKvittering.getKvittering().erLevertTilPostkasse());
+        		LOGGER.info("Receipt retrieved. Post delivered: " + forretningsKvittering.applikasjonsKvittering.getKvittering().erLevertTilPostkasse());
         		return;
         	}
         	
         }
-        LOGGER.info("Tried to retrieve reciept for 60 seconds. No reciept retrieved. Gives up.");
+        LOGGER.info("Tried to retrieve receipt for 60 seconds. No receipt retrieved. Gives up.");
 	}
     
 }

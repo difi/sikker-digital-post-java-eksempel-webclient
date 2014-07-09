@@ -29,9 +29,7 @@ import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.client.domain.kvittering.LeveringsKvittering;
 import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
-import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering.Varslingskanal;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
-import no.difi.sdp.webclient.configuration.util.MessageContext;
 import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.repository.MessageRepository;
 
@@ -59,12 +57,39 @@ public class MessageService {
 	private Oppslagstjeneste1405 oppslagstjeneste;
     
 	@Autowired
-	private MessageContext messageContext;
-
+	private StringWriter xmlRetrievePersonsRequest;
+	
+	@Autowired
+	private StringWriter xmlRetrievePersonsRequestPayload;
+	
+	@Autowired
+	private StringWriter xmlRetrievePersonsResponse;
+	
+	@Autowired
+	private StringWriter xmlRetrievePersonsResponsePayload;
+	
+	@Autowired
+	private StringWriter xmlSendMessageRequest;
+	
+	@Autowired
+	private StringWriter xmlSendMessageRequestPayload;
+	
+	@Autowired
+	private StringWriter xmlSendMessageResponse;
+	
+	@Autowired
+	private StringWriter xmlRetrieveMessageReceiptRequest;
+	
+	@Autowired
+	private StringWriter xmlRetrieveMessageReceiptResponse;
+	
+	@Autowired
+	private StringWriter xmlRetrieveMessageReceiptResponsePayload;
+	
 	@Autowired
 	private CryptoUtil cryptoUtil;
 	
-    private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
+	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
         hentPersonerForespoersel.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
         hentPersonerForespoersel.getInformasjonsbehov().add(Informasjonsbehov.PERSON);
@@ -104,19 +129,6 @@ public class MessageService {
     		return null;
     	}
     	return string;
-    }
-    
-    private void enrichMessage(Message message, MessageContext messageContext) {
-    	message.setXmlRetrievePersonsRequest(nullIfEmpty(messageContext.getXmlRetrievePersonsRequest().toString()));
-    	message.setXmlRetrievePersonsRequestPayload(nullIfEmpty(messageContext.getXmlRetrievePersonsRequestPayload().toString()));
-    	message.setXmlRetrievePersonsResponse(nullIfEmpty(messageContext.getXmlRetrievePersonsResponse().toString()));
-    	message.setXmlRetrievePersonsResponsePayload(nullIfEmpty(messageContext.getXmlRetrievePersonsResponsePayload().toString()));
-    	message.setXmlSendMessageRequest(nullIfEmpty(messageContext.getXmlSendMessageRequest().toString()));
-    	message.setXmlSendMessageResponse(nullIfEmpty(messageContext.getXmlSendMessageResponse().toString()));
-    	message.setXmlSendMessageRequestPayload(nullIfEmpty(messageContext.getXmlSendMessageRequestPayload().toString()));
-    	message.setXmlRetrieveMessageRecieptRequest(nullIfEmpty(messageContext.getXmlRetrieveMessageRecieptRequest().toString()));
-    	message.setXmlRetrieveMessageRecieptResponse(nullIfEmpty(messageContext.getXmlRetrieveMessageRecieptResponse().toString()));
-    	message.setXmlRetrieveMessageRecieptResponsePayload(nullIfEmpty(messageContext.getXmlRetrieveMessageRecieptResponsePayload().toString()));
     }
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
@@ -195,7 +207,7 @@ public class MessageService {
         DigitalPost digitalPost = DigitalPost
         		.builder(mottaker, message.getInsensitiveTitle())
         		.sikkerhetsnivaa(message.getSecurityLevel())
-        		.aapningskvittering(message.getRequiresMessageOpenedReciept())
+        		.aapningskvittering(message.getRequiresMessageOpenedReceipt())
         		.epostVarsel(buildEpostVarsel(message))
         		.smsVarsel(buildSmsVarsel(message))
         		.virkningsdato(message.getDelayedAvailabilityDate())
@@ -212,13 +224,19 @@ public class MessageService {
     	try {
     		retrieveContactDetailsFromOppslagstjeneste(message);
     		sendMessageToMeldingsformidler(message);
-    		message.setStatus(MessageStatus.WAITING_FOR_RECIEPT);
+    		message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
     	} catch (MessageServiceException e) {
     		LOGGER.error(e.getStatus().toString(), e);
     		message.setStatus(e.getStatus());
     	}
-        enrichMessage(message, messageContext);
-		messageRepository.save(message);
+    	message.setXmlRetrievePersonsRequest(nullIfEmpty(xmlRetrievePersonsRequest.toString()));
+    	message.setXmlRetrievePersonsRequestPayload(nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
+    	message.setXmlRetrievePersonsResponse(nullIfEmpty(xmlRetrievePersonsResponse.toString()));
+    	message.setXmlRetrievePersonsResponsePayload(nullIfEmpty(xmlRetrievePersonsResponsePayload.toString()));
+    	message.setXmlSendMessageRequest(nullIfEmpty(xmlSendMessageRequest.toString()));
+    	message.setXmlSendMessageResponse(nullIfEmpty(xmlSendMessageResponse.toString()));
+    	message.setXmlSendMessageRequestPayload(nullIfEmpty(xmlSendMessageRequestPayload.toString()));
+        messageRepository.save(message);
 	}
     
     private void retrieveContactDetailsFromOppslagstjeneste(Message message) throws MessageServiceException {
@@ -237,9 +255,9 @@ public class MessageService {
     		throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
         }
     	// In most (but not all) scenarios the check below should be included
-//        if (message.getReservationStatus().equals(Reservasjon.JA)) {
-//        	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
-//        }
+        //if (message.getReservationStatus().equals(Reservasjon.JA)) {
+        //	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
+        //}
         if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
         	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
         }
@@ -253,8 +271,8 @@ public class MessageService {
     }
 	
 	private void extractOppslagstjenesteMessages(HentPersonerForespoersel hentPersonerForespoersel, HentPersonerRespons hentPersonerRespons) {
-		marshalJaxbObject(hentPersonerForespoersel, messageContext.getXmlRetrievePersonsRequestPayload());
-        marshalJaxbObject(hentPersonerRespons, messageContext.getXmlRetrievePersonsResponsePayload());
+		marshalJaxbObject(hentPersonerForespoersel, xmlRetrievePersonsRequestPayload);
+        marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
 	}
 
 	public List<Message> getMessages() {
@@ -266,59 +284,62 @@ public class MessageService {
 	}
 	
 	/**
-	 * Gets next reciept from meldingsformidler, resolves message for reciept from database and updates message status.
-	 * @return True if a reciept was available from meldingsformidler, false if not.
+	 * Gets next receipt from meldingsformidler, resolves message for receipt from database and updates message status.
+	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
 	public boolean getReceipt() {
-		List<Message> messagesWaitingForReciept = messageRepository.findByStatus(MessageStatus.WAITING_FOR_RECIEPT);
-		if (messagesWaitingForReciept.size() == 0) {
-			// No messages waiting for reciept
+		List<Message> messagesWaitingForReceipt = messageRepository.findByStatus(MessageStatus.WAITING_FOR_RECEIPT);
+		if (messagesWaitingForReceipt.size() == 0) {
+			// No messages waiting for receipt
 			return false;
 		}
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.NORMAL).build());
-		if (forretningsKvittering == null) {
+		// Reading the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
+		String xmlRetrieveMessageReceiptRequestString = nullIfEmpty(xmlRetrieveMessageReceiptRequest.toString());
+		String xmlRetrieveMessageReceiptResponseString = nullIfEmpty(xmlRetrieveMessageReceiptResponse.toString());
+		String xmlRetrieveMessageReceiptResponsePayloadString = nullIfEmpty(xmlRetrieveMessageReceiptResponsePayload.toString());
+    	if (forretningsKvittering == null) {
 			// No available receipts 
 			return false;
 		}
 		List<Message> messages = messageRepository.findByConversationId(forretningsKvittering.getKonversasjonsId());
 		if (messages.size() != 1) {
-			LOGGER.error("Recieved reciept for message not found in datastore");
+			LOGGER.error("Recieved receipt for message not found in datastore");
 			return true;
 		}
 		Message message = messages.get(0);
+		Receipt receipt = new Receipt();
+		receipt.setMessage(message);
+		receipt.setDate(forretningsKvittering.getTidspunkt());
+		receipt.setXmlRequest(xmlRetrieveMessageReceiptRequestString);
+		receipt.setXmlResponse(xmlRetrieveMessageReceiptResponseString);
+		receipt.setXmlResponsePayload(xmlRetrieveMessageReceiptResponsePayloadString);
+		messageRepository.save(message);
 		if (forretningsKvittering instanceof Feil) {
 			Feil feil = (Feil) forretningsKvittering;
 			LOGGER.error("Recieved error type " + feil.getFeiltype().toString() + " with details: " + feil.getDetaljer());
+			receipt.setType("Feil");
+			receipt.setErrorDetails(feil.getDetaljer());
+			receipt.setErrorType(feil.getFeiltype());
 			message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
-			message.setErrorDate(feil.getTidspunkt());
-			message.setErrorDetails(feil.getDetaljer());
-			message.setErrorType(feil.getFeiltype());
-			messageRepository.save(message);
 		} else if (forretningsKvittering instanceof AapningsKvittering) {
-			AapningsKvittering aapningsKvittering = (AapningsKvittering) forretningsKvittering;
-			message.setOpenedDate(aapningsKvittering.getTidspunkt());
-			messageRepository.save(message);
+			receipt.setType("Åpningskvittering");
 		} else if (forretningsKvittering instanceof LeveringsKvittering) {
-			LeveringsKvittering leveringsKvittering = (LeveringsKvittering) forretningsKvittering;
+			receipt.setType("Leveringskvittering");
 			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
-			message.setDeliveredDate(leveringsKvittering.getTidspunkt());
-			messageRepository.save(message);
 		} else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
 			VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
-			if (varslingFeiletKvittering.getVarslingskanal().equals(Varslingskanal.EPOST)) {
-				message.setEmailNotificationErrorDate(varslingFeiletKvittering.getTidspunkt());
-				message.setEmailNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
-			} else {
-				message.setSmsNotificationErrorDate(varslingFeiletKvittering.getTidspunkt());
-				message.setSmsNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
-			}
-			messageRepository.save(message);
+			receipt.setType("Varsling feilet");
+			receipt.setNotificationErrorChannel(varslingFeiletKvittering.getVarslingskanal());
+			receipt.setNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
 		}
+		message.getReceipts().add(receipt);
+		messageRepository.save(message);
 		try {
 			postklient.bekreft(forretningsKvittering);
 		} catch (Exception e) {
-			LOGGER.error("Failed acknowledging retrieved reciept", e);
-			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECIEPT);
+			LOGGER.error("Failed acknowledging retrieved receipt", e);
+			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECEIPT);
 			messageRepository.save(message);
 			return true;
 		}
