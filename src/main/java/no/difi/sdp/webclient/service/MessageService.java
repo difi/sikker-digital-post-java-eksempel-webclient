@@ -3,6 +3,7 @@ package no.difi.sdp.webclient.service;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -127,6 +128,7 @@ public class MessageService {
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
+    	message.setDate(new Date());
     }
     
     private void marshalJaxbObject(Object jaxbObject, StringWriter stringWriter) {

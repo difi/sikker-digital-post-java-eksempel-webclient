@@ -23,6 +23,8 @@
 			<dl class="dl-horizontal">
 				<dt>Status</dt>
 				<dd id="status">${message.status}</dd>
+				<dt>Tidspunkt for sending</dt>
+				<dd id="date">${message.date}</dd>
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
 			</dl>

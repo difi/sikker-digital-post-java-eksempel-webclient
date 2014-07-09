@@ -31,6 +31,9 @@ public class Message {
 	@GeneratedValue
 	private Long id;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date date;
+	
 	@Ssn
 	private String ssn;
 	
@@ -119,6 +122,14 @@ public class Message {
 		this.id = id;
 	}
 
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	
 	public String getSsn() {
 		return ssn;
 	}
