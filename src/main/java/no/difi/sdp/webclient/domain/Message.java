@@ -60,10 +60,12 @@ public class Message {
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
 	
+	@Lob
 	private String emailNotification;
 	
 	private String emailNotificationSchedule;
 	
+	@Lob
 	private String mobileNotification;
 	
 	private String mobileNotificationSchedule;
@@ -114,6 +116,9 @@ public class Message {
 	private String xmlSendMessageResponse;
 	
 	private MessageStatus status;
+	
+	@Lob
+	private String exception;
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message")
 	private List<Receipt> receipts;
@@ -383,6 +388,14 @@ public class Message {
 
 	public void setStatus(MessageStatus status) {
 		this.status = status;
+	}
+	
+	public String getException() {
+		return exception;
+	}
+
+	public void setException(String exception) {
+		this.exception = exception;
 	}
 	
 	public List<Receipt> getReceipts() {

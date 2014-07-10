@@ -1,6 +1,7 @@
 package no.difi.sdp.webclient.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -226,6 +227,7 @@ public class MessageService {
     	} catch (MessageServiceException e) {
     		LOGGER.error(e.getStatus().toString(), e);
     		message.setStatus(e.getStatus());
+    		message.setException(toString(e));
     	}
     	message.setXmlRetrievePersonsRequest(nullIfEmpty(xmlRetrievePersonsRequest.toString()));
     	message.setXmlRetrievePersonsRequestPayload(nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
@@ -357,6 +359,12 @@ public class MessageService {
 		messageRepository.deleteAll();
 	}
 	
+	private String toString(Exception e) {
+		StringWriter stringWriter = new StringWriter();
+		e.printStackTrace(new PrintWriter(stringWriter));
+		return stringWriter.toString();
+	}
+	
 	private class MessageServiceException extends Exception {
 		
 		private static final long serialVersionUID = 1L;
@@ -378,5 +386,5 @@ public class MessageService {
 		}
 		
 	}
-
+	
 }

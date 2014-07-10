@@ -28,6 +28,12 @@
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
 			</dl>
+			<c:if test="${not empty message.exception}">
+				<h2>Unntak</h2>
+				<pre style="white-space: pre-wrap;">
+${message.exception}
+				</pre>
+			</c:if>
 			<h2>Kvitteringer mottatt fra postboks</h2>
 			<c:choose>
 				<c:when test="${empty message.receipts}">
