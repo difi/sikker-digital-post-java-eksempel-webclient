@@ -78,6 +78,8 @@
 				</dd>
 				<dt>Avsenderidentifikator</dt>
 				<dd id="senderId">${message.senderId == null ? "[ikke tilgjengelig]" : message.senderId }</dd>
+				<dt>Fakturareferanse</dt>
+				<dd id="invoiceReference">${message.invoiceReference == null ? "[ikke tilgjengelig]" : message.invoiceReference }</dd>
 				<dt>Sikkerhetsnivå</dt>
 				<dd id="securityLevel">${message.securityLevel}</dd>
 				<dt>Epost-varsel til mottaker</dt>

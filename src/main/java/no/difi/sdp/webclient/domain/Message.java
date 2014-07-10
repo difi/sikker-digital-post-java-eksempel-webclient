@@ -55,6 +55,8 @@ public class Message {
 	
 	private String senderId;
 	
+	private String invoiceReference;
+	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
 	
@@ -189,6 +191,14 @@ public class Message {
 
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
+	}
+	
+	public String getInvoiceReference() {
+		return invoiceReference;
+	}
+
+	public void setInvoiceReference(String invoiceReference) {
+		this.invoiceReference = invoiceReference;
 	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {

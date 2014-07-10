@@ -192,11 +192,10 @@ public class MessageService {
 
     private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
     	String orgNumber = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-    	String fakturaReferanse = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.fakturareferanse"));
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
     			.builder(orgNumber)
     			.avsenderIdentifikator(message.getSenderId())
-    			.fakturaReferanse(fakturaReferanse).build();
+    			.fakturaReferanse(message.getInvoiceReference()).build();
     	return behandlingsansvarlig;
 	}
 

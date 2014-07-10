@@ -74,6 +74,7 @@ public class MessageController {
 		message.setAttachmentFilename(messageCommand.getAttachment().getOriginalFilename());
 		message.setAttachmentMimetype(messageCommand.getAttachment().getContentType());
 		message.setSenderId(messageCommand.getSenderId());
+		message.setInvoiceReference(messageCommand.getInvoiceReference());
 		message.setSecurityLevel(messageCommand.getSecurityLevel());
 		message.setEmailNotification(messageCommand.getEmailNotification());
 		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
