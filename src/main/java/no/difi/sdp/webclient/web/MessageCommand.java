@@ -27,6 +27,8 @@ public class MessageCommand {
 	@Attachment(message = "Du må oppgi vedlegg.")
 	private MultipartFile attachment;
 
+	private String senderId;
+	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
 	
@@ -75,6 +77,14 @@ public class MessageCommand {
 
 	public void setAttachment(MultipartFile attachment) {
 		this.attachment = attachment;
+	}
+	
+	public String getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {

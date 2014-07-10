@@ -84,6 +84,9 @@ public class MessageService {
 	@Autowired
 	private CryptoUtil cryptoUtil;
 	
+	@Autowired
+	private String messagePartitionChannel;
+	
 	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
         hentPersonerForespoersel.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
@@ -187,13 +190,12 @@ public class MessageService {
         		.build();
     }
 
-    private Behandlingsansvarlig buildBehandlingsansvarlig() {
+    private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
     	String orgNumber = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-    	String avsenderIdentifikator = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.identifikator"));
     	String fakturaReferanse = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.fakturareferanse"));
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
     			.builder(orgNumber)
-    			.avsenderIdentifikator(avsenderIdentifikator)
+    			.avsenderIdentifikator(message.getSenderId())
     			.fakturaReferanse(fakturaReferanse).build();
     	return behandlingsansvarlig;
 	}
@@ -210,9 +212,10 @@ public class MessageService {
         		.build();
         Dokument dokument = buildDokument(message);
         Dokumentpakke dokumentPakke = Dokumentpakke.builder(dokument).build(); // TODO støtte for vedlegg
-        Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig();
+        Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
         return Forsendelse
         		.digital(behandlingsansvarlig, digitalPost, dokumentPakke) // TODO støtte for prioritet, språkkode
+        		.mpcId(messagePartitionChannel)
         		.build();
     }
     
@@ -290,7 +293,10 @@ public class MessageService {
 			// No messages waiting for receipt
 			return false;
 		}
-		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.NORMAL).build());
+		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
+				.builder(Prioritet.NORMAL)
+				.mpcId(messagePartitionChannel)
+				.build());
 		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
 		String xmlRequestString = nullIfEmpty(postKlientSoapRequest.toString());
 		postKlientSoapRequestPayload.toString();

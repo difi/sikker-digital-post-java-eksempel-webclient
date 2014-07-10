@@ -53,6 +53,8 @@ public class Message {
 	
 	private String attachmentMimetype;
 	
+	private String senderId;
+	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
 	
@@ -180,6 +182,14 @@ public class Message {
         this.attachmentMimetype = attachmentMimetype;
         return this;
     }
+	
+	public String getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
+	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {
 		return securityLevel;

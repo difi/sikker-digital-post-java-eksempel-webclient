@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -100,6 +101,16 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 		scopes.put("thread", new SimpleThreadScope());
 		customScopeConfigurer.setScopes(scopes);
 		return customScopeConfigurer;
+	}
+	
+	/**
+	 * Random singleton string used for specifying the message partition channel.
+	 * Using a random message partition channel for each running instance of Testavsender ensures that a running instance only consumes incoming messages intended for them.
+	 * @return
+	 */
+	@Bean
+	public String messagePartitionChannel() {
+		return UUID.randomUUID().toString();
 	}
 	
 	@Bean

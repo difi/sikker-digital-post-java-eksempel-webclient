@@ -73,6 +73,7 @@ public class MessageController {
 		message.setAttachment(messageCommand.getAttachment().getBytes());
 		message.setAttachmentFilename(messageCommand.getAttachment().getOriginalFilename());
 		message.setAttachmentMimetype(messageCommand.getAttachment().getContentType());
+		message.setSenderId(messageCommand.getSenderId());
 		message.setSecurityLevel(messageCommand.getSecurityLevel());
 		message.setEmailNotification(messageCommand.getEmailNotification());
 		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
@@ -140,11 +141,6 @@ public class MessageController {
 	@ModelAttribute("avsenderOrganisasjonsnummer")
 	private String avsenderOrgansisasjonsnummer() {
 		return environment.getProperty("meldingsformidler.avsender.organisasjonsnummer");
-	}
-	
-	@ModelAttribute("avsenderIdentifikator")
-	private String avsenderIdentifikator() {
-		return environment.getProperty("meldingsformidler.avsender.identifikator");
 	}
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)

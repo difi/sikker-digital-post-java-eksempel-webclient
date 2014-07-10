@@ -76,6 +76,8 @@
 					<spring:url value="/client/messages/${message.id}/download" var="downloadMessageAttachmentUrl" />
 					<a href="${downloadMessageAttachmentUrl}">Last ned vedlegg</a>
 				</dd>
+				<dt>Avsenderidentifikator</dt>
+				<dd id="senderId">${message.senderId == null ? "[ikke tilgjengelig]" : message.senderId }</dd>
 				<dt>Sikkerhetsnivå</dt>
 				<dd id="securityLevel">${message.securityLevel}</dd>
 				<dt>Epost-varsel til mottaker</dt>
