@@ -1,7 +1,5 @@
 package no.difi.sdp.webclient.configuration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.KeyStore;
@@ -11,11 +9,6 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import javax.validation.ValidatorFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
 
 import no.difi.kontaktinfo.wsdl.oppslagstjeneste_14_05.Oppslagstjeneste1405;
 import no.difi.sdp.client.KlientKonfigurasjon;
@@ -24,6 +17,7 @@ import no.difi.sdp.client.domain.*;
 import no.difi.sdp.webclient.configuration.util.ClearAfterReadStringWriter;
 import no.difi.sdp.webclient.configuration.util.ClientKeystorePasswordCallbackHandler;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.service.MessageService;
 
 import org.apache.cxf.interceptor.LoggingInInterceptor;
@@ -32,8 +26,6 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +58,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
-import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.client.WebServiceClientException;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.context.MessageContext;
@@ -79,8 +70,6 @@ import org.springframework.ws.context.MessageContext;
 @EnableTransactionManagement
 @EnableScheduling
 public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
-	
-	private final static Logger LOGGER = LoggerFactory.getLogger(SdpClientConfiguration.class);
 	
 	@Autowired
 	private Environment environment;
@@ -244,6 +233,11 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     public CryptoUtil cryptoUtil() {
     	return new CryptoUtil();
     }
+    
+    @Bean
+    public StringUtil stringUtil() {
+    	return new StringUtil();
+    }
 
     @Bean
     public ClientInterceptor postKlientSoapInterceptor() {
@@ -261,52 +255,22 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 			@Override
 			public boolean handleRequest(MessageContext messageContext) throws WebServiceClientException {
 				// Captures outgoing SOAP requests
-				transform(messageContext.getRequest(), postKlientSoapRequest());
+				stringUtil().transform(messageContext.getRequest(), postKlientSoapRequest());
 				// Captures outgoing postklient SOAP message payloads (in practice only the message: Digitalpost)
-				transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload());
+				stringUtil().transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload());
 				return true;
 			}
 
 			@Override
 			public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
 				// Captures incoming SOAP responses
-				transform(messageContext.getResponse(), postKlientSoapResponse());
+				stringUtil().transform(messageContext.getResponse(), postKlientSoapResponse());
 				// Captures incoming postklient SOAP message payloads (in practice only the messages: LeveringsKvittering, ÅpningKvittering, Varslingfeilet and Feil)
-				transform(messageContext.getResponse().getPayloadSource(), postKlientSoapResponsePayload());
+				stringUtil().transform(messageContext.getResponse().getPayloadSource(), postKlientSoapResponsePayload());
 				return true;
 			}
     		
     	};
-    }
-    
-    private void transform(WebServiceMessage message, StringWriter stringWriter) {
-    	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			message.writeTo(outputStream);
-		} catch (IOException e) {
-			LOGGER.error("Failed capturing message", e);
-		}
-		stringWriter.write(outputStream.toString());
-		try {
-			outputStream.close();
-		} catch (IOException e) {
-			LOGGER.error("Failed closing outputstream", e);
-		}
-		
-    }
-    
-    private void transform(Source source, StringWriter stringWriter) {
-    	if (source != null) {
-    		try {
-	    		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-	    		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	    		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-	    		transformer.transform(source, new StreamResult(stringWriter));
-    		} catch (Exception e) {
-    			LOGGER.error("Failed capturing message", e);
-    		}
-    	}
     }
     
     @Bean

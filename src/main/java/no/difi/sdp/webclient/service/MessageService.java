@@ -1,15 +1,10 @@
 package no.difi.sdp.webclient.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import no.difi.begrep.Kontaktinformasjon;
 import no.difi.begrep.Person;
@@ -32,6 +27,7 @@ import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.client.domain.kvittering.LeveringsKvittering;
 import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.repository.MessageRepository;
 
@@ -58,6 +54,9 @@ public class MessageService {
 	@Autowired
 	private Oppslagstjeneste1405 oppslagstjeneste;
     
+	@Autowired
+	private StringUtil stringUtil;
+	
 	@Autowired
 	private StringWriter xmlRetrievePersonsRequest;
 	
@@ -123,26 +122,9 @@ public class MessageService {
         }
     }
     
-    private String nullIfEmpty(String string) {
-    	if (string.isEmpty()) {
-    		return null;
-    	}
-    	return string;
-    }
-    
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
     	message.setDate(new Date());
-    }
-    
-    private void marshalJaxbObject(Object jaxbObject, StringWriter stringWriter) {
-    	try {
-    		Marshaller m = JAXBContext.newInstance(jaxbObject.getClass()).createMarshaller();
-        	m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        	m.marshal(jaxbObject, stringWriter);
-    	} catch (JAXBException e) {
-    		LOGGER.error("Failed marsharalling JAXB object", e);
-    	}
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
@@ -192,7 +174,7 @@ public class MessageService {
     }
 
     private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
-    	String orgNumber = nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+    	String orgNumber = stringUtil.nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
     			.builder(orgNumber)
     			.avsenderIdentifikator(message.getSenderId())
@@ -227,15 +209,15 @@ public class MessageService {
     	} catch (MessageServiceException e) {
     		LOGGER.error(e.getStatus().toString(), e);
     		message.setStatus(e.getStatus());
-    		message.setException(toString(e));
+    		message.setException(stringUtil.toString(e));
     	}
-    	message.setXmlRetrievePersonsRequest(nullIfEmpty(xmlRetrievePersonsRequest.toString()));
-    	message.setXmlRetrievePersonsRequestPayload(nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
-    	message.setXmlRetrievePersonsResponse(nullIfEmpty(xmlRetrievePersonsResponse.toString()));
-    	message.setXmlRetrievePersonsResponsePayload(nullIfEmpty(xmlRetrievePersonsResponsePayload.toString()));
-    	message.setXmlSendMessageRequest(nullIfEmpty(postKlientSoapRequest.toString()));
-    	message.setXmlSendMessageRequestPayload(postKlientSoapRequestPayload.toString());
-    	message.setXmlSendMessageResponse(nullIfEmpty(postKlientSoapResponse.toString()));
+    	message.setXmlRetrievePersonsRequest(stringUtil.nullIfEmpty(xmlRetrievePersonsRequest.toString()));
+    	message.setXmlRetrievePersonsRequestPayload(stringUtil.nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
+    	message.setXmlRetrievePersonsResponse(stringUtil.nullIfEmpty(xmlRetrievePersonsResponse.toString()));
+    	message.setXmlRetrievePersonsResponsePayload(stringUtil.nullIfEmpty(xmlRetrievePersonsResponsePayload.toString()));
+    	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest.toString()));
+    	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload.toString()));
+    	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse.toString()));
     	postKlientSoapResponsePayload.toString();
         messageRepository.save(message);
 	}
@@ -272,8 +254,8 @@ public class MessageService {
     }
 	
 	private void extractOppslagstjenesteMessages(HentPersonerForespoersel hentPersonerForespoersel, HentPersonerRespons hentPersonerRespons) {
-		marshalJaxbObject(hentPersonerForespoersel, xmlRetrievePersonsRequestPayload);
-        marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
+		stringUtil.marshalJaxbObject(hentPersonerForespoersel, xmlRetrievePersonsRequestPayload);
+		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
 	}
 
 	public List<Message> getMessages() {
@@ -299,10 +281,10 @@ public class MessageService {
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
 				.build());
 		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
-		String xmlRequestString = nullIfEmpty(postKlientSoapRequest.toString());
+		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest.toString());
 		postKlientSoapRequestPayload.toString();
-		String xmlResponseString = nullIfEmpty(postKlientSoapResponse.toString());
-		String xmlResponsePayloadString = nullIfEmpty(postKlientSoapResponsePayload.toString());
+		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse.toString());
+		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload.toString());
     	if (forretningsKvittering == null) {
 			// No available receipts 
 			return false;
@@ -357,12 +339,6 @@ public class MessageService {
 	
 	public void deleteAllMessages() {
 		messageRepository.deleteAll();
-	}
-	
-	private String toString(Exception e) {
-		StringWriter stringWriter = new StringWriter();
-		e.printStackTrace(new PrintWriter(stringWriter));
-		return stringWriter.toString();
 	}
 	
 	private class MessageServiceException extends Exception {
