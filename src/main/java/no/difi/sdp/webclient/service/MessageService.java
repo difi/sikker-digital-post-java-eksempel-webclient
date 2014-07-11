@@ -86,7 +86,7 @@ public class MessageService {
 	private CryptoUtil cryptoUtil;
 	
 	@Autowired
-	private String messagePartitionChannel;
+	private ConfigurationService configurationService;
 	
 	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
@@ -215,7 +215,7 @@ public class MessageService {
         Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
         return Forsendelse
         		.digital(behandlingsansvarlig, digitalPost, dokumentPakke) // TODO støtte for prioritet, språkkode
-        		.mpcId(messagePartitionChannel)
+        		.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
         		.build();
     }
     
@@ -296,7 +296,7 @@ public class MessageService {
 		}
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
 				.builder(Prioritet.NORMAL)
-				.mpcId(messagePartitionChannel)
+				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
 				.build());
 		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
 		String xmlRequestString = nullIfEmpty(postKlientSoapRequest.toString());
