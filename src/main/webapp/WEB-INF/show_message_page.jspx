@@ -29,7 +29,7 @@
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
 			</dl>
 			<c:if test="${not empty message.exception}">
-				<h2>Unntak</h2>
+				<h2>Feilmelding</h2>
 				<pre style="white-space: pre-wrap;">
 ${message.exception}
 				</pre>
