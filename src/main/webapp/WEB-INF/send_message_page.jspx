@@ -82,9 +82,9 @@
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('emailNotificationSchedule') ? 'has-error' : ''}">
-					<form:label path="emailNotificationSchedule" cssClass="col-sm-2 control-label">Gjentatt epost-varsling</form:label>
+					<form:label path="emailNotificationSchedule" cssClass="col-sm-2 control-label">Epost-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager etter første epost-varsel dersom du ønsker å sende flere epost-varsel" value="${messageCommand.emailNotificationSchedule}"/>
+						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende epost-varsel" value="${messageCommand.emailNotificationSchedule}"/>
 						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
 					</div>
 				</div>
@@ -95,9 +95,9 @@
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('mobileNotificationSchedule') ? 'has-error' : ''}">
-					<form:label path="mobileNotificationSchedule" cssClass="col-sm-2 control-label">Gjentatt SMS-varsling</form:label>
+					<form:label path="mobileNotificationSchedule" cssClass="col-sm-2 control-label">SMS-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager etter første SMS-varsel dersom du ønsker å sende flere SMS-varsel" value="${messageCommand.mobileNotificationSchedule}" />
+						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende sms-varsel" value="${messageCommand.mobileNotificationSchedule}" />
 						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
 					</div>
 				</div>

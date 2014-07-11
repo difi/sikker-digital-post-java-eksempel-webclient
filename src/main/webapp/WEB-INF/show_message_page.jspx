@@ -90,11 +90,11 @@ ${message.exception}
 				<dd id="securityLevel">${message.securityLevel}</dd>
 				<dt>Epost-varsel til mottaker</dt>
 				<dd id="emailNotification">${message.emailNotification == null ? "[ikke tilgjengelig]" : message.emailNotification}</dd>
-				<dt>Gjentatt epost-varsling</dt>
+				<dt>Epost-varslingsintervall</dt>
 				<dd id="emailNotificationSchedule">${message.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.emailNotificationSchedule}</dd>
 				<dt>SMS-varsel til mottaker</dt>
 				<dd id="mobileNotification">${message.mobileNotification == null ? "[ikke tilgjengelig]" : message.mobileNotification}</dd>
-				<dt>Gjentatt SMS-varsling</dt>
+				<dt>SMS-varslingsintervall</dt>
 				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
 				<dt>Motta åpningskvittering</dt>
 				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt}</dd>
