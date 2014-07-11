@@ -24,11 +24,12 @@ public class StringUtil {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(StringUtil.class);
 	
+	private final static String BINARY_MARKER = "Content-Transfer-Encoding: binary";
+	private final static  String MIME_BOUNDARY_MARKER = "--";
+	private final static  String BINARY_CONTENT_PLACEHOLDER = "\n...BINÆRT INNHOLD ...\n";
+	private final static  String NEW_LINE = "\n";
+	
 	public String removeBinaryContentFromMimeMessage(String rawMessage) {
-    	final String BINARY_MARKER = "Content-Transfer-Encoding: binary";
-    	final String MIME_BOUNDARY_MARKER = "--";
-    	final String BINARY_CONTENT_PLACEHOLDER = "\n...BINÆRT INNHOLD ...\n";
-    	final String NEW_LINE = "\n";
     	if (! rawMessage.startsWith(MIME_BOUNDARY_MARKER)) {
     		// Not a MIME message
     		return rawMessage;
