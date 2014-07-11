@@ -122,6 +122,27 @@
 						<span class="help-block">Eksempel: <em>2014-06-12 13:00:00</em></span>
 					</div>
 				</div>
+				<div class="form-group ${errors.hasFieldErrors('priority') ? 'has-error' : ''}">
+ 					<form:label path="priority" cssClass="col-sm-2 control-label">Prioritet</form:label>
+ 					<div class="col-sm-10">
+ 						<c:choose>
+	 						<c:when test="${messageCommand.priority == 'PRIORITERT' }">
+		 						<label class="radio-inline"><input type="radio" name="priority" id="priorityNormal" value="NORMAL" /> Normal</label>
+								<label class="radio-inline"><input type="radio" name="priority" id="priorityPrioritized" value="PRIORITERT" checked="checked" /> Prioritert</label>
+							</c:when>
+	 						<c:otherwise>
+		 						<label class="radio-inline"><input type="radio" name="priority" id="priorityNormal" value="NORMAL" checked="checked" /> Normal</label>
+								<label class="radio-inline"><input type="radio" name="priority" id="priorityPrioritized" value="PRIORITERT" /> Prioritert</label>
+	 						</c:otherwise>
+	 					</c:choose>
+ 					</div>
+				</div>
+				<div class="form-group $errors.hasFieldErrors('languageCode') ? 'has-error' : ''}">
+					<form:label path="languageCode" cssClass="col-sm-2 control-label">Språk-kode</form:label>
+					<div class="col-sm-10">
+						<input name="languageCode" id="languageCode" type="text" class="form-control" autocomplete="off" placeholder="Språk-kode" value="${messageCommand.languageCode}"/>
+					</div>
+				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
 						<button type="submit" class="btn btn-primary">Send melding</button>

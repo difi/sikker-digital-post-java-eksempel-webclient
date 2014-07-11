@@ -9,6 +9,7 @@ import javax.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.validation.Attachment;
 import no.difi.sdp.webclient.validation.Ssn;
@@ -48,6 +49,10 @@ public class MessageCommand {
 	
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date delayedAvailabilityDate;
+	
+	private Prioritet priority;
+	
+	private String languageCode = "NO";
 	
 	public String getSsn() {
 		return ssn;
@@ -151,6 +156,22 @@ public class MessageCommand {
 
 	public void setDelayedAvailabilityDate(Date delayedAvailabilityDate) {
 		this.delayedAvailabilityDate = delayedAvailabilityDate;
+	}
+
+	public Prioritet getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Prioritet priority) {
+		this.priority = priority;
+	}
+
+	public String getLanguageCode() {
+		return languageCode;
+	}
+
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
 	}
 
 }

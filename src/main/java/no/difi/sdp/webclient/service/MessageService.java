@@ -196,8 +196,10 @@ public class MessageService {
         Dokumentpakke dokumentPakke = Dokumentpakke.builder(dokument).build(); // TODO støtte for vedlegg
         Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
         return Forsendelse
-        		.digital(behandlingsansvarlig, digitalPost, dokumentPakke) // TODO støtte for prioritet, språkkode
-        		.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
+        		.digital(behandlingsansvarlig, digitalPost, dokumentPakke)
+        		.prioritet(message.getPriority())
+        		.spraakkode(message.getLanguageCode())
+				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
         		.build();
     }
     

@@ -82,6 +82,8 @@ public class MessageController {
 		message.setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
 		message.setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
 		message.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
+		message.setPriority(messageCommand.getPriority());
+		message.setLanguageCode(messageCommand.getLanguageCode());
 		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
 	}

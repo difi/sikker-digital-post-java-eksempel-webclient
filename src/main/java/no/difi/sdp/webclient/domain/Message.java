@@ -21,6 +21,7 @@ import javax.validation.constraints.Size;
 
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
+import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.validation.Ssn;
 
@@ -74,6 +75,11 @@ public class Message {
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date delayedAvailabilityDate;
+	
+	@Enumerated(EnumType.STRING)
+	private Prioritet priority;
+	
+	private String languageCode;
 	
 	@Enumerated(EnumType.STRING)
 	private Status contactRegisterStatus;
@@ -262,6 +268,22 @@ public class Message {
 		this.delayedAvailabilityDate = delayedAvailabilityDate;
 	}
 
+	public Prioritet getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Prioritet priority) {
+		this.priority = priority;
+	}
+	
+	public String getLanguageCode() {
+		return languageCode;
+	}
+
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
+	}
+	
 	public Status getContactRegisterStatus() {
 		return contactRegisterStatus;
 	}

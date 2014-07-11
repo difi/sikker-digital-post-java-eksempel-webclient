@@ -100,6 +100,10 @@ ${message.exception}
 				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt}</dd>
 				<dt>Forsinket åpningsdato</dt>
 				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
+				<dt>Prioritet</dt>
+				<dd id="priority">${message.priority == null ? "[ikke tilgjengelig]" : message.priority}</dd>
+				<dt>Språk-kode</dt>
+				<dd id="languageCode">${message.languageCode == null ? "[ikke tilgjengelig]" : message.languageCode}</dd>
 			</dl>
 			<h2>Data hentet fra oppslagstjenesten</h2>
 			<dl class="dl-horizontal">
