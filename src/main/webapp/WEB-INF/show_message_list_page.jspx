@@ -19,32 +19,39 @@
 				<li class="active"><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
 			</ul>
 			<br />
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Tidspunkt for sending</th>
-						<th>Mottakers fødselsnummer</th>
-						<th>Tittel</th>
-						<th>Handlinger</th>
-					</tr>
-				</thead>
-				<tbody>
-					<c:forEach items="${messages}" var="message">
-						<tr>
-							<spring:url value="/client/messages/${message.id}" var="messageUrl" />
-							<spring:url value="/client/messages/${message.id}/delete" var="deleteMessageUrl" />
-							<td><a href="${messageUrl}">${message.date}</a></td>
-							<td><a href="${messageUrl}">${message.ssn}</a></td>
-							<td><a href="${messageUrl}">${message.sensitiveTitle}</a></td>
-							<td>
-								<form method="POST" action="${deleteMessageUrl}">
-									<button type="submit" class="btn btn-warning btn-xs">Slett</button>
-								</form>
-							</td>
-						</tr>
-					</c:forEach>
-				</tbody>
-			</table>
+			<c:choose>
+				<c:when test="${empty messages}">
+					<p>Ingen meldinger sendt til postboks.</p>
+				</c:when>
+				<c:otherwise>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Tidspunkt for sending</th>
+								<th>Mottakers fødselsnummer</th>
+								<th>Tittel</th>
+								<th>Handlinger</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${messages}" var="message">
+								<tr>
+									<spring:url value="/client/messages/${message.id}" var="messageUrl" />
+									<spring:url value="/client/messages/${message.id}/delete" var="deleteMessageUrl" />
+									<td><a href="${messageUrl}">${message.date}</a></td>
+									<td><a href="${messageUrl}">${message.ssn}</a></td>
+									<td><a href="${messageUrl}">${message.document.title}</a></td>
+									<td>
+										<form method="POST" action="${deleteMessageUrl}">
+											<button type="submit" class="btn btn-warning btn-xs">Slett</button>
+										</form>
+									</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</c:otherwise>
+			</c:choose>
 			<spring:url value="/client/messages/delete" var="deleteAllMessagesUrl" />
 			<form method="POST" action="${deleteAllMessagesUrl}">
 				<button type="submit" class="btn btn-danger">Slett alle meldinger</button>

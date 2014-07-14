@@ -2,6 +2,7 @@ package no.difi.sdp.test;
 
 import java.io.File;
 import java.security.KeyStore;
+import java.util.UUID;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,13 +48,14 @@ public class IntegrationTest {
         DigitalPost digitalPost = DigitalPost.builder(mottaker, "ikkeSensitivTittel").build();
         Dokument hoveddokument = Dokument.builder("Document title", new File("src/test/resources/1-Test-PDF.pdf")).mimeType("application/pdf").build();
         Dokumentpakke dokumentpakke = Dokumentpakke.builder(hoveddokument).build();
-        Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig.builder("").avsenderIdentifikator("991825827").fakturaReferanse("fakturaref").build();
-        Forsendelse forsendelse = Forsendelse.digital(behandlingsansvarlig, digitalPost, dokumentpakke).build();
+        Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig.builder("984661185").build();
+        String mpc = UUID.randomUUID().toString();
+        Forsendelse forsendelse = Forsendelse.digital(behandlingsansvarlig, digitalPost, dokumentpakke).mpcId(mpc).build();
         postklient.send(forsendelse);
         LOGGER.info("Post sent, waiting for 10 seconds before attemting to retrieve receipt.");
         for (int i = 0; i < 6; i++) {
         	Thread.sleep(1000 * 10);
-        	ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.PRIORITERT).build());
+        	ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.PRIORITERT).mpcId(mpc).build());
         	if (forretningsKvittering == null) {
         		LOGGER.info("No receipt available, waiting for 10 seconds before attemting to retrieve receipt.");
         	} else {

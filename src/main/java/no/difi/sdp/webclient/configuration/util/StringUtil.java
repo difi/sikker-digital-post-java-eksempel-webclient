@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -120,6 +122,16 @@ public class StringUtil {
     	return string;
     }
     
-    
-    
+    public static List<Integer> toIntList(String string) {
+		if (string == null || string.isEmpty()) {
+			return null;
+		}
+		List<Integer> intList = new ArrayList<Integer>();
+		String[] intStrings = string.split(",");
+		for (String intString : intStrings) {
+			intList.add(Integer.valueOf(intString));
+		}
+		return intList;
+	}
+
 }

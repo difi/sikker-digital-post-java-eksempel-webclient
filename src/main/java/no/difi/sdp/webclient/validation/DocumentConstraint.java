@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-public class AttachmentConstraint implements ConstraintValidator<Attachment, MultipartFile>{
+public class DocumentConstraint implements ConstraintValidator<Document, MultipartFile>{
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentConstraint.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentConstraint.class);
 	
 	@Override
-	public void initialize(Attachment attachment) {
+	public void initialize(Document attachment) {
 	}
 
 	@Override

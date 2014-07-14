@@ -4,11 +4,14 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.service.MessageService;
 
@@ -31,6 +34,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -46,6 +51,9 @@ public class MessageController {
 	
 	@Autowired
 	private Validator validator;
+	
+	@Autowired
+	private MultipartResolver multipartResolver;
 	
 	@InitBinder
 	protected void initBinder(WebDataBinder webDataBinder) {
@@ -66,13 +74,29 @@ public class MessageController {
 			model.addAttribute("errors", bindingResult);
 			return "send_message_page";
 		}
+
 		Message message = new Message();
 		message.setSsn(messageCommand.getSsn());
-		message.setSensitiveTitle(messageCommand.getSensitiveTitle());
 		message.setInsensitiveTitle(messageCommand.getInsensitiveTitle());
-		message.setAttachment(messageCommand.getAttachment().getBytes());
-		message.setAttachmentFilename(messageCommand.getAttachment().getOriginalFilename());
-		message.setAttachmentMimetype(messageCommand.getAttachment().getContentType());
+		Document document = new Document();
+		document.setTitle(messageCommand.getTitle());
+		document.setContent(messageCommand.getDocument().getBytes());
+		document.setFilename(messageCommand.getDocument().getOriginalFilename());
+		document.setMimetype(messageCommand.getDocument().getContentType());
+		message.setDocument(document);
+		Set<Document> attachments = new HashSet<Document>();
+		for (MultipartFile multipartFile : messageCommand.getAttachments()) {
+			if (! multipartFile.isEmpty()) {
+				Document attachment = new Document();
+				attachment.setTitle(multipartFile.getOriginalFilename()); // Uses attachment filename for attachment title
+				attachment.setContent(multipartFile.getBytes());
+				attachment.setFilename(multipartFile.getOriginalFilename());
+				attachment.setMimetype(multipartFile.getContentType());
+				attachment.setMessage(message);
+				attachments.add(attachment);
+			}
+		}
+		message.setAttachments(attachments);
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
 		message.setSecurityLevel(messageCommand.getSecurityLevel());
@@ -98,17 +122,15 @@ public class MessageController {
 		return "show_message_page";
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/download")
-	public void download_message_attachment(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
-		Message message = messageService.getMessage(id);
-		if (message == null) {
+	@RequestMapping(method = RequestMethod.GET, value = "/messages/documents/{id}")
+	public void download_message_document(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
+		Document document = messageService.getDocument(id);
+		if (document == null) {
 			throw new NotFoundException();
 		}
-		if (message.getAttachment() == null) {
-			throw new NotFoundException();
-		}
-		response.setContentType(message.getAttachmentMimetype());
-		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getAttachment()));
+		response.addHeader("Content-Disposition", "attachment; filename=\"" + document.getFilename() + "\"");
+		response.setContentType(document.getMimetype());
+		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(document.getContent()));
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
 	

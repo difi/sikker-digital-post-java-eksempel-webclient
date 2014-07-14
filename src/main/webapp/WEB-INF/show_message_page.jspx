@@ -27,6 +27,39 @@
 				<dd id="date">${message.date}</dd>
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
+				<dt>Kvitteringer</dt>
+				<dd>
+					<c:choose>
+						<c:when test="${empty message.receipts}">
+							<p>Ingen kvitteringer mottatt fra postboks.</p> 
+						</c:when>
+						<c:otherwise>
+							<table class="table table-striped table-bordered">
+								<thead>
+									<tr>
+										<th>Dato</th>
+										<th>Type</th>
+										<th>Detaljer</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach items="${message.receipts}" var="receipt">
+										<tr>
+											<td>${receipt.date}</td>
+											<td>${receipt.type}</td>
+											<td>
+												${receipt.errorType == null ? "" : receipt.errorType}
+												${receipt.errorDetails == null ? "" : receipt.errorDetails}
+												${receipt.notificationErrorChannel == null ? "" : receipt.notificationErrorChannel}
+												${receipt.notificationErrorDescription == null ? "" : receipt.notificationErrorDescription}
+											</td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</c:otherwise>
+					</c:choose>
+				</dd>
 			</dl>
 			<c:if test="${not empty message.exception}">
 				<h2>Feilmelding</h2>
@@ -34,53 +67,42 @@
 ${message.exception}
 				</pre>
 			</c:if>
-			<h2>Kvitteringer mottatt fra postboks</h2>
-			<c:choose>
-				<c:when test="${empty message.receipts}">
-					<p>Ingen kvitteringer mottatt fra postboks.</p> 
-				</c:when>
-				<c:otherwise>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>Dato</th>
-								<th>Type</th>
-								<th>Detaljer</th>
-							</tr>
-						</thead>
-						<tbody>
-							<c:forEach items="${message.receipts}" var="receipt">
-								<tr>
-									<td>${receipt.date}</td>
-									<td>${receipt.type}</td>
-									<td>
-										${receipt.errorType == null ? "" : receipt.errorType}
-										${receipt.errorDetails == null ? "" : receipt.errorDetails}
-										${receipt.notificationErrorChannel == null ? "" : receipt.notificationErrorChannel}
-										${receipt.notificationErrorDescription == null ? "" : receipt.notificationErrorDescription}
-									</td>
-								</tr>
-							</c:forEach>
-						</tbody>
-					</table>
-				</c:otherwise>
-			</c:choose>
 			<h2>Data oppgitt til webclient</h2>
 			<dl class="dl-horizontal">
 				<dt>Fødselsnummer</dt>
 				<dd id="ssn">${message.ssn}</dd>
-				<dt>Tittel</dt>
-				<dd id="sensitiveTitle">${message.sensitiveTitle}</dd>
 				<dt>Ikke-sensitiv tittel</dt>
 				<dd id="insensitiveTitle">${message.insensitiveTitle}</dd>
-				<dt>Filnavn for vedlegg</dt>
-				<dd id="attachmentFilename">${message.attachmentFilename}</dd>
-				<dt>Mimetype for vedlegg</dt>
-				<dd id="attachmentMimetype">${message.attachmentMimetype}</dd>
-				<dt>Vedlegg</dt>
+				<dt>Dokument</dt>
 				<dd>
-					<spring:url value="/client/messages/${message.id}/download" var="downloadMessageAttachmentUrl" />
-					<a href="${downloadMessageAttachmentUrl}">Last ned vedlegg</a>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>Type</th>
+								<th>Tittel</th>
+								<th>Filnavn</th>
+								<th>Mimetype</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<spring:url value="/client/messages/documents/${message.document.id}" var="downloadMessageDocumentUrl" />
+								<td>Hoveddokument</td>
+								<td id="title">${message.document.title}</td>
+								<td id="documentFilename"><a href="${downloadMessageDocumentUrl}">${message.document.filename}</a></td>
+								<td id="documentMimetype">${message.document.mimetype}</td>
+							</tr>
+							<c:forEach items="${message.attachments}" var="attachment">
+								<tr>
+									<spring:url value="/client/messages/documents/${attachment.id}" var="downloadMessageDocumentUrl" />
+									<td>Vedlegg</td>
+									<td>${attachment.title}</td>
+									<td><a href="${downloadMessageDocumentUrl}">${attachment.filename}</a></td>
+									<td>${attachment.mimetype}</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
 				</dd>
 				<dt>Avsenderidentifikator</dt>
 				<dd id="senderId">${message.senderId == null ? "[ikke tilgjengelig]" : message.senderId }</dd>

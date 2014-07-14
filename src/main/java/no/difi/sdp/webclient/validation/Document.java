@@ -14,10 +14,10 @@ import javax.validation.Payload;
 
 @Target({ METHOD, FIELD, PARAMETER, ANNOTATION_TYPE })
 @Retention(RUNTIME)
-@Constraint(validatedBy = AttachmentConstraint.class)
-public @interface Attachment {
+@Constraint(validatedBy = DocumentConstraint.class)
+public @interface Document {
 
-	String message() default "Ugyldig vedlegg";
+	String message() default "Ugyldig dokument";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
 

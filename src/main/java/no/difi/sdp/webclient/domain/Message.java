@@ -1,10 +1,8 @@
 package no.difi.sdp.webclient.domain;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -40,19 +39,13 @@ public class Message {
 	
 	@NotNull
 	@Size(min = 1)
-	private String sensitiveTitle;
-	
-	@NotNull
-	@Size(min = 1)
 	private String insensitiveTitle;
 	
-	@Lob
-	@Basic(fetch = FetchType.LAZY)
-	private byte[] attachment;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Document document;
 	
-	private String attachmentFilename;
-	
-	private String attachmentMimetype;
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message") 
+	private Set<Document> attachments;
 	
 	private String senderId;
 	
@@ -127,7 +120,7 @@ public class Message {
 	private String exception;
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message")
-	private List<Receipt> receipts;
+	private Set<Receipt> receipts;
 	
 	public Long getId() {
 		return id;
@@ -153,14 +146,6 @@ public class Message {
         this.ssn = ssn;
     }
 	
-	public String getSensitiveTitle() {
-		return sensitiveTitle;
-	}
-	
-	public void setSensitiveTitle(String sensitiveTitle) {
-        this.sensitiveTitle = sensitiveTitle;
-    }
-	
 	public String getInsensitiveTitle() {
 		return insensitiveTitle;
 	}
@@ -169,32 +154,21 @@ public class Message {
         this.insensitiveTitle = insensitiveTitle;
     }
 	
-	public byte[] getAttachment() {
-		return attachment;
+	public Document getDocument() {
+		return document;
 	}
 	
-	public Message setAttachment(byte[] attachment) {
-        this.attachment = attachment;
-        return this;
+	public void setDocument(Document document) {
+        this.document = document;
     }
 	
-	public String getAttachmentFilename() {
-		return attachmentFilename;
+	public Set<Document> getAttachments() {
+		return attachments;
 	}
-
-	public Message setAttachmentFilename(String attachmentFilename) {
-        this.attachmentFilename = attachmentFilename;
-        return this;
-    }
-
-	public String getAttachmentMimetype() {
-		return attachmentMimetype;
+	
+	public void setAttachments(Set<Document> attachments) {
+		this.attachments = attachments;
 	}
-
-	public Message setAttachmentMimetype(String attachmentMimetype) {
-        this.attachmentMimetype = attachmentMimetype;
-        return this;
-    }
 	
 	public String getSenderId() {
 		return senderId;
@@ -420,24 +394,12 @@ public class Message {
 		this.exception = exception;
 	}
 	
-	public List<Receipt> getReceipts() {
+	public Set<Receipt> getReceipts() {
 		return receipts;
 	}
 	
-	public void setReceipts(List<Receipt> receipts) {
+	public void setReceipts(Set<Receipt> receipts) {
 		this.receipts = receipts;
-	}
-	
-	public static List<Integer> toIntList(String string) {
-		if (string == null || string.isEmpty()) {
-			return null;
-		}
-		List<Integer> intList = new ArrayList<Integer>();
-		String[] intStrings = string.split(",");
-		for (String intString : intStrings) {
-			intList.add(Integer.valueOf(intString));
-		}
-		return intList;
 	}
 
 }

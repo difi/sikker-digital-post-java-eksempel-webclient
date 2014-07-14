@@ -1,6 +1,7 @@
 package no.difi.sdp.webclient.web;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -11,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
-import no.difi.sdp.webclient.validation.Attachment;
+import no.difi.sdp.webclient.validation.Document;
 import no.difi.sdp.webclient.validation.Ssn;
 
 public class MessageCommand {
@@ -19,15 +20,17 @@ public class MessageCommand {
 	@Ssn(message = "Ugyldig fødselsnummer.")
 	private String ssn;
 	
-	@Size(min = 1, message = "Du må oppgi sensitiv tittel.")
-	private String sensitiveTitle;
+	@Size(min = 1, message = "Du må oppgi tittel.")
+	private String title;
 
 	@Size(min = 1, message = "Du må oppgi ikke-sensitiv tittel.")
 	private String insensitiveTitle;
 
-	@Attachment(message = "Du må oppgi vedlegg.")
-	private MultipartFile attachment;
+	@Document(message = "Du må oppgi hoveddokument.")
+	private MultipartFile document;
 
+	private List<MultipartFile> attachments;
+	
 	private String senderId;
 	
 	private String invoiceReference;
@@ -62,12 +65,12 @@ public class MessageCommand {
 		this.ssn = ssn;
 	}
 
-	public String getSensitiveTitle() {
-		return sensitiveTitle;
+	public String getTitle() {
+		return title;
 	}
 
-	public void setSensitiveTitle(String sensitiveTitle) {
-		this.sensitiveTitle = sensitiveTitle;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getInsensitiveTitle() {
@@ -78,12 +81,20 @@ public class MessageCommand {
 		this.insensitiveTitle = insensitiveTitle;
 	}
 	
-	public MultipartFile getAttachment() {
-		return attachment;
+	public MultipartFile getDocument() {
+		return document;
 	}
 
-	public void setAttachment(MultipartFile attachment) {
-		this.attachment = attachment;
+	public void setDocument(MultipartFile document) {
+		this.document = document;
+	}
+	
+	public List<MultipartFile> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<MultipartFile> attachments) {
+		this.attachments = attachments;
 	}
 	
 	public String getSenderId() {

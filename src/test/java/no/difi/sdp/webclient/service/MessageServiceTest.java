@@ -19,6 +19,7 @@ import no.difi.sdp.client.domain.digital_post.SmsVarsel;
 import no.difi.sdp.test.AssertValue;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.repository.MessageRepository;
 import no.difi.sdp.webclient.service.MessageService;
@@ -35,6 +36,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -144,12 +146,15 @@ public class MessageServiceTest {
     @Test
     public void should_construct_a_forsendelse_with_ssn_and_tittel(){
         final Message message = new Message();
-        message.setSensitiveTitle("sensitiv tittel");
         message.setInsensitiveTitle("ikke-sensitiv tittel");
         message.setSsn(ANY_SSN);
-        message.setAttachment("attachment".getBytes());
-        message.setAttachmentFilename("attachment.txt");
-        message.setAttachmentMimetype("text/plain");
+        Document document = new Document();
+        document.setTitle("sensitiv tittel");
+        document.setContent("attachment".getBytes());
+        document.setFilename("attachment.txt");
+        document.setMimetype("text/plain");
+        message.setDocument(document);
+        message.setAttachments(new HashSet<Document>());
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         messageService.sendMessage(message);
 
@@ -165,14 +170,16 @@ public class MessageServiceTest {
     @Test
     public void should_construct_a_frosendelse_with_document() {
     	final Message message = new Message();
-    	message.setSsn(ANY_SSN);
-        message.setSensitiveTitle("sensitiv tittel");
-        message.setInsensitiveTitle("ikke-sensitiv tittel");
-        message.setAttachment("content".getBytes());
-        message.setAttachmentFilename("filnavn.txt");
-        message.setAttachmentMimetype("application/text");
+    	message.setInsensitiveTitle("ikke-sensitiv tittel");
+        message.setSsn(ANY_SSN);
+    	Document document = new Document();
+        document.setTitle("sensitiv tittel");
+        document.setContent("attachment".getBytes());
+        document.setFilename("filnavn.txt");
+        document.setMimetype("application/text");
+        message.setDocument(document);
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
-        
+        message.setAttachments(new HashSet<Document>());
         messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
@@ -186,10 +193,10 @@ public class MessageServiceTest {
                 seen = value;
 
                 Dokument dok = (Dokument) privateValue(value.getDokumentpakke(), "hoveddokument");
-                assertEquals(message.getAttachmentMimetype(), privateValue(dok, "mimeType"));
-                assertEquals(message.getAttachmentFilename(), privateValue(dok, "filnavn"));
-                assertTrue(Arrays.equals(message.getAttachment(), (byte[]) privateValue(dok, "dokument")));
-                assertEquals(message.getSensitiveTitle(), (String) privateValue(dok, "tittel"));
+                assertEquals(message.getDocument().getMimetype(), privateValue(dok, "mimeType"));
+                assertEquals(message.getDocument().getFilename(), privateValue(dok, "filnavn"));
+                assertTrue(Arrays.equals(message.getDocument().getContent(), (byte[]) privateValue(dok, "dokument")));
+                assertEquals(message.getDocument().getTitle(), (String) privateValue(dok, "tittel"));
                 
             }
 
@@ -202,11 +209,15 @@ public class MessageServiceTest {
     public void should_construct_a_frosendelse_with_notification() {
     	final Message message = new Message();
     	message.setSsn(ANY_SSN);
-        message.setSensitiveTitle("sensitiv tittel");
         message.setInsensitiveTitle("ikke-sensitiv tittel");
-        message.setAttachment("content".getBytes());
-        message.setAttachmentFilename("filnavn.txt");
-        message.setAttachmentMimetype("application/text");
+        Document document = new Document();
+        document.setTitle("sensitiv tittel");
+        document.setContent("content".getBytes());
+        document.setFilename("filnavn.txt");
+        document.setMimetype("application/text");
+        message.setDocument(document);
+        message.setAttachments(new HashSet<Document>());
+        
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setEmailNotification("emailNotification");
         message.setMobileNotification("mobileNotification");

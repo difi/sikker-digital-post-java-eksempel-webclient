@@ -3,6 +3,7 @@ package no.difi.sdp.webclient.service;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.*;
+import no.difi.sdp.webclient.repository.DocumentRepository;
 import no.difi.sdp.webclient.repository.MessageRepository;
 
 import org.slf4j.Logger;
@@ -48,6 +50,9 @@ public class MessageService {
 	@Autowired
 	private MessageRepository messageRepository;
     
+	@Autowired
+	private DocumentRepository documentRepository;
+	
 	@Autowired
 	private SikkerDigitalPostKlient postklient;
     
@@ -133,7 +138,7 @@ public class MessageService {
     	}
         EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getEmail(), message.getEmailNotification());
         if (message.getEmailNotificationSchedule() != null) {
-        	epostVarselBuilder.varselEtterDager(Message.toIntList(message.getEmailNotificationSchedule()));
+        	epostVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getEmailNotificationSchedule()));
         }
         return epostVarselBuilder.build();
     }
@@ -144,7 +149,7 @@ public class MessageService {
     	}
     	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getMobile(), message.getMobileNotification());
     	if (message.getMobileNotificationSchedule() != null) {
-    		smsVarselBuilder.varselEtterDager(Message.toIntList(message.getMobileNotificationSchedule()));
+    		smsVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getMobileNotificationSchedule()));
     	}
         return smsVarselBuilder.build();
     }
@@ -161,16 +166,20 @@ public class MessageService {
     			.build();
     }
     
-    private Dokument buildDokument(Message message) {
-    	if (message.getAttachment() == null) {
-    		return null;
-    	}
-    	ByteArrayInputStream documentContent = new ByteArrayInputStream(message.getAttachment());
-        String attachmentFilename = message.getAttachmentFilename();
-        return Dokument
-        		.builder(message.getSensitiveTitle(), attachmentFilename, documentContent)
-        		.mimeType(message.getAttachmentMimetype())
+    private Dokument buildDokument(Document document) {
+    	ByteArrayInputStream documentContent = new ByteArrayInputStream(document.getContent());
+    	return Dokument
+        		.builder(document.getTitle(), document.getFilename(), documentContent)
+        		.mimeType(document.getMimetype())
         		.build();
+    }
+    
+    private List<Dokument> buildVedlegg(Message message) {
+    	List<Dokument> attachments = new ArrayList<Dokument>();
+    	for (Document document : message.getAttachments()) {
+    		attachments.add(buildDokument(document));
+    	}
+    	return attachments;
     }
 
     private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
@@ -178,10 +187,20 @@ public class MessageService {
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
     			.builder(orgNumber)
     			.avsenderIdentifikator(message.getSenderId())
-    			.fakturaReferanse(message.getInvoiceReference()).build();
+    			.fakturaReferanse(message.getInvoiceReference())
+    			.build();
     	return behandlingsansvarlig;
 	}
 
+    private Dokumentpakke buildDokumentpakke(Message message) {
+    	Dokumentpakke.Builder builder = Dokumentpakke.builder(buildDokument(message.getDocument()));
+    	if (message.getAttachments().size() == 0) {
+    		return builder.build();
+    	}
+    	builder.vedlegg(buildVedlegg(message));
+    	return builder.build();
+    }
+    
     private Forsendelse buildDigitalForsendelse(Message message) {
     	Mottaker mottaker  = buildMottaker(message);
         DigitalPost digitalPost = DigitalPost
@@ -192,8 +211,7 @@ public class MessageService {
         		.smsVarsel(buildSmsVarsel(message))
         		.virkningsdato(message.getDelayedAvailabilityDate())
         		.build();
-        Dokument dokument = buildDokument(message);
-        Dokumentpakke dokumentPakke = Dokumentpakke.builder(dokument).build(); // TODO støtte for vedlegg
+        Dokumentpakke dokumentPakke = buildDokumentpakke(message);
         Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
         return Forsendelse
         		.digital(behandlingsansvarlig, digitalPost, dokumentPakke)
@@ -341,6 +359,10 @@ public class MessageService {
 	
 	public void deleteAllMessages() {
 		messageRepository.deleteAll();
+	}
+	
+	public Document getDocument(Long id) {
+		return documentRepository.findOne(id);
 	}
 	
 	private class MessageServiceException extends Exception {
