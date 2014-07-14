@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
@@ -62,8 +63,29 @@ public class MessageController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/", produces = "text/html")
-	public String show_send_message_page(Model model) {
-		model.addAttribute("messageCommand", new MessageCommand());
+	public String show_send_message_page(Model model, @RequestParam(required = false) Long copy) {
+		MessageCommand messageCommand = new MessageCommand();
+		if (copy != null) {
+			Message message = messageService.getMessage(copy);
+			if (message != null) {
+				// Default file upload values are not allowed by web browsers so we can't copy document and attachments
+				messageCommand.setDelayedAvailabilityDate(message.getDelayedAvailabilityDate());
+				messageCommand.setEmailNotification(message.getEmailNotification());
+				messageCommand.setEmailNotificationSchedule(message.getEmailNotificationSchedule());
+				messageCommand.setInsensitiveTitle(message.getInsensitiveTitle());
+				messageCommand.setInvoiceReference(message.getInvoiceReference());
+				messageCommand.setLanguageCode(message.getLanguageCode());
+				messageCommand.setMobileNotification(message.getMobileNotification());
+				messageCommand.setMobileNotificationSchedule(message.getMobileNotificationSchedule());
+				messageCommand.setPriority(message.getPriority());
+				messageCommand.setRequiresMessageOpenedReceipt(message.getRequiresMessageOpenedReceipt());
+				messageCommand.setSecurityLevel(message.getSecurityLevel());
+				messageCommand.setSenderId(message.getSenderId());
+				messageCommand.setSsn(message.getSsn());
+				messageCommand.setTitle(message.getDocument().getTitle());
+			}
+		}
+		model.addAttribute("messageCommand", messageCommand);
 		return "send_message_page";
 	}
 	

@@ -42,6 +42,10 @@
 									<td><a href="${messageUrl}">${message.ssn}</a></td>
 									<td><a href="${messageUrl}">${message.document.title}</a></td>
 									<td>
+										<form method="GET" action="${sendMessageUrl}" style="float: left; margin-right: 0.5em;">
+											<input type="hidden" name="copy" value="${message.id}" />
+											<button type="submit" class="btn btn-primary btn-xs">Kopier</button>
+										</form>
 										<form method="POST" action="${deleteMessageUrl}">
 											<button type="submit" class="btn btn-warning btn-xs">Slett</button>
 										</form>
