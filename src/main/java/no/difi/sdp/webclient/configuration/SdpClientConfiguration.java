@@ -13,6 +13,7 @@ import javax.validation.ValidatorFactory;
 import no.difi.kontaktinfo.wsdl.oppslagstjeneste_14_05.Oppslagstjeneste1405;
 import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
+import no.difi.sdp.client.asice.CreateASiCE;
 import no.difi.sdp.client.domain.*;
 import no.difi.sdp.webclient.configuration.util.ClearAfterReadStringWriter;
 import no.difi.sdp.webclient.configuration.util.ClientKeystorePasswordCallbackHandler;
@@ -274,15 +275,25 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     }
     
     @Bean
-    public SikkerDigitalPostKlient postKlient() {
+    public CreateASiCE createAsice() {
+    	return new CreateASiCE();
+    }
+    
+    @Bean
+    public TekniskAvsender tekniskAvsender() {
     	KeyStore keyStore = cryptoUtil().loadKeystore(environment.getProperty("meldingsformidler.avsender.keystore.type"), environment.getProperty("meldingsformidler.avsender.keystore.file"), environment.getProperty("meldingsformidler.avsender.keystore.password"));
     	Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, environment.getProperty("meldingsformidler.avsender.key.alias"), environment.getProperty("meldingsformidler.avsender.key.password"));
-        TekniskAvsender avsender = TekniskAvsender.builder(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"), noekkelpar).build();
-        KlientKonfigurasjon klientKonfigurasjon = KlientKonfigurasjon.builder()
+        TekniskAvsender tekniskAvsender = TekniskAvsender.builder(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"), noekkelpar).build();
+        return tekniskAvsender;
+    }
+    
+    @Bean
+    public SikkerDigitalPostKlient postKlient() {
+    	KlientKonfigurasjon klientKonfigurasjon = KlientKonfigurasjon.builder()
         		.meldingsformidlerRoot(environment.getProperty("meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
         		.build();
-        SikkerDigitalPostKlient postklient = new SikkerDigitalPostKlient(avsender, klientKonfigurasjon);
+        SikkerDigitalPostKlient postklient = new SikkerDigitalPostKlient(tekniskAvsender(), klientKonfigurasjon);
         return postklient;
     }
 

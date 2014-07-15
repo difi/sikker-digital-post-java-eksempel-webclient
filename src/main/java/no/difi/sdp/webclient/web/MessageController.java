@@ -156,6 +156,18 @@ public class MessageController {
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/asic")
+	public void download_message_asic(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
+		Message message = messageService.getMessage(id);
+		if (message == null || message.getAsic() == null) {
+			throw new NotFoundException();
+		}
+		response.addHeader("Content-Disposition", "attachment; filename=\"message-" + message.getId() + "-asic.zip\"");
+		response.setContentType("application/zip");
+		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getAsic()));
+		IOUtils.copy(inputStream, response.getOutputStream());
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, value = "/messages/{id}/delete")
 	public String delete_message(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 		messageService.deleteMessage(id);

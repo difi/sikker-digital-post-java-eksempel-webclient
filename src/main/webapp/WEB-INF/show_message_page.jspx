@@ -27,6 +27,18 @@
 				<dd id="date">${message.date}</dd>
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
+				<dt>Sendt dokumentpakke (ASiC)</dt>
+				<dd>
+					<c:choose>
+						<c:when test="${empty message.asic}">
+							[ikke tilgjengelig]
+						</c:when>
+						<c:otherwise>
+							<spring:url value="/client/messages/${message.id}/asic" var="downloadMessageAsicUrl" />
+							<a href="${downloadMessageAsicUrl}">Last ned sendt dokumentpakke (ASiC)</a>
+						</c:otherwise>
+					</c:choose>
+				</dd>
 				<dt>Kvitteringer</dt>
 				<dd>
 					<c:choose>

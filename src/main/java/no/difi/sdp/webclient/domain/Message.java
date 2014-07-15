@@ -3,6 +3,7 @@ package no.difi.sdp.webclient.domain;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -121,6 +122,10 @@ public class Message {
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message")
 	private Set<Receipt> receipts;
+	
+	@Lob
+	@Basic(fetch = FetchType.LAZY)
+	private byte[] asic;
 	
 	public Long getId() {
 		return id;
@@ -400,6 +405,14 @@ public class Message {
 	
 	public void setReceipts(Set<Receipt> receipts) {
 		this.receipts = receipts;
+	}
+
+	public byte[] getAsic() {
+		return asic;
+	}
+
+	public void setAsic(byte[] asice) {
+		this.asic = asice;
 	}
 
 }

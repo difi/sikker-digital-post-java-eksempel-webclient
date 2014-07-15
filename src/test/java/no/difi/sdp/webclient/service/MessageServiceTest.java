@@ -156,6 +156,7 @@ public class MessageServiceTest {
         message.setDocument(document);
         message.setAttachments(new HashSet<Document>());
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        message.setLanguageCode("NO");
         messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
@@ -180,6 +181,7 @@ public class MessageServiceTest {
         message.setDocument(document);
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setAttachments(new HashSet<Document>());
+        message.setLanguageCode("NO");
         messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
@@ -221,6 +223,7 @@ public class MessageServiceTest {
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setEmailNotification("emailNotification");
         message.setMobileNotification("mobileNotification");
+        message.setLanguageCode("NO");
         
         messageService.sendMessage(message);
 

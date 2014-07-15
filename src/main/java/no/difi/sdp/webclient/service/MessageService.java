@@ -17,6 +17,7 @@ import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.Informasjonsbehov;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
+import no.difi.sdp.client.asice.CreateASiCE;
 import no.difi.sdp.client.domain.*;
 import no.difi.sdp.client.domain.digital_post.DigitalPost;
 import no.difi.sdp.client.domain.digital_post.EpostVarsel;
@@ -92,6 +93,12 @@ public class MessageService {
 	@Autowired
 	private ConfigurationService configurationService;
 	
+	@Autowired
+	private CreateASiCE createAsice;
+	
+	@Autowired
+	private TekniskAvsender tekniskAvsender;
+	
 	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
         hentPersonerForespoersel.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
@@ -130,6 +137,7 @@ public class MessageService {
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
     	message.setDate(new Date());
+    	message.setAsic(createAsice.createAsice(tekniskAvsender, forsendelse).getBytes());
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
