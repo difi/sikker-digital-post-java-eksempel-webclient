@@ -298,14 +298,14 @@ public class MessageService {
 	 * Gets next receipt from meldingsformidler, resolves message for receipt from database and updates message status.
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
-	public boolean getReceipt() {
+	public boolean getReceipt(Prioritet prioritet) {
 		List<Message> messagesWaitingForReceipt = messageRepository.findByStatus(MessageStatus.WAITING_FOR_RECEIPT);
 		if (messagesWaitingForReceipt.size() == 0) {
 			// No messages waiting for receipt
 			return false;
 		}
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
-				.builder(Prioritet.NORMAL)
+				.builder(prioritet)
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
 				.build());
 		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases

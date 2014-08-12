@@ -331,9 +331,17 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     @Scheduled(fixedRate = 10000, initialDelay = 10000)
     public void retrieveReceiptPeriodically() {
     	// Note that this scheduled task will run concurrently if it runs for more than 10 seconds
-    	while (messageService.getReceipt()) {
+    	while (messageService.getReceipt(Prioritet.NORMAL)) {
     		 // Continues until there are no available receipts
     	}
+    }
+
+    @Scheduled(fixedRate = 10000, initialDelay = 10000)
+    public void retrievePriorityReceiptPeriodically() {
+        // Note that this scheduled task will run concurrently if it runs for more than 10 seconds
+        while (messageService.getReceipt(Prioritet.PRIORITERT)) {
+            // Continues until there are no available receipts
+        }
     }
 
 }
