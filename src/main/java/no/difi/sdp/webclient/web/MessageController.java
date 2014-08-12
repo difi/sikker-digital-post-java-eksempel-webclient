@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import no.difi.sdp.client.domain.Prioritet;
+import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.service.MessageService;
@@ -27,14 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -186,6 +181,58 @@ public class MessageController {
 		model.addAttribute("messages", messages);
 		return "show_message_list_page";
 	}
+
+    private Document getDocumentByFilename(Message message, String filename) throws IOException {
+        InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(filename);
+        byte[] PDF = IOUtils.toByteArray(pdfInputStream);
+        Document attachment = new Document();
+        attachment.setTitle("Testpdf " + filename);
+        attachment.setContent(PDF);
+        attachment.setFilename(filename);
+        attachment.setMimetype("application/pdf");
+        attachment.setMessage(message);
+
+        return attachment;
+    }
+
+    private enum PerformanceTestSize {
+        SIZE_10KB,
+        SIZE_80KB,
+        SIZE_800KB,
+        SIZE_4MB
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/performance")
+    @ResponseBody
+    public String performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size) throws IOException {
+        Message message = new Message();
+        message.setSsn(ssn);
+        message.setInsensitiveTitle("Tittel for " + ssn);
+        message.setPriority(Prioritet.NORMAL);
+        message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        message.setLanguageCode("NO");
+
+        Set<Document> attachments = new HashSet<Document>();
+        if(size == PerformanceTestSize.SIZE_4MB){
+                attachments.add(getDocumentByFilename(message, "SIZE_2MB.pdf"));
+                attachments.add(getDocumentByFilename(message, "SIZE_2MB.pdf"));
+        }
+        message.setAttachments(attachments);
+        String pdfInputFileName = size.toString() + ".pdf";
+        InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(pdfInputFileName);
+        byte[] pdf = IOUtils.toByteArray(pdfInputStream);
+
+        Document document = new Document();
+        document.setFilename("testfil.pdf");
+        document.setContent(pdf);
+        document.setMimetype("application/pdf");
+        document.setTitle("Dokumenttittel for " + ssn);
+
+        message.setDocument(document);
+
+        messageService.sendMessage(message);
+        return ssn + " " + size;
+    }
 	
 	@ModelAttribute("oppslagstjenestenUrl")
 	private String oppslagstjenestenUrl() {
