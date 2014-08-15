@@ -17,8 +17,11 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	
 	@Query("select count(*) from Message m where m.status=:status")
 	public int countByStatus(@Param("status") MessageStatus status);
+
+	@Query("select m.status, count(*) from Message m group by m.status")
+	public List<Object[]> countByStatus();
 	
-	@Query("select m.conversationId, m.status, m.date, r.type, r.date from Message m left join m.receipts r")
+	@Query("select m.conversationId, m.ssn, m.postboxVendorOrgNumber, m.postboxAddress, m.status, m.date, r.type, r.date from Message m left join m.receipts r")
 	public List<Object[]> getReport();
 
 }

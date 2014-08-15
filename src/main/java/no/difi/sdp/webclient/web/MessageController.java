@@ -238,7 +238,9 @@ public class MessageController {
     }
 	
     @RequestMapping(method = RequestMethod.GET, value = "/report")
-    public String showReportPage() {
+    public String showReportPage(Model model) {
+    	List<Object[]> countByStatus = messageService.getCountByStatus();
+    	model.addAttribute("countByStatus", countByStatus);
     	return "show_report_page";
     }
     
@@ -248,7 +250,13 @@ public class MessageController {
     	response.addHeader("Content-Disposition", "attachment; filename=\"report.csv\"");
 		response.setContentType("text/csv");
 		StringWriter writer = new StringWriter();
-    	writer.write("id");
+		writer.write("id");
+		writer.write("\t");
+		writer.write("ssn");
+		writer.write("\t");
+		writer.write("postboxVendorOrgNumber");
+		writer.write("\t");
+		writer.write("postboxAddress");
 		writer.write("\t");
 		writer.write("status");
 		writer.write("\t");
@@ -263,14 +271,23 @@ public class MessageController {
 		List<Object[]> messages = messageService.getReport();
 		for (Object[] message : messages) {
 			String id = (String) message[0];
-			MessageStatus status = (MessageStatus) message[1];
-			Date date = (Date) message[2];
-			String receiptType = (String) message[3];
-			Date receiptDate = (Date) message[4];
-			String msUntilReciept = receiptDate == null ? "" : String.valueOf(receiptDate.getTime() - date.getTime());
-			writer.write(id);
+			String ssn = (String) message[1];
+			String postboxVendorOrgNumber = (String) message[2];
+			String postboxAddress = (String) message[3];
+			MessageStatus status = (MessageStatus) message[4];
+			Date date = (Date) message[5];
+			String receiptType = (String) message[6];
+			Date receiptDate = (Date) message[7];
+			Long msUntilReciept = date == null || receiptDate == null ? null : receiptDate.getTime() - date.getTime();
+			writer.write(id == null ? "" : id);
 			writer.write("\t");
-			writer.write(status.toString());
+			writer.write(ssn == null ? "" : ssn);
+			writer.write("\t");
+			writer.write(postboxVendorOrgNumber == null ? "" : postboxVendorOrgNumber);
+			writer.write("\t");
+			writer.write(postboxAddress == null ? "" : postboxAddress);
+			writer.write("\t");
+			writer.write(status == null ? "" : status.toString());
 			writer.write("\t");
 			writer.write(date == null ? "" : date.toString());
 			writer.write("\t");
@@ -278,7 +295,7 @@ public class MessageController {
 			writer.write("\t");
 			writer.write(receiptDate == null ? "" : receiptDate.toString());
 			writer.write("\t");
-			writer.write(msUntilReciept);
+			writer.write(msUntilReciept == null ? "" : msUntilReciept.toString());
 			writer.write("\n");
 		}
     	return writer.toString();

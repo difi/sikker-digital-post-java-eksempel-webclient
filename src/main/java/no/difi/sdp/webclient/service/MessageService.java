@@ -376,6 +376,10 @@ public class MessageService {
 		return messageRepository.getReport();
 	}
 	
+	public List<Object[]> getCountByStatus() {
+		return messageRepository.countByStatus();
+	}
+	
 	private class MessageServiceException extends Exception {
 		
 		private static final long serialVersionUID = 1L;
