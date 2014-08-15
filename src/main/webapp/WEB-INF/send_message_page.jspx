@@ -18,8 +18,10 @@
 			<ul class="nav nav-tabs">
 				<spring:url value="/client/messages" var="showMessagesUrl" />
 				<spring:url value="/client/" var="sendMessageUrl" />
+				<spring:url value="/client/report" var="showReportUrl" />
 				<li class="active"><a href="${sendMessageUrl}">Send melding</a></li>
 				<li><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
+				<li><a href="${showReportUrl}">Vis rapport</a></li>
 			</ul>
 			<br />
 			<form:form method="POST" action="messages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">

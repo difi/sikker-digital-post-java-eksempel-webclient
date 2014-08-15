@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +17,7 @@ import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
+import no.difi.sdp.webclient.domain.MessageStatus;
 import no.difi.sdp.webclient.service.MessageService;
 
 import org.apache.commons.io.IOUtils;
@@ -234,6 +237,53 @@ public class MessageController {
         return ssn + " " + size;
     }
 	
+    @RequestMapping(method = RequestMethod.GET, value = "/report")
+    public String showReportPage() {
+    	return "show_report_page";
+    }
+    
+    @RequestMapping(method = RequestMethod.GET, value = "/report/download")
+    @ResponseBody
+    public String downloadReport(HttpServletResponse response) {
+    	response.addHeader("Content-Disposition", "attachment; filename=\"report.csv\"");
+		response.setContentType("text/csv");
+		StringWriter writer = new StringWriter();
+    	writer.write("id");
+		writer.write("\t");
+		writer.write("status");
+		writer.write("\t");
+		writer.write("date");
+		writer.write("\t");
+		writer.write("receiptType");
+		writer.write("\t");
+		writer.write("receiptDate");
+		writer.write("\t");
+		writer.write("msUntilReciept");
+		writer.write("\n");
+		List<Object[]> messages = messageService.getReport();
+		for (Object[] message : messages) {
+			String id = (String) message[0];
+			MessageStatus status = (MessageStatus) message[1];
+			Date date = (Date) message[2];
+			String receiptType = (String) message[3];
+			Date receiptDate = (Date) message[4];
+			String msUntilReciept = receiptDate == null ? "" : String.valueOf(receiptDate.getTime() - date.getTime());
+			writer.write(id);
+			writer.write("\t");
+			writer.write(status.toString());
+			writer.write("\t");
+			writer.write(date == null ? "" : date.toString());
+			writer.write("\t");
+			writer.write(receiptType == null ? "" : receiptType);
+			writer.write("\t");
+			writer.write(receiptDate == null ? "" : receiptDate.toString());
+			writer.write("\t");
+			writer.write(msUntilReciept);
+			writer.write("\n");
+		}
+    	return writer.toString();
+    }
+    
 	@ModelAttribute("oppslagstjenestenUrl")
 	private String oppslagstjenestenUrl() {
 		return environment.getProperty("oppslagstjenesten.url");

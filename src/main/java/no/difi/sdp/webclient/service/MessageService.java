@@ -299,8 +299,7 @@ public class MessageService {
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
 	public boolean getReceipt(Prioritet prioritet) {
-		List<Message> messagesWaitingForReceipt = messageRepository.findByStatus(MessageStatus.WAITING_FOR_RECEIPT);
-		if (messagesWaitingForReceipt.size() == 0) {
+		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0) {
 			// No messages waiting for receipt
 			return false;
 		}
@@ -371,6 +370,10 @@ public class MessageService {
 	
 	public Document getDocument(Long id) {
 		return documentRepository.findOne(id);
+	}
+	
+	public List<Object[]> getReport() {
+		return messageRepository.getReport();
 	}
 	
 	private class MessageServiceException extends Exception {

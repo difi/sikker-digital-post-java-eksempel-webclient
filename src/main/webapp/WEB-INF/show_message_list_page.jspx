@@ -15,8 +15,10 @@
 			<ul class="nav nav-tabs">
 				<spring:url value="/client/messages" var="showMessagesUrl" />
 				<spring:url value="/client/" var="sendMessageUrl" />
+				<spring:url value="/client/report" var="showReportUrl" />
 				<li><a href="${sendMessageUrl}">Send melding</a></li>
 				<li class="active"><a href="${showMessagesUrl}">Vis sendte meldinger</a></li>
+				<li><a href="${showReportUrl}">Vis rapport</a></li>
 			</ul>
 			<br />
 			<c:choose>
