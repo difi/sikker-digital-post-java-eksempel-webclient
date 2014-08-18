@@ -40,7 +40,7 @@ namespace :yt do
       sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_zip_filename} -d #{release_path}"
       
 	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
-	  sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}"
+	  sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
 	  
 	  sudo :chmod, "-R 777", "#{release_path}/"
     end
@@ -50,7 +50,7 @@ namespace :yt do
   task :update do
     on roles(:client, :controller) do
       host.ssh_options ||= fetch(:ssh_options)
-      Yt::move_file "test.jmx" , "#{release_path}/test.jmx", host
+      Yt::move_file "test.jmx" , "#{release_path}/#{jmeter_directory}/test.jmx", host
     end
   end
 
@@ -79,7 +79,7 @@ namespace :yt do
     task :run_test do
       on roles(:controller) do |h|
         hosts = Capistrano::Configuration.env.roles_for([:client]).map{|s| s.hostname + ":2089" }
-        execute "cd #{release_path}/#{jmeter_directory} && bin/jmeter -R #{hosts.join(",")} -n -Jresdir=#{release_path} -t #{release_path}/test.jmx -l #{release_path}/results.jtl"
+		execute "cd #{release_path}/#{jmeter_directory} && bin/jmeter -R #{hosts.join(",")} -n -t #{release_path}/#{jmeter_directory}/test.jmx -l #{release_path}/results.jtl"
       end
     end
 
