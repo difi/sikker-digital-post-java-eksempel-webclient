@@ -202,7 +202,7 @@ public class MessageController {
         SIZE_10KB,
         SIZE_80KB,
         SIZE_800KB,
-        SIZE_4MB
+        SIZE_8MB
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/performance")
@@ -216,12 +216,28 @@ public class MessageController {
         message.setLanguageCode("NO");
 
         Set<Document> attachments = new HashSet<Document>();
-        if(size == PerformanceTestSize.SIZE_4MB){
-                attachments.add(getDocumentByFilename(message, "SIZE_2MB.pdf"));
-                attachments.add(getDocumentByFilename(message, "SIZE_2MB.pdf"));
+        String pdfInputFileName;
+        switch (size) {
+
+            case SIZE_10KB:
+                pdfInputFileName = "SDP-Litedok_NAV-10kB.pdf";
+                break;
+            case SIZE_80KB:
+                pdfInputFileName = "SDP-MiddelsLiteDok_kreftreg-80kB.pdf";
+                break;
+            case SIZE_800KB:
+                pdfInputFileName = "SDP-MiddelsStortdok_SI-800kB.pdf";
+                break;
+            case SIZE_8MB:
+                pdfInputFileName = "SDP-StortDokument-4MB.pdf";
+                attachments.add(getDocumentByFilename(message, "SDP-Vedlegg1-2MB.pdf"));
+                attachments.add(getDocumentByFilename(message, "SDP-Vedlegg2-2MB.pdf"));
+                break;
+            default:
+                throw new RuntimeException("Size not supported: " + size.toString());
         }
         message.setAttachments(attachments);
-        String pdfInputFileName = size.toString() + ".pdf";
+
         InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(pdfInputFileName);
         byte[] pdf = IOUtils.toByteArray(pdfInputStream);
 
