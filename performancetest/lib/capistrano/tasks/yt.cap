@@ -1,0 +1,96 @@
+require 'rubygems'
+require 'zip'
+require 'fileutils'
+
+Dir.glob('lib/*.rb').each do |r|
+  import r
+end
+
+namespace :yt do
+
+  jmeter_directory = "apache-jmeter-2.11"
+	
+  desc "Setups performance test environment (installs tomcat7, deploys testavsender to tomcat7, installs jmeter and distributes jmeter test scipt)"
+  task :setup do
+	jmeter_zip_filename = "apache-jmeter-2.11.zip"
+	jmeter_test_zip_filename = "jmeter-test.zip"
+	testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
+	FileUtils.cp("../target/" + testavsender_war_filename, testavsender_war_filename);
+    File.delete(jmeter_test_zip_filename) if File.exists?(jmeter_test_zip_filename)
+	Zip::File.open(jmeter_test_zip_filename, Zip::File::CREATE) do |zipfile|
+      zipfile.add("test.jmx", "test.jmx")
+	  zipfile.add("testdata.csv", "testdata.csv")
+    end
+	
+    on roles(:client, :controller) do
+      host.ssh_options ||= fetch(:ssh_options)
+	  
+      sudo "yum install tomcat7 -y"
+	  sudo "chkconfig tomcat7 on"
+	  Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
+	  sudo "service tomcat7 stop"
+	  sudo "rm -rf /var/lib/tomcat7/webapps/*"
+	  sudo :cp, "#{fetch(:tmp_path)}/#{testavsender_war_filename} /var/lib/tomcat7/webapps/ROOT.war"
+	  sudo "service tomcat7 start"
+	  
+	  sudo :rm, "-rf" , release_path
+      sudo :mkdir, "-p", release_path
+	  
+      Yt::move_file jmeter_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_zip_filename}", host
+      sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_zip_filename} -d #{release_path}"
+      
+	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
+	  sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}"
+	  
+	  sudo :chmod, "-R 777", "#{release_path}/"
+    end
+  end
+
+  desc "Updates performance test environment (distributes jmeter test script)"
+  task :update do
+    on roles(:client, :controller) do
+      host.ssh_options ||= fetch(:ssh_options)
+      Yt::move_file "test.jmx" , "#{release_path}/test.jmx", host
+    end
+  end
+
+  namespace :servers do
+  
+    desc "Start jmeter servers"
+    task :start do
+      on roles(:client) do |h|
+        execute "cd #{release_path}/#{jmeter_directory} && (sudo SERVER_PORT=2089 nohup bin/jmeter-server >&/dev/null &) && sleep 1"
+      end
+    end
+
+    desc "Stops jmeter servers"
+    task :stop do
+      on roles(:client) do |h|
+        # Ensures all jmeter processes are stopped (should probably run in a loop until no jmeter instances found in process list to be really sure that all processes are stopped)
+		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+      end
+    end
+
+    desc "Runs jmeter test from controller"
+    task :run_test do
+      on roles(:controller) do |h|
+        hosts = Capistrano::Configuration.env.roles_for([:client]).map{|s| s.hostname + ":2089" }
+        execute "cd #{release_path}/#{jmeter_directory} && bin/jmeter -R #{hosts.join(",")} -n -Jresdir=#{release_path} -t #{release_path}/test.jmx -l #{release_path}/results.jtl"
+      end
+    end
+
+    desc "download results"
+    task :download_results do
+      on roles(:controller) do |h|
+        download!("#{release_path}/results.jtl", "remote-results.jtl")
+        sudo :rm, "#{release_path}/results.jtl"
+      end
+    end
+
+  end
+
+end

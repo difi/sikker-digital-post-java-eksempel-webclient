@@ -1,0 +1,51 @@
+=== Kjøring og installering av capistrano som jmeter driver ===
+
+== Installasjon av ruby og gems ==
+
+ # Ruby 2.0 installers fra følgende url: http://rubyinstaller.org/downloads/
+ # Når ruby er installert så må man hente ned gemen bundler. Dette gjøres via kommandolinjen og kommandoen:
+  gem install bundler
+ # Når bundler er på plass kan man installere alle avhenig hetene:
+  bundle install
+
+
+== Kjøring av capistrano ==
+
+Capistrano er en utvidelse av rake, som er byggesystemet til ruby. Ala make så kan man sette sammen rutiner for å byggge
+og deploye software. Rake gjør det mulig å kombinere ruby kode og shell scripting. Capistrano gjør det mulig å
+shellscripte over ssh og å ha flere miljø konfigurasjoner. Dette gjør at man kan shellscripte over ssh slik at deploy
+og okestrering av test kjøring ol. blir enkelt å implementere.
+
+Capistrano 3.0 er dokumentert her: http://www.capistranorb.com/
+Rake er dokumentert her : http://rake.rubyforge.org/
+
+For å få en oversikt over hva man kan gjøre med et capistrano script bruker man kommandoen
+
+    cap -T
+
+Da får man en liste med kommandoer og en kort beskrivelse. Vi bruker kun yt:* kommandoene i denne sammenhengen.
+
+== Kjøring av tester ==
+
+Vi bruker jmeter-server til å kjøre testene. Denne støtter å ha mange klienter til en kontroller. Alle klientene kjører
+samme testscript mot en sentral server. Vi ønsker å last teste denne sentrale serveren. Testscriptene ligger under /jmeter.
+
+For å kunne gjennomføre en testkjøring må man gå gjennom følgende faser:
+
+ # Deploye og sette opp backend og external i et testmiljø
+ # Bygge test-ws-client og kopiere jarfilen (uten dependencies) til jmeter/lib/ext/ (overskrive den tidligere)
+
+ # Så kan man distribuere klienten ved å kjøre
+    cap <miljø> yt:setup
+ # Så kan man laste inn data i testdatabasen. Dette sletter all data og gjøre en rekke inserts
+    cap <miljø> yt:data:clear yt:data:load
+ # Så ønsker man å monitorere klientene for å se at vi ikke får feil resultat av deres mangel på resurser. Monitorering
+ av webserveren gjøres manuellt og uten for scriptene (pt.)
+    cap <miljø> yt:servers:mon:start
+ # Da er alt klart til å kjøre testene
+    cap <miljø> yt:run_test
+ # Når komandoen returnerer ligger resultatet i result.jtl. Men man kan også hente ned monitoreringen ved å gjøre. Dette
+ er binære filer fra sar, som måler minne og cup på hver maskin:
+    cap <miljø> yt:servers:mon:stop
+ # Tilslutt ønsker man å avslutte jmeter serverene
+    cap <miljø> yt:servers:stop

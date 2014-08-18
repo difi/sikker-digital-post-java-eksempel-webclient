@@ -1,0 +1,6 @@
+# We don't want to commit the SSH key
+sshkey.pem
+# We don't want to commit the ZIP file
+jmeter-test.zip
+# We don't want to commit the WAR file
+*.war
