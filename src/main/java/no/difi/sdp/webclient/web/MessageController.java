@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import no.difi.begrep.Reservasjon;
+import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.Document;
@@ -20,6 +22,7 @@ import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
 import no.difi.sdp.webclient.service.MessageService;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +131,7 @@ public class MessageController {
 		message.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
-		messageService.sendMessage(message);
+		messageService.sendMessage(message, true);
 		return "redirect:/client/messages/" + message.getId();
 	}
 	
@@ -205,9 +208,14 @@ public class MessageController {
         SIZE_8MB
     }
 
+    private enum PostboxVendor {
+    	EBOKS,
+    	DIGIPOST
+    }
+    
     @RequestMapping(method = RequestMethod.GET, value = "/performance")
-    @ResponseBody
-    public String performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size) throws IOException {
+    @ResponseStatus(value = HttpStatus.OK)
+    public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
         Message message = new Message();
         message.setSsn(ssn);
         message.setInsensitiveTitle("Tittel for " + ssn);
@@ -240,17 +248,35 @@ public class MessageController {
 
         InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(pdfInputFileName);
         byte[] pdf = IOUtils.toByteArray(pdfInputStream);
-
         Document document = new Document();
         document.setFilename("testfil.pdf");
         document.setContent(pdf);
         document.setMimetype("application/pdf");
         document.setTitle("Dokumenttittel for " + ssn);
-
         message.setDocument(document);
-
-        messageService.sendMessage(message);
-        return ssn + " " + size;
+        
+        if (postboxAddress == null || postboxVendor == null) {
+        	// Retrieves contact details from oppslagstjenesten
+        	messageService.sendMessage(message, true);
+        } else {
+        	// Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
+        	message.setContactRegisterStatus(Status.AKTIV);
+        	message.setReservationStatus(Reservasjon.NEI);
+        	message.setPostboxAddress(postboxAddress);
+        	switch (postboxVendor) {
+				case DIGIPOST:
+					message.setPostboxVendorOrgNumber(environment.getProperty("performancetest.digipost.orgnr"));
+		        	message.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.digipost.postbox.certificate")));
+					break;
+				case EBOKS:
+					message.setPostboxVendorOrgNumber(environment.getProperty("performancetest.eboks.orgnr"));
+		        	message.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.eboks.postbox.certificate")));
+					break;
+				default:
+					throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
+        	}
+        	messageService.sendMessage(message, false);
+        }
     }
 	
     @RequestMapping(method = RequestMethod.GET, value = "/report")

@@ -229,9 +229,11 @@ public class MessageService {
         		.build();
     }
     
-    public void sendMessage(Message message)  {
+    public void sendMessage(Message message, boolean retrieveContactDetails)  {
     	try {
-    		retrieveContactDetailsFromOppslagstjeneste(message);
+    		if (retrieveContactDetails) {
+    			retrieveContactDetailsFromOppslagstjeneste(message);
+    		}
     		sendMessageToMeldingsformidler(message);
     		message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
     	} catch (MessageServiceException e) {
