@@ -301,7 +301,7 @@ public class MessageService {
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
 	public boolean getReceipt(Prioritet prioritet) {
-		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0) {
+		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0 && messageRepository.countByStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT) == 0) {
 			// No messages waiting for receipt
 			return false;
 		}
@@ -340,9 +340,14 @@ public class MessageService {
 			message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
 		} else if (forretningsKvittering instanceof AapningsKvittering) {
 			receipt.setType("Åpningskvittering");
+			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
 		} else if (forretningsKvittering instanceof LeveringsKvittering) {
 			receipt.setType("Leveringskvittering");
-			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+			if (message.getRequiresMessageOpenedReceipt()) {
+				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
+			} else {
+				message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+			}
 		} else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
 			VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
 			receipt.setType("Varsling feilet");
