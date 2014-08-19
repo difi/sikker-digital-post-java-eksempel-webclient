@@ -4,3 +4,5 @@ sshkey.pem
 jmeter-test.zip
 # We don't want to commit the WAR file
 *.war
+# We don't want to commit the test results
+*.jtl
