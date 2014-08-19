@@ -288,8 +288,25 @@ public class MessageService {
 		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
 	}
 
+	/**
+	 * Gets all messages, but only the following fields are populated: id, date, ssn and document.title.
+	 * @return
+	 */
 	public List<Message> getMessages() {
-		return messageRepository.findAll();
+		List<Object[]> rawMessages = messageRepository.list();
+		List<Message> messages = new ArrayList<Message>();
+		for (Object[] rawMessage : rawMessages) {
+			// Refer to messageRepository.list() for field order
+			Message message = new Message();
+			message.setId((Long) rawMessage[0]);
+			message.setDate((Date) rawMessage[1]);
+			message.setSsn((String) rawMessage[2]);
+			Document document = new Document();
+			document.setTitle((String) rawMessage[3]); 
+			message.setDocument(document);
+			messages.add(message);
+		}
+		return messages;
 	}
 	
 	public Message getMessage(Long id) {
@@ -379,6 +396,10 @@ public class MessageService {
 		return documentRepository.findOne(id);
 	}
 	
+	/**
+	 * Gets the following fields for all messages: id, ssn, date, postboxVendorOrgNumber, postboxAddress, status, receipt.type and receipt.date.
+	 * @return
+	 */
 	public List<Object[]> getReport() {
 		return messageRepository.getReport();
 	}
