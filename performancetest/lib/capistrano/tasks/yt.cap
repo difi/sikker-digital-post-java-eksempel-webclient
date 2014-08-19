@@ -9,17 +9,21 @@ end
 namespace :yt do
 
   jmeter_directory = "apache-jmeter-2.11"
+  jmeter_zip_filename = "apache-jmeter-2.11.zip"
+  jmeter_test_zip_filename = "jmeter-test.zip"
+  jmeter_test_filename = "test.jmx"
+  jmeter_testdata_filename = "testdata.csv"
+  testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
+  tomcat_config_filename="tomcat.conf"
+  jmeter_startupscript_filename="jmeter"
 	
   desc "Setups performance test environment (installs tomcat7, deploys testavsender to tomcat7, installs jmeter and distributes jmeter test scipt)"
   task :setup do
-	jmeter_zip_filename = "apache-jmeter-2.11.zip"
-	jmeter_test_zip_filename = "jmeter-test.zip"
-	testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
 	FileUtils.cp("../target/" + testavsender_war_filename, testavsender_war_filename);
     File.delete(jmeter_test_zip_filename) if File.exists?(jmeter_test_zip_filename)
 	Zip::File.open(jmeter_test_zip_filename, Zip::File::CREATE) do |zipfile|
-      zipfile.add("test.jmx", "test.jmx")
-	  zipfile.add("testdata.csv", "testdata.csv")
+      zipfile.add(jmeter_test_filename, jmeter_test_filename)
+	  zipfile.add(jmeter_testdata_filename, jmeter_testdata_filename)
     end
 	
     on roles(:client, :controller) do
@@ -29,8 +33,12 @@ namespace :yt do
 	  sudo "chkconfig tomcat7 on"
 	  Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
 	  sudo "service tomcat7 stop"
-	  sudo "rm -rf /var/lib/tomcat7/webapps/*"
+	  sudo :rm, "-rf", "/var/lib/tomcat7/webapps/*"
 	  sudo :cp, "#{fetch(:tmp_path)}/#{testavsender_war_filename} /var/lib/tomcat7/webapps/ROOT.war"
+	  sudo :rm, "-rf", "/etc/tomcat"
+	  sudo :mkdir, "/etc/tomcat"
+	  Yt::move_file tomcat_config_filename, "#{fetch(:tmp_path)}/#{tomcat_config_filename}", host
+	  sudo :cp, "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat/tomcat.conf"
 	  sudo "service tomcat7 start"
 	  
 	  sudo :rm, "-rf" , release_path
@@ -42,6 +50,9 @@ namespace :yt do
 	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
 	  sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
 	  
+	  Yt::move_file jmeter_startupscript_filename, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename}", host
+      sudo :cp, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
+	  
 	  sudo :chmod, "-R 777", "#{release_path}/"
     end
   end
@@ -50,7 +61,7 @@ namespace :yt do
   task :update do
     on roles(:client, :controller) do
       host.ssh_options ||= fetch(:ssh_options)
-      Yt::move_file "test.jmx" , "#{release_path}/#{jmeter_directory}/test.jmx", host
+      Yt::move_file jmeter_test_filename, "#{release_path}/#{jmeter_directory}/#{jmeter_test_filename}", host
     end
   end
 
@@ -79,7 +90,7 @@ namespace :yt do
     task :run_test do
       on roles(:controller) do |h|
         hosts = Capistrano::Configuration.env.roles_for([:client]).map{|s| s.hostname + ":2089" }
-		execute "cd #{release_path}/#{jmeter_directory} && bin/jmeter -R #{hosts.join(",")} -n -t #{release_path}/#{jmeter_directory}/test.jmx -l #{release_path}/results.jtl"
+		execute "cd #{release_path}/#{jmeter_directory} && bin/jmeter -R #{hosts.join(",")} -n -t #{release_path}/#{jmeter_directory}/#{jmeter_test_filename} -l #{release_path}/results.jtl"
       end
     end
 
