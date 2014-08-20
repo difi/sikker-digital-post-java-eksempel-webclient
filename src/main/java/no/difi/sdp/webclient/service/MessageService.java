@@ -288,8 +288,25 @@ public class MessageService {
 		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
 	}
 
+	/**
+	 * Gets all messages, but only the following fields are populated: id, date, ssn and document.title.
+	 * @return
+	 */
 	public List<Message> getMessages() {
-		return messageRepository.findAll();
+		List<Object[]> rawMessages = messageRepository.list();
+		List<Message> messages = new ArrayList<Message>();
+		for (Object[] rawMessage : rawMessages) {
+			// Refer to messageRepository.list() for field order
+			Message message = new Message();
+			message.setId((Long) rawMessage[0]);
+			message.setDate((Date) rawMessage[1]);
+			message.setSsn((String) rawMessage[2]);
+			Document document = new Document();
+			document.setTitle((String) rawMessage[3]); 
+			message.setDocument(document);
+			messages.add(message);
+		}
+		return messages;
 	}
 	
 	public Message getMessage(Long id) {
@@ -301,7 +318,7 @@ public class MessageService {
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
 	public boolean getReceipt(Prioritet prioritet) {
-		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0) {
+		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0 && messageRepository.countByStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT) == 0) {
 			// No messages waiting for receipt
 			return false;
 		}
@@ -340,9 +357,14 @@ public class MessageService {
 			message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
 		} else if (forretningsKvittering instanceof AapningsKvittering) {
 			receipt.setType("Åpningskvittering");
+			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
 		} else if (forretningsKvittering instanceof LeveringsKvittering) {
 			receipt.setType("Leveringskvittering");
-			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+			if (message.getRequiresMessageOpenedReceipt()) {
+				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
+			} else {
+				message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+			}
 		} else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
 			VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
 			receipt.setType("Varsling feilet");
@@ -374,6 +396,10 @@ public class MessageService {
 		return documentRepository.findOne(id);
 	}
 	
+	/**
+	 * Gets the following fields for all messages: id, ssn, date, postboxVendorOrgNumber, postboxAddress, status, receipt.type and receipt.date.
+	 * @return
+	 */
 	public List<Object[]> getReport() {
 		return messageRepository.getReport();
 	}
