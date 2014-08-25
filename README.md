@@ -28,6 +28,22 @@
 2. Bygg Testavsender fra roten av Git-prosjektet `mvn clean install`
 3. Installer WAR-filen som blir laget under `target/` fra roten av Git-prosjektet til ønsket servlet-container i henhold til instruksjoner for servlet-containeren
 
+## Database
+
+### Out-of-the-box database
+
+Testavsender bruker H2 minnedatabase.
+
+### Egen MySQL-database
+
+For å ta i bruk en egen installasjon av MySQL må en:
+
+1. Installere MySQL-server
+2. Opprette databaseskjema for testavsender i MySQL
+3. Opprette bruker for testavsender i MySQL
+4. Gi bruker for testavsender i MySQL full tilgang til databaseskjema for testavsender (tilgangene kan eventuelt begrenses til: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, DROP TABLE)
+5. Overstyre databasekonfigurasjon (se "Overstyre standardkonfigurasjon")
+
 ## Integrasjoner
 
 ### Out-of-the-box integrasjon
@@ -42,8 +58,17 @@ For å sette opp egen integrasjon må en:
 
 1. Integrere mot et testmiljø for oppsalgstjenesten - se http://begrep.difi.no/Oppslagstjenesten/
 2. Integrere mot et testmiljø for meldingsformidler - se http://begrep.difi.no/SikkerDigitalPost/
-3. Oppdatere konfigurasjon av integrasjon under `/src/main/resources/` fra roten av Git-prosjektet til å reflektere egen integrasjon (se punkt 1 og 2)
+3. Overstyre konfigurasjon av integrasjon (se "Overstyre standardkonfigurasjon")
 4. Bygge Testavsender på nytt `mvn clean install`
+
+## Overstyre standard konfigurasjon
+
+For å overstyre standard konfigurasjon må en:
+
+1. Opprette mappen `/etc/opt/testavsender/` fra roten av operativsystemet
+2. Kopiere filen `configuration.properties` fra `/src/main/resources/` fra roten av Git-prosjektet til `/etc/opt/testavsender/` fra roten av operativsystemet
+3. Gjøre ønskede endringer i `configuration.properties`
+4. Starte testavsender på nytt
 
 ## Mer informasjon om sikker digital post
 
