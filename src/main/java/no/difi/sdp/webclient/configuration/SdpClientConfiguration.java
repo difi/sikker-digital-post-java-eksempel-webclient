@@ -33,18 +33,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -65,7 +64,10 @@ import org.springframework.ws.context.MessageContext;
 
 @Configuration
 @ComponentScan( { "no.difi.sdp.webclient.web", "no.difi.sdp.webclient.service" } )
-@PropertySource( {"classpath:configuration.properties"} )
+@PropertySources( {
+	@PropertySource(value = "classpath:configuration.properties"), // Defaults
+	@PropertySource(value = "file:/etc/opt/testavsender/configuration.properties", ignoreResourceNotFound = true) // Optional overrides
+})
 @EnableWebMvc
 @EnableJpaRepositories(basePackages = "no.difi.sdp.webclient.repository")
 @EnableTransactionManagement
@@ -299,15 +301,19 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
     public DataSource dataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        EmbeddedDatabase embeddedDatabase = builder.setType(EmbeddedDatabaseType.H2).build();
-        return embeddedDatabase;
+    	org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+    	dataSource.setDriverClassName(environment.getProperty("database.driver"));
+    	dataSource.setUrl(environment.getProperty("database.url"));
+    	dataSource.setUsername(environment.getProperty("database.username"));
+    	dataSource.setPassword(environment.getProperty("database.password"));
+    	return dataSource;
     }
 
     @Bean
     public EntityManagerFactory entityManagerFactory() {
     	HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setGenerateDdl(true);
+        jpaVendorAdapter.setDatabase(environment.getProperty("database.vendor", Database.class));
         LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter);
         entityManagerFactory.setPackagesToScan("no.difi.sdp.webclient.domain");
