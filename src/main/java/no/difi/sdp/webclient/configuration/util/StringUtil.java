@@ -116,10 +116,24 @@ public class StringUtil {
 	}
 	
     public String nullIfEmpty(String string) {
-    	if (string.isEmpty()) {
+    	if (string == null || string.isEmpty()) {
     		return null;
     	}
     	return string;
+    }
+    
+    public String nullIfEmpty(StringWriter stringWriter) {
+    	if (stringWriter == null) {
+    		return null;
+    	}
+    	return nullIfEmpty(stringWriter.toString());
+    }
+    
+    public String nullIfEmpty(Holder<StringWriter> stringWriterHolder) {
+    	if (stringWriterHolder == null) {
+    		return null;
+    	}
+    	return nullIfEmpty(stringWriterHolder.getValue());
     }
     
     public static List<Integer> toIntList(String string) {

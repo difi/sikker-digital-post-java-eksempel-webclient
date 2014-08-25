@@ -3,6 +3,7 @@ package no.difi.sdp.webclient.configuration;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.KeyStore;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +16,9 @@ import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.asice.CreateASiCE;
 import no.difi.sdp.client.domain.*;
-import no.difi.sdp.webclient.configuration.util.ClearAfterReadStringWriter;
 import no.difi.sdp.webclient.configuration.util.ClientKeystorePasswordCallbackHandler;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.service.MessageService;
 
@@ -120,54 +121,52 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 	
 	/**
 	 * Holds the most recently captured postKlient SOAP request for the current thread.
-	 * This bean is scoped to the thread (one instance will be created per thread).
-	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
-	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
 	 * @return
 	 */
 	@Bean
 	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter postKlientSoapRequest() {
-		return new ClearAfterReadStringWriter();
+	public Holder<StringWriter> postKlientSoapRequest() {
+		return new Holder<StringWriter>();
 	}
 	
 	/**
 	 * Holds the most recently captured postKlient SOAP request payload for the current thread.
-	 * This bean is scoped to the thread (one instance will be created per thread).
-	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
-	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
 	 * @return
 	 */
 	@Bean
 	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter postKlientSoapRequestPayload() {
-		return new ClearAfterReadStringWriter();
+	public Holder<StringWriter> postKlientSoapRequestPayload() {
+		return new Holder<StringWriter>();
+	}
+	
+	/**
+	 * Holds the most recently captured postKlient SOAP request date for the current thread.
+	 * @return
+	 */
+	@Bean
+	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public Holder<Date> postKlientSoapRequestDate() {
+		return new Holder<Date>();
 	}
 	
 	/**
 	 * Holds the most recently captured postKlient SOAP response for the current thread.
-	 * This bean is scoped to the thread (one instance will be created per thread).
-	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
-	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
 	 * @return
 	 */
 	@Bean
 	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter postKlientSoapResponse() {
-		return new ClearAfterReadStringWriter();
+	public Holder<StringWriter> postKlientSoapResponse() {
+		return new Holder<StringWriter>();
 	}
 	
 	/**
 	 * Holds the most recently captured postKlient SOAP response payload for the current thread.
-	 * This bean is scoped to the thread (one instance will be created per thread).
-	 * Uses ClearAfterReadStringWriter because the postKlient might perform several requests on the same thread and we need to clear the contents so that it does not accumulate mulitple requests.
-	 * Because ClearAfterReadStringWriter is scoped to the thread and everything is running sequentially within the thread there are no concurrency issues.
 	 * @return
 	 */
 	@Bean
 	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public StringWriter postKlientSoapResponsePayload() {
-		return new ClearAfterReadStringWriter();
+	public Holder<StringWriter> postKlientSoapResponsePayload() {
+		return new Holder<StringWriter>();
 	}
 	
 	@Bean
@@ -258,18 +257,24 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
 			@Override
 			public boolean handleRequest(MessageContext messageContext) throws WebServiceClientException {
 				// Captures outgoing SOAP requests
-				stringUtil().transform(messageContext.getRequest(), postKlientSoapRequest());
+				postKlientSoapRequest().setValue(new StringWriter());
+				stringUtil().transform(messageContext.getRequest(), postKlientSoapRequest().getValue());
 				// Captures outgoing postklient SOAP message payloads (in practice only the message: Digitalpost)
-				stringUtil().transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload());
+				postKlientSoapRequestPayload().setValue(new StringWriter());
+				stringUtil().transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload().getValue());
+				// Captures timestamp for sent message here since all client-side processing is completed at this point
+				postKlientSoapRequestDate().setValue(new Date());
 				return true;
 			}
 
 			@Override
 			public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
 				// Captures incoming SOAP responses
-				stringUtil().transform(messageContext.getResponse(), postKlientSoapResponse());
+				postKlientSoapResponse().setValue(new StringWriter());
+				stringUtil().transform(messageContext.getResponse(), postKlientSoapResponse().getValue());
 				// Captures incoming postklient SOAP message payloads (in practice only the messages: LeveringsKvittering, ÅpningKvittering, Varslingfeilet and Feil)
-				stringUtil().transform(messageContext.getResponse().getPayloadSource(), postKlientSoapResponsePayload());
+				postKlientSoapResponsePayload().setValue(new StringWriter());
+				stringUtil().transform(messageContext.getResponse().getPayloadSource(), postKlientSoapResponsePayload().getValue());
 				return true;
 			}
     		

@@ -29,6 +29,7 @@ import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.client.domain.kvittering.LeveringsKvittering;
 import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.repository.DocumentRepository;
@@ -76,16 +77,19 @@ public class MessageService {
 	private StringWriter xmlRetrievePersonsResponsePayload;
 	
 	@Autowired
-	private StringWriter postKlientSoapRequest;
+	private Holder<StringWriter> postKlientSoapRequest;
 	
 	@Autowired
-	private StringWriter postKlientSoapRequestPayload;
+	private Holder<StringWriter> postKlientSoapRequestPayload;
 	
 	@Autowired
-	private StringWriter postKlientSoapResponse;
+	private Holder<Date> postKlientSoapRequestDate;
 	
 	@Autowired
-	private StringWriter postKlientSoapResponsePayload;
+	private Holder<StringWriter> postKlientSoapResponse;
+	
+	@Autowired
+	private Holder<StringWriter> postKlientSoapResponsePayload;
 	
 	@Autowired
 	private CryptoUtil cryptoUtil;
@@ -136,7 +140,6 @@ public class MessageService {
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
-    	message.setDate(new Date());
     	message.setAsic(createAsice.createAsice(tekniskAvsender, forsendelse).getBytes());
     }
     
@@ -235,21 +238,19 @@ public class MessageService {
     			retrieveContactDetailsFromOppslagstjeneste(message);
     		}
     		sendMessageToMeldingsformidler(message);
-    		message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
     	} catch (MessageServiceException e) {
     		LOGGER.error(e.getStatus().toString(), e);
     		message.setStatus(e.getStatus());
     		message.setException(stringUtil.toString(e));
     	}
-    	message.setXmlRetrievePersonsRequest(stringUtil.nullIfEmpty(xmlRetrievePersonsRequest.toString()));
-    	message.setXmlRetrievePersonsRequestPayload(stringUtil.nullIfEmpty(xmlRetrievePersonsRequestPayload.toString()));
-    	message.setXmlRetrievePersonsResponse(stringUtil.nullIfEmpty(xmlRetrievePersonsResponse.toString()));
-    	message.setXmlRetrievePersonsResponsePayload(stringUtil.nullIfEmpty(xmlRetrievePersonsResponsePayload.toString()));
-    	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest.toString()));
-    	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload.toString()));
-    	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse.toString()));
-    	postKlientSoapResponsePayload.toString();
-        messageRepository.save(message);
+    	message.setXmlRetrievePersonsRequest(stringUtil.nullIfEmpty(xmlRetrievePersonsRequest));
+    	message.setXmlRetrievePersonsRequestPayload(stringUtil.nullIfEmpty(xmlRetrievePersonsRequestPayload));
+    	message.setXmlRetrievePersonsResponse(stringUtil.nullIfEmpty(xmlRetrievePersonsResponse));
+    	message.setXmlRetrievePersonsResponsePayload(stringUtil.nullIfEmpty(xmlRetrievePersonsResponsePayload));
+    	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest));
+    	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload));
+    	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse));
+    	messageRepository.save(message);
 	}
     
     private void retrieveContactDetailsFromOppslagstjeneste(Message message) throws MessageServiceException {
@@ -278,6 +279,8 @@ public class MessageService {
         	Forsendelse forsendelse = buildDigitalForsendelse(message);
     		enrichMessage(message, forsendelse);
 			postklient.send(forsendelse);
+			message.setDate(postKlientSoapRequestDate.getValue());
+	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
 		} catch (Exception e) {
 			throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
 		}
@@ -327,10 +330,9 @@ public class MessageService {
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
 				.build());
 		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
-		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest.toString());
-		postKlientSoapRequestPayload.toString();
-		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse.toString());
-		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload.toString());
+		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
+		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse);
+		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
     	if (forretningsKvittering == null) {
 			// No available receipts 
 			return false;
