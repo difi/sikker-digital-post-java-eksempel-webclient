@@ -1,5 +1,7 @@
 # Ytelsestesting av sikker digital post-infrastrukturen
 
+## Infrastruktur for ytelsestest
+
 ![Ytelsestesting av sikker digital post-infrastrukturen](https://github.com/difi/sdp-klient-eksempel-java-webclient/raw/master/performancetest/ytelsestesting-av-sikker-digital-post-infrastrukturen.png)
 
 ## Testavsenders tenester for ytelsestesting
@@ -77,4 +79,4 @@ Det er laget skript som gjør det enkelt å:
 11. Stopp Jmeter-serverer med kommandoen: `cap production yt:servers:stop`
 12. Nå kan testdata lastes inn i Jmeter for analyse
 
-Justeringer i testscenario kan oppdateres uten å kjøre fullt oppsett på nytt med kommandoen `cap production yt:update`
+Justeringer i testscenario kan distribueres uten å kjøre fullt oppsett på nytt med kommandoen `cap production yt:update`

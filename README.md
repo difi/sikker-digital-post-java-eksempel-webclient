@@ -70,7 +70,7 @@ For å overstyre standard konfigurasjon må en:
 3. Gjøre ønskede endringer i `configuration.properties`
 4. Starte testavsender på nytt
 
-### Ytelsestest
+## Ytelsestest av sikker digital post-infrastrukturen
 
 Se https://github.com/difi/sdp-klient-eksempel-java-webclient/tree/master/performancetest/
 
