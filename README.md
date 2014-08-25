@@ -36,13 +36,13 @@ Testavsender bruker H2 minnedatabase.
 
 ### Egen MySQL-database
 
-For å ta i bruk en egen installasjon av MySQL må en:
+For å ta i bruk en egen MySQL-database må en:
 
 1. Installere MySQL-server
 2. Opprette databaseskjema for testavsender i MySQL
 3. Opprette bruker for testavsender i MySQL
 4. Gi bruker for testavsender i MySQL full tilgang til databaseskjema for testavsender (tilgangene kan eventuelt begrenses til: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, DROP TABLE)
-5. Overstyre databasekonfigurasjon (se "Overstyre standardkonfigurasjon")
+5. Overstyre databasekonfigurasjon (se "Overstyre standard konfigurasjon")
 
 ## Integrasjoner
 
@@ -58,7 +58,7 @@ For å sette opp egen integrasjon må en:
 
 1. Integrere mot et testmiljø for oppsalgstjenesten - se http://begrep.difi.no/Oppslagstjenesten/
 2. Integrere mot et testmiljø for meldingsformidler - se http://begrep.difi.no/SikkerDigitalPost/
-3. Overstyre konfigurasjon av integrasjon (se "Overstyre standardkonfigurasjon")
+3. Overstyre konfigurasjon av integrasjon (se "Overstyre standard konfigurasjon")
 4. Bygge Testavsender på nytt `mvn clean install`
 
 ## Overstyre standard konfigurasjon
@@ -69,6 +69,10 @@ For å overstyre standard konfigurasjon må en:
 2. Kopiere filen `configuration.properties` fra `/src/main/resources/` fra roten av Git-prosjektet til `/etc/opt/testavsender/` fra roten av operativsystemet
 3. Gjøre ønskede endringer i `configuration.properties`
 4. Starte testavsender på nytt
+
+### Ytelsestest
+
+Se https://github.com/difi/sdp-klient-eksempel-java-webclient/tree/master/performancetest/
 
 ## Mer informasjon om sikker digital post
 
