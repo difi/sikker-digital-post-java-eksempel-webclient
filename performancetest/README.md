@@ -66,17 +66,18 @@ Det er laget skript som gjør det enkelt å:
 
 ### Klargjøre og gjennomføre ytelsestest mha. Capistrano
 
-1. Sørg for at du har SSH-tilgang til serverene du ønsker å bruke for ytelsestesting
-2. Rediger `production.rb` under `/performancetest/config/deploy/` og legg inn en server med rollen controller og resten med rollen client (space-separert)
-3. Legg nøkkelen som gir deg tilgang til serverene som `sshkey.pem` under `/performancetest/` (`sshkey.pem` er av sikkerhetsgrunner lagt til i `.gitignore`)
-4. Nå er alt klart til å få tilgang til serverene
-5. Naviger til `/performancetest/` fra roten av Git-prosjektet
-6. Installer Apache Jmeter, Apache Tomcat 7 og Testavsender på alle serverer, kopier testscenario og testdata med kommandoen: `cap production yt:setup`
-7. Start Jmeter-serverer med kommandoen: `cap production yt:servers:start`
-8. Start test med kommandoen: `cap production yt:servers:run_test`
-9. Vent til testen er ferdig
-10. Last ned test-resultat med kommandoen: `cap production yt:servers:download_results`
-11. Stopp Jmeter-serverer med kommandoen: `cap production yt:servers:stop`
-12. Nå kan testdata lastes inn i Jmeter for analyse
+1. Bygg testavsender `mvn clean install`
+2. Sørg for at du har SSH-tilgang til serverene du ønsker å bruke for ytelsestesting
+3. Rediger `production.rb` under `/performancetest/config/deploy/` og legg inn en server med rollen controller og resten med rollen client (space-separert)
+4. Legg nøkkelen som gir deg tilgang til serverene som `sshkey.pem` under `/performancetest/` (`sshkey.pem` er av sikkerhetsgrunner lagt til i `.gitignore`)
+5. Nå er alt klart til å få tilgang til serverene
+6. Naviger til `/performancetest/` fra roten av Git-prosjektet
+7. Installer Apache Jmeter, Apache Tomcat 7 og Testavsender på alle serverer, kopier testscenario og testdata med kommandoen: `cap production yt:setup`
+8. Start Jmeter-serverer med kommandoen: `cap production yt:servers:start`
+9. Start test med kommandoen: `cap production yt:servers:run_test`
+10. Vent til testen er ferdig
+11. Last ned test-resultat med kommandoen: `cap production yt:servers:download_results`
+12. Stopp Jmeter-serverer med kommandoen: `cap production yt:servers:stop`
+13. Nå kan testdata lastes inn i Jmeter for analyse
 
 Justeringer i testscenario kan distribueres uten å kjøre fullt oppsett på nytt med kommandoen `cap production yt:update`

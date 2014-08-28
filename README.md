@@ -59,7 +59,7 @@ For å sette opp egen integrasjon må en:
 1. Integrere mot et testmiljø for oppsalgstjenesten - se http://begrep.difi.no/Oppslagstjenesten/
 2. Integrere mot et testmiljø for meldingsformidler - se http://begrep.difi.no/SikkerDigitalPost/
 3. Overstyre konfigurasjon av integrasjon (se "Overstyre standard konfigurasjon")
-4. Bygge Testavsender på nytt `mvn clean install`
+4. Starte testavsender på nytt
 
 ## Overstyre standard konfigurasjon
 
