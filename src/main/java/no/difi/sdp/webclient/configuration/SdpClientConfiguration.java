@@ -311,6 +311,27 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     	dataSource.setUrl(environment.getProperty("database.url"));
     	dataSource.setUsername(environment.getProperty("database.username"));
     	dataSource.setPassword(environment.getProperty("database.password"));
+    	// Connection pool configuration - refer to http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html
+    	dataSource.setMaxActive(environment.getProperty("database.pool.maxActive", Integer.class));
+    	dataSource.setMaxIdle(environment.getProperty("database.pool.maxIdle", Integer.class));
+    	dataSource.setMinIdle(environment.getProperty("database.pool.minIdle", Integer.class));
+    	dataSource.setInitialSize(environment.getProperty("database.pool.initialSize", Integer.class));
+    	dataSource.setMaxWait(environment.getProperty("database.pool.maxWait", Integer.class));
+    	dataSource.setTestOnBorrow(environment.getProperty("database.pool.testOnBorrow", Boolean.class));
+    	dataSource.setTestOnReturn(environment.getProperty("database.pool.testOnReturn", Boolean.class));
+    	dataSource.setTestWhileIdle(environment.getProperty("database.pool.testWhileIdle", Boolean.class));
+    	dataSource.setValidationQuery(environment.getProperty("database.pool.validationQuery"));
+    	dataSource.setValidationQueryTimeout(environment.getProperty("database.pool.validationQueryTimeout", Integer.class));
+    	dataSource.setTimeBetweenEvictionRunsMillis(environment.getProperty("database.pool.timeBetweenEvictionRunsMillis", Integer.class));
+    	dataSource.setMinEvictableIdleTimeMillis(environment.getProperty("database.pool.minEvictableIdleTimeMillis", Integer.class));
+    	dataSource.setRemoveAbandoned(environment.getProperty("database.pool.removeAbandoned", Boolean.class));
+    	dataSource.setRemoveAbandonedTimeout(environment.getProperty("database.pool.removeAbandonedTimeout", Integer.class));
+    	dataSource.setLogAbandoned(environment.getProperty("database.pool.logAbandoned", Boolean.class));
+    	dataSource.setValidationInterval(environment.getProperty("database.pool.validationInterval", Integer.class));
+    	dataSource.setFairQueue(environment.getProperty("database.pool.fairQueue", Boolean.class));
+    	dataSource.setAbandonWhenPercentageFull(environment.getProperty("database.pool.abandonWhenPercentageFull", Integer.class));
+    	dataSource.setMaxAge(environment.getProperty("database.pool.maxAge", Integer.class));
+    	dataSource.setLogValidationErrors(environment.getProperty("database.pool.logValidationErrors", Boolean.class));
     	return dataSource;
     }
 
