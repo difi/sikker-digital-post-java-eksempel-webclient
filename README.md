@@ -48,7 +48,7 @@ For å ta i bruk en egen MySQL-database må en:
 
 ### Out-of-the-box integrasjon
 
-Testavsender er integrert mot et testmiljø for oppslagstjenesten på https://kontaktinfo-ws-ver2.difi.no/kontaktinfo-external/ws-v3. Sertifikat og annet er spesielt laget for Testavsender-integrasjonen.
+Testavsender er integrert mot et testmiljø for oppslagstjenesten på https://eid-inttest.difi.no/kontaktinfo-external/ws-v3. Sertifikat og annet er spesielt laget for Testavsender-integrasjonen.
 
 Testavsender er integrert mot et testmiljø for meldingsformidler på https://qaoffentlig.meldingsformidler.digipost.no/api/. Sertifikat og annet er spesielt laget for Testavsender-integrasjonen.
 
