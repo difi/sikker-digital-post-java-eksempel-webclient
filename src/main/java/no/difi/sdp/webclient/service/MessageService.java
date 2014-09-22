@@ -339,6 +339,11 @@ public class MessageService {
 		List<Message> messages = messageRepository.findByConversationId(forretningsKvittering.getKonversasjonsId());
 		if (messages.size() != 1) {
 			LOGGER.error("Recieved receipt for message not found in datastore");
+			try {
+				postklient.bekreft(forretningsKvittering);
+			} catch (Exception e) {
+				LOGGER.error("Failed acknowledging retrieved receipt", e);
+			}
 			return true;
 		}
 		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
@@ -385,7 +390,6 @@ public class MessageService {
 			LOGGER.error("Failed acknowledging retrieved receipt", e);
 			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECEIPT);
 			messageRepository.save(message);
-			return true;
 		}
 		return true;
 	}
