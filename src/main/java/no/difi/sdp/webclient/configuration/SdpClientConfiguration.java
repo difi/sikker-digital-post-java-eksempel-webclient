@@ -28,6 +28,8 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -74,6 +76,8 @@ import org.springframework.ws.context.MessageContext;
 @EnableTransactionManagement
 @EnableScheduling
 public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
+	
+	private final static Logger LOGGER = LoggerFactory.getLogger(SdpClientConfiguration.class);
 	
 	@Autowired
 	private Environment environment;
@@ -362,18 +366,22 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     
     @Scheduled(fixedRate = 10000, initialDelay = 10000)
     public void retrieveReceiptPeriodically() {
+    	LOGGER.info("Started retrieving receipts for normal messages");
     	// Note that this scheduled task will run concurrently if it runs for more than 10 seconds
     	while (messageService.getReceipt(Prioritet.NORMAL)) {
     		 // Continues until there are no available receipts
     	}
+    	LOGGER.info("Done retrieving receipts for normal messages");
     }
 
     @Scheduled(fixedRate = 10000, initialDelay = 10000)
     public void retrievePriorityReceiptPeriodically() {
+    	LOGGER.info("Started retrieving receipts for priority messages");
         // Note that this scheduled task will run concurrently if it runs for more than 10 seconds
         while (messageService.getReceipt(Prioritet.PRIORITERT)) {
             // Continues until there are no available receipts
         }
+        LOGGER.info("Done retrieving receipts for priority messages");
     }
 
 }

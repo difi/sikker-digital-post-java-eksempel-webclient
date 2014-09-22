@@ -323,26 +323,28 @@ public class MessageService {
 	public boolean getReceipt(Prioritet prioritet) {
 		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0 && messageRepository.countByStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT) == 0) {
 			// No messages waiting for receipt
+			LOGGER.info("No messages are waiting for receipt");
 			return false;
 		}
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
 				.builder(prioritet)
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
 				.build());
-		// Reading all the ClearAfterReadStringWriters at once ensures that they will be cleared in all cases
-		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
-		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse);
-		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
-    	if (forretningsKvittering == null) {
-			// No available receipts 
+		if (forretningsKvittering == null) {
+			// No available receipts
+    		LOGGER.info("No receipts were available at server");
 			return false;
 		}
+		LOGGER.info("Recieved receipt with conversation id " + forretningsKvittering.getKonversasjonsId());
 		List<Message> messages = messageRepository.findByConversationId(forretningsKvittering.getKonversasjonsId());
 		if (messages.size() != 1) {
 			LOGGER.error("Recieved receipt for message not found in datastore");
 			return true;
 		}
-		Message message = messages.get(0);
+		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
+		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse);
+		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
+    	Message message = messages.get(0);
 		Receipt receipt = new Receipt();
 		receipt.setMessage(message);
 		receipt.setDate(forretningsKvittering.getTidspunkt());
@@ -372,6 +374,8 @@ public class MessageService {
 			receipt.setType("Varsling feilet");
 			receipt.setNotificationErrorChannel(varslingFeiletKvittering.getVarslingskanal());
 			receipt.setNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
+		} else {
+			LOGGER.error("Recieved unknown receipt type " + forretningsKvittering.getClass());
 		}
 		message.getReceipts().add(receipt);
 		messageRepository.save(message);
