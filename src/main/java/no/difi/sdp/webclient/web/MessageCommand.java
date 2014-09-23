@@ -21,9 +21,11 @@ public class MessageCommand {
 	private String ssn;
 	
 	@Size(min = 1, message = "Du må oppgi tittel.")
+	@NotNull
 	private String title;
 
 	@Size(min = 1, message = "Du må oppgi ikke-sensitiv tittel.")
+	@NotNull
 	private String insensitiveTitle;
 
 	@Document(message = "Du må oppgi hoveddokument.")
