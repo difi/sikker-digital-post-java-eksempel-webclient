@@ -374,7 +374,7 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     	LOGGER.info("Done retrieving receipts for normal messages");
     }
 
-    @Scheduled(fixedRate = 10000, initialDelay = 10000)
+    @Scheduled(fixedRate = 10000, initialDelay = 15000)
     public void retrievePriorityReceiptPeriodically() {
     	LOGGER.info("Started retrieving receipts for priority messages");
         // Note that this scheduled task will run concurrently if it runs for more than 10 seconds
