@@ -13,9 +13,7 @@ import javax.validation.ValidatorFactory;
 
 import no.difi.kontaktinfo.wsdl.oppslagstjeneste_14_05.Oppslagstjeneste1405;
 import no.difi.sdp.client.KlientKonfigurasjon;
-import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.asice.CreateASiCE;
-import no.difi.sdp.client.domain.*;
 import no.difi.sdp.webclient.configuration.util.ClientKeystorePasswordCallbackHandler;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
@@ -291,23 +289,18 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     }
     
     @Bean
-    public TekniskAvsender tekniskAvsender() {
-    	KeyStore keyStore = cryptoUtil().loadKeystore(environment.getProperty("meldingsformidler.avsender.keystore.type"), environment.getProperty("meldingsformidler.avsender.keystore.file"), environment.getProperty("meldingsformidler.avsender.keystore.password"));
-    	Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, environment.getProperty("meldingsformidler.avsender.key.alias"), environment.getProperty("meldingsformidler.avsender.key.password"));
-        TekniskAvsender tekniskAvsender = TekniskAvsender.builder(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"), noekkelpar).build();
-        return tekniskAvsender;
+    public KeyStore keyStore() {
+    	return cryptoUtil().loadKeystore(environment.getProperty("meldingsformidler.avsender.keystore.type"), environment.getProperty("meldingsformidler.avsender.keystore.file"), environment.getProperty("meldingsformidler.avsender.keystore.password"));
     }
     
     @Bean
-    public SikkerDigitalPostKlient postKlient() {
-    	KlientKonfigurasjon klientKonfigurasjon = KlientKonfigurasjon.builder()
+    public KlientKonfigurasjon klientKonfigurasjon() {
+    	return KlientKonfigurasjon.builder()
         		.meldingsformidlerRoot(environment.getProperty("meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
         		.build();
-        SikkerDigitalPostKlient postklient = new SikkerDigitalPostKlient(tekniskAvsender(), klientKonfigurasjon);
-        return postklient;
     }
-
+    
     @Bean
     public DataSource dataSource() {
     	org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
@@ -364,24 +357,11 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
         return jpaTransactionManager;
     }
     
-    @Scheduled(fixedRate = 10000, initialDelay = 10000)
+    @Scheduled(fixedRate = 10000, initialDelay = 10000) // Note that in a production environment this rate is unacceptably high, but for testing purposes it is useful to get quick feedback
     public void retrieveReceiptPeriodically() {
-    	LOGGER.info("Started retrieving receipts for normal messages");
-    	// Note that this scheduled task will run concurrently if it runs for more than 10 seconds
-    	while (messageService.getReceipt(Prioritet.NORMAL)) {
-    		 // Continues until there are no available receipts
-    	}
-    	LOGGER.info("Done retrieving receipts for normal messages");
-    }
-
-    @Scheduled(fixedRate = 10000, initialDelay = 15000)
-    public void retrievePriorityReceiptPeriodically() {
-    	LOGGER.info("Started retrieving receipts for priority messages");
-        // Note that this scheduled task will run concurrently if it runs for more than 10 seconds
-        while (messageService.getReceipt(Prioritet.PRIORITERT)) {
-            // Continues until there are no available receipts
-        }
-        LOGGER.info("Done retrieving receipts for priority messages");
+    	LOGGER.info("Started retrieving receipts");
+    	messageService.getReceipts();
+    	LOGGER.info("Done retrieving receipts");
     }
 
 }

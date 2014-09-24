@@ -118,10 +118,42 @@ ${message.exception}
 						</tbody>
 					</table>
 				</dd>
-				<dt>Avsenderidentifikator</dt>
-				<dd id="senderId">${message.senderId == null ? "[ikke tilgjengelig]" : message.senderId }</dd>
-				<dt>Fakturareferanse</dt>
-				<dd id="invoiceReference">${message.invoiceReference == null ? "[ikke tilgjengelig]" : message.invoiceReference }</dd>
+				<dt>Behandlingsansvarlig</dt>
+				<dd>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>Organisasjonsnummer</th>
+								<th>Avsenderidentifikator</th>
+								<th>Fakturareferanse</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td id="senderOrgNumber">${message.senderOrgNumber == null ? "[ikke tilgjengelig]" : message.senderOrgNumber }</td>
+								<td id="senderId">${message.senderId == null ? "[ikke tilgjengelig]" : message.senderId }</td>
+								<td id="invoiceReference">${message.invoiceReference == null ? "[ikke tilgjengelig]" : message.invoiceReference }</td>
+							</tr>
+						</tbody>
+					</table>
+				</dd>
+				<dt>Databehandler</dt>
+				<dd>
+					<table class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>Organisasjonsnummer</th>
+								<th>Alias for nøkkelpar</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td id="technicalOrgNumber">${message.technicalOrgNumber == null ? "[ikke tilgjengelig]" : message.technicalOrgNumber }</td>
+								<td id="technicalAlias">${message.technicalAlias == null ? "[ikke tilgjengelig]" : message.technicalAlias }</td>
+							</tr>
+						</tbody>
+					</table>
+				</dd>
 				<dt>Sikkerhetsnivå</dt>
 				<dd id="securityLevel">${message.securityLevel}</dd>
 				<dt>Epost-varsel til mottaker</dt>

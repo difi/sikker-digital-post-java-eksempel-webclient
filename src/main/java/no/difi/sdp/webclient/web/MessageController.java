@@ -21,6 +21,7 @@ import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
 import no.difi.sdp.webclient.service.MessageService;
+import no.difi.sdp.webclient.service.PostklientService;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -57,6 +58,9 @@ public class MessageController {
 	@Autowired
 	private MultipartResolver multipartResolver;
 	
+	@Autowired
+	private PostklientService postklientService;
+	
 	@InitBinder
 	protected void initBinder(WebDataBinder webDataBinder) {
 		webDataBinder.setValidator(validator);
@@ -64,12 +68,23 @@ public class MessageController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/", produces = "text/html")
-	public String show_send_message_page(Model model, @RequestParam(required = false) Long copy) {
+	public String show_send_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
 		MessageCommand messageCommand = new MessageCommand();
-		if (copy != null) {
+		if (copy == null) {
+			// Sets default values from configuration
+			messageCommand.setLanguageCode("NO");
+			messageCommand.setSenderOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+			messageCommand.setTechnicalOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+			messageCommand.setTechnicalAlias(environment.getProperty("meldingsformidler.avsender.key.alias"));
+		} else {
 			Message message = messageService.getMessage(copy);
-			if (message != null) {
-				// Default file upload values are not allowed by web browsers so we can't copy document and attachments
+			if (message == null) {
+				throw new NotFoundException();
+			} else {
+				// Sets default values from exisiting message
+				// Note that default file upload values are not allowed by web browsers so we can't copy document and attachments
+				messageCommand.setTechnicalAlias(message.getTechnicalAlias());
+				messageCommand.setTechnicalOrgNumber(message.getTechnicalOrgNumber());
 				messageCommand.setDelayedAvailabilityDate(message.getDelayedAvailabilityDate());
 				messageCommand.setEmailNotification(message.getEmailNotification());
 				messageCommand.setEmailNotificationSchedule(message.getEmailNotificationSchedule());
@@ -82,11 +97,13 @@ public class MessageController {
 				messageCommand.setRequiresMessageOpenedReceipt(message.getRequiresMessageOpenedReceipt());
 				messageCommand.setSecurityLevel(message.getSecurityLevel());
 				messageCommand.setSenderId(message.getSenderId());
+				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
 				messageCommand.setSsn(message.getSsn());
 				messageCommand.setTitle(message.getDocument().getTitle());
 			}
 		}
 		model.addAttribute("messageCommand", messageCommand);
+		model.addAttribute("keypairAliases", postklientService.getKeypairAliases());
 		return "send_message_page";
 	}
 	
@@ -94,10 +111,10 @@ public class MessageController {
 	public String send_message(@Valid @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) throws IOException {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
+			model.addAttribute("keypairAliases", postklientService.getKeypairAliases());
 			model.addAttribute("errors", bindingResult);
 			return "send_message_page";
 		}
-
 		Message message = new Message();
 		message.setSsn(messageCommand.getSsn());
 		message.setInsensitiveTitle(messageCommand.getInsensitiveTitle());
@@ -120,8 +137,11 @@ public class MessageController {
 			}
 		}
 		message.setAttachments(attachments);
+		message.setSenderOrgNumber(messageCommand.getSenderOrgNumber());
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
+		message.setTechnicalOrgNumber(messageCommand.getTechnicalOrgNumber());
+		message.setTechnicalAlias(messageCommand.getTechnicalAlias());
 		message.setSecurityLevel(messageCommand.getSecurityLevel());
 		message.setEmailNotification(messageCommand.getEmailNotification());
 		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
@@ -222,7 +242,9 @@ public class MessageController {
         message.setPriority(Prioritet.NORMAL);
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
-
+        message.setSenderOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+        message.setTechnicalOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
+        message.setTechnicalAlias(environment.getProperty("meldingsformidler.avsender.key.alias"));
         Set<Document> attachments = new HashSet<Document>();
         String pdfInputFileName;
         switch (size) {
@@ -343,7 +365,7 @@ public class MessageController {
     	return writer.toString();
     }
     
-	@ModelAttribute("oppslagstjenestenUrl")
+    @ModelAttribute("oppslagstjenestenUrl")
 	private String oppslagstjenestenUrl() {
 		return environment.getProperty("oppslagstjenesten.url");
 	}

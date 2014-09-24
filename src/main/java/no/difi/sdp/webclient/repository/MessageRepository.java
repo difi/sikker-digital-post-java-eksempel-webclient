@@ -7,7 +7,6 @@ import no.difi.sdp.webclient.domain.MessageStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, Long>{
 
@@ -15,9 +14,6 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	
 	public List<Message> findByStatus(MessageStatus status);
 	
-	@Query("select count(*) from Message m where m.status=:status")
-	public int countByStatus(@Param("status") MessageStatus status);
-
 	@Query("select m.status, count(*) from Message m group by m.status")
 	public List<Object[]> countByStatus();
 	
@@ -26,5 +22,8 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m")
 	public List<Object[]> list();
+
+	@Query("select distinct m.technicalOrgNumber, m.technicalAlias from Message m where m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_RECEIPT or m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_OPENED_RECEIPT")
+	public List<Object[]> waitingClients();
 	
 }

@@ -48,9 +48,18 @@ public class Message {
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "message") 
 	private Set<Document> attachments;
 	
+	@NotNull
+	private String senderOrgNumber;
+	
 	private String senderId;
 	
 	private String invoiceReference;
+	
+	@NotNull
+	private String technicalOrgNumber;
+	
+	@NotNull
+	private String technicalAlias;
 	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
@@ -71,8 +80,10 @@ public class Message {
 	private Date delayedAvailabilityDate;
 	
 	@Enumerated(EnumType.STRING)
+	@NotNull
 	private Prioritet priority;
 	
+	@NotNull
 	private String languageCode;
 	
 	@Enumerated(EnumType.STRING)
@@ -175,6 +186,14 @@ public class Message {
 		this.attachments = attachments;
 	}
 	
+	public String getSenderOrgNumber() {
+		return senderOrgNumber;
+	}
+
+	public void setSenderOrgNumber(String senderOrgNumber) {
+		this.senderOrgNumber = senderOrgNumber;
+	}
+
 	public String getSenderId() {
 		return senderId;
 	}
@@ -189,6 +208,22 @@ public class Message {
 
 	public void setInvoiceReference(String invoiceReference) {
 		this.invoiceReference = invoiceReference;
+	}
+	
+	public String getTechnicalOrgNumber() {
+		return technicalOrgNumber;
+	}
+
+	public void setTechnicalOrgNumber(String technicalOrgNumber) {
+		this.technicalOrgNumber = technicalOrgNumber;
+	}
+
+	public String getTechnicalAlias() {
+		return technicalAlias;
+	}
+
+	public void setTechnicalAlias(String technicalAlias) {
+		this.technicalAlias = technicalAlias;
 	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {

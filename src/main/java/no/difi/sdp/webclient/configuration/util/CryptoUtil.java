@@ -7,6 +7,9 @@ import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class CryptoUtil {
 
@@ -39,6 +42,23 @@ public class CryptoUtil {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public List<String> getKeypairAliases(KeyStore keyStore) {
+		List<String> aliases = new ArrayList<String>();
+		
+		try {
+			Enumeration<String> enumeration = keyStore.aliases();
+			while (enumeration.hasMoreElements()) {
+				String alias = enumeration.nextElement();
+				if (keyStore.isKeyEntry(alias)) {
+					aliases.add(alias);
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return aliases;
 	}
 	
 }

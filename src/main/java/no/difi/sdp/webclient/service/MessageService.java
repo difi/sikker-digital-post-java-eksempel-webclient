@@ -17,7 +17,6 @@ import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.Informasjonsbehov;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
-import no.difi.sdp.client.asice.CreateASiCE;
 import no.difi.sdp.client.domain.*;
 import no.difi.sdp.client.domain.digital_post.DigitalPost;
 import no.difi.sdp.client.domain.digital_post.EpostVarsel;
@@ -38,7 +37,6 @@ import no.difi.sdp.webclient.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,17 +45,11 @@ public class MessageService {
 	private final static Logger LOGGER = LoggerFactory.getLogger(MessageService.class);
 	
 	@Autowired
-	private Environment environment;
-	
-	@Autowired
 	private MessageRepository messageRepository;
     
 	@Autowired
 	private DocumentRepository documentRepository;
 	
-	@Autowired
-	private SikkerDigitalPostKlient postklient;
-    
 	@Autowired
 	private Oppslagstjeneste1405 oppslagstjeneste;
     
@@ -98,10 +90,7 @@ public class MessageService {
 	private ConfigurationService configurationService;
 	
 	@Autowired
-	private CreateASiCE createAsice;
-	
-	@Autowired
-	private TekniskAvsender tekniskAvsender;
+	private PostklientService postklientService;
 	
 	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
@@ -140,7 +129,7 @@ public class MessageService {
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
-    	message.setAsic(createAsice.createAsice(tekniskAvsender, forsendelse).getBytes());
+    	message.setAsic(postklientService.createAsice(message.getTechnicalOrgNumber(), message.getTechnicalAlias(), forsendelse));
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
@@ -194,9 +183,8 @@ public class MessageService {
     }
 
     private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
-    	String orgNumber = stringUtil.nullIfEmpty(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
     	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
-    			.builder(orgNumber)
+    			.builder(message.getSenderOrgNumber())
     			.avsenderIdentifikator(message.getSenderId())
     			.fakturaReferanse(message.getInvoiceReference())
     			.build();
@@ -278,7 +266,8 @@ public class MessageService {
         try {
         	Forsendelse forsendelse = buildDigitalForsendelse(message);
     		enrichMessage(message, forsendelse);
-			postklient.send(forsendelse);
+    		SikkerDigitalPostKlient postklient = postklientService.get(message.getTechnicalOrgNumber(), message.getTechnicalAlias());
+    		postklient.send(forsendelse);
 			message.setDate(postKlientSoapRequestDate.getValue());
 	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
 		} catch (Exception e) {
@@ -317,15 +306,34 @@ public class MessageService {
 	}
 	
 	/**
-	 * Gets next receipt from meldingsformidler, resolves message for receipt from database and updates message status.
+	 * Gets all receipts from meldingsformidler for all integrations and priorities.
+	 * @return
+	 */
+	public void getReceipts() {
+		List<Object[]> waitingClients = messageRepository.waitingClients();
+		if (waitingClients.size() == 0) {
+			LOGGER.info("No messages are waiting for receipt");
+			return;
+		}
+		for (Object[] client : waitingClients) {
+			String orgNumber = (String) client[0];
+			String alias = (String) client[1];
+			SikkerDigitalPostKlient postklient = postklientService.get(orgNumber, alias);
+			LOGGER.info("Retrieving prioritized receipts for orgnumber " + orgNumber + " and alias " + alias);
+			while (getReceipt(Prioritet.PRIORITERT, postklient));
+			LOGGER.info("Retrieving normal receipts for orgnumber " + orgNumber + " and alias " + alias);
+			while (getReceipt(Prioritet.NORMAL, postklient));
+		}
+	}
+	
+	/**
+	 * Gets next receipt from meldingsformidler for a given integration and priority.
+	 * Resolves message for receipt from database and updates message status.
+	 * @param prioritet
+	 * @param postklient
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
-	public boolean getReceipt(Prioritet prioritet) {
-		if (messageRepository.countByStatus(MessageStatus.WAITING_FOR_RECEIPT) == 0 && messageRepository.countByStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT) == 0) {
-			// No messages waiting for receipt
-			LOGGER.info("No messages are waiting for receipt");
-			return false;
-		}
+	private boolean getReceipt(Prioritet prioritet, SikkerDigitalPostKlient postklient) {
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
 				.builder(prioritet)
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
@@ -393,7 +401,7 @@ public class MessageService {
 		}
 		return true;
 	}
-	
+
 	public void deleteMessage(Long id) {
 		messageRepository.delete(id);
 	}

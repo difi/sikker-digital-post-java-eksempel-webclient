@@ -57,6 +57,9 @@ public class MessageServiceTest {
     SikkerDigitalPostKlient klient;
 
     @Mock
+    PostklientService klientService;
+    
+    @Mock
     Oppslagstjeneste1405 oppslagstjeneste;
 
     @Autowired
@@ -141,6 +144,7 @@ public class MessageServiceTest {
     public void setup(){
         MockitoAnnotations.initMocks(this);
         when(oppslagstjeneste.hentPersoner(any(HentPersonerForespoersel.class))).thenReturn(buildHentPersonerRespons(ANY_SSN));
+        when(klientService.get(any(String.class), any(String.class))).thenReturn(klient);
     }
 
     @Test

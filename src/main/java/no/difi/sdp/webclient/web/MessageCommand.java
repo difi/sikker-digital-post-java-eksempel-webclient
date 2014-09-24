@@ -33,9 +33,18 @@ public class MessageCommand {
 
 	private List<MultipartFile> attachments;
 	
+	@NotNull
+	private String senderOrgNumber;
+	
 	private String senderId;
 	
 	private String invoiceReference;
+	
+	@NotNull
+	private String technicalOrgNumber;
+	
+	@NotNull
+	private String technicalAlias;
 	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
@@ -55,9 +64,11 @@ public class MessageCommand {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date delayedAvailabilityDate;
 	
+	@NotNull
 	private Prioritet priority;
 	
-	private String languageCode = "NO";
+	@NotNull
+	private String languageCode;
 	
 	public String getSsn() {
 		return ssn;
@@ -99,6 +110,14 @@ public class MessageCommand {
 		this.attachments = attachments;
 	}
 	
+	public String getSenderOrgNumber() {
+		return senderOrgNumber;
+	}
+
+	public void setSenderOrgNumber(String senderOrgNumber) {
+		this.senderOrgNumber = senderOrgNumber;
+	}
+
 	public String getSenderId() {
 		return senderId;
 	}
@@ -113,6 +132,22 @@ public class MessageCommand {
 
 	public void setInvoiceReference(String invoiceReference) {
 		this.invoiceReference = invoiceReference;
+	}
+	
+	public String getTechnicalOrgNumber() {
+		return technicalOrgNumber;
+	}
+
+	public void setTechnicalOrgNumber(String technicalOrgNumber) {
+		this.technicalOrgNumber = technicalOrgNumber;
+	}
+
+	public String getTechnicalAlias() {
+		return technicalAlias;
+	}
+
+	public void setTechnicalAlias(String technicalAlias) {
+		this.technicalAlias = technicalAlias;
 	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {
