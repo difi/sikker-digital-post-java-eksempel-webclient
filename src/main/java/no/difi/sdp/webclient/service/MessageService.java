@@ -220,9 +220,9 @@ public class MessageService {
         		.build();
     }
     
-    public void sendMessage(Message message, boolean retrieveContactDetails)  {
+    public void sendMessage(Message message)  {
     	try {
-    		if (retrieveContactDetails) {
+    		if (message.getRetrieveContactDetails()) {
     			retrieveContactDetailsFromOppslagstjeneste(message);
     		}
     		sendMessageToMeldingsformidler(message);

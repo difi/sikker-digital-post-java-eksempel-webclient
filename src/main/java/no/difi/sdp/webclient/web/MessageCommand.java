@@ -10,6 +10,8 @@ import javax.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import no.difi.begrep.Reservasjon;
+import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.validation.Document;
@@ -69,6 +71,22 @@ public class MessageCommand {
 	
 	@NotNull
 	private String languageCode;
+	
+	private boolean retrieveContactDetails;
+	
+	private Status contactRegisterStatus;
+	
+	private Reservasjon reservationStatus;
+	
+	private String postboxAddress;
+	
+	private String postboxVendorOrgNumber;
+	
+	private MultipartFile postboxCertificate;
+	
+	private String mobile;
+	
+	private String email;
 	
 	public String getSsn() {
 		return ssn;
@@ -220,6 +238,70 @@ public class MessageCommand {
 
 	public void setLanguageCode(String languageCode) {
 		this.languageCode = languageCode;
+	}
+
+	public boolean getRetrieveContactDetails() {
+		return retrieveContactDetails;
+	}
+
+	public void setRetrieveContactDetails(boolean retrieveContactDetails) {
+		this.retrieveContactDetails = retrieveContactDetails;
+	}
+
+	public Status getContactRegisterStatus() {
+		return contactRegisterStatus;
+	}
+
+	public void setContactRegisterStatus(Status contactRegisterStatus) {
+		this.contactRegisterStatus = contactRegisterStatus;
+	}
+
+	public Reservasjon getReservationStatus() {
+		return reservationStatus;
+	}
+
+	public void setReservationStatus(Reservasjon reservationStatus) {
+		this.reservationStatus = reservationStatus;
+	}
+
+	public String getPostboxAddress() {
+		return postboxAddress;
+	}
+
+	public void setPostboxAddress(String postboxAddress) {
+		this.postboxAddress = postboxAddress;
+	}
+
+	public String getPostboxVendorOrgNumber() {
+		return postboxVendorOrgNumber;
+	}
+
+	public void setPostboxVendorOrgNumber(String postboxVendorOrgNumber) {
+		this.postboxVendorOrgNumber = postboxVendorOrgNumber;
+	}
+
+	public MultipartFile getPostboxCertificate() {
+		return postboxCertificate;
+	}
+
+	public void setPostboxCertificate(MultipartFile postboxCertificate) {
+		this.postboxCertificate = postboxCertificate;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }

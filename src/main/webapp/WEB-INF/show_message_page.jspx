@@ -45,7 +45,7 @@
 				<dd>
 					<c:choose>
 						<c:when test="${empty message.receipts}">
-							<p>Ingen kvitteringer mottatt fra postboks.</p> 
+							<p>Ingen kvitteringer mottatt fra postkasse.</p> 
 						</c:when>
 						<c:otherwise>
 							<table class="table table-striped table-bordered">
@@ -165,7 +165,7 @@ ${message.exception}
 				<dt>SMS-varslingsintervall</dt>
 				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
 				<dt>Motta åpningskvittering</dt>
-				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt}</dd>
+				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
 				<dt>Forsinket åpningsdato</dt>
 				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
 				<dt>Prioritet</dt>
@@ -173,18 +173,34 @@ ${message.exception}
 				<dt>Språk-kode</dt>
 				<dd id="languageCode">${message.languageCode == null ? "[ikke tilgjengelig]" : message.languageCode}</dd>
 			</dl>
-			<h2>Data hentet fra oppslagstjenesten</h2>
+			<h2>Kontaktinformasjon</h2>
 			<dl class="dl-horizontal">
-				<dt>Status i kontaktregisteret</dt>
+				<dt>Hentet fra oppslagstjenesten for kontakt- og reservasjonsregisteret</dt>
+				<dd id="retrieveContactDetails">${message.retrieveContactDetails ? "Ja" : "Nei"}</dd>
+				<dt>Status</dt>
 				<dd id="contactRegisterStatus">${message.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.contactRegisterStatus}</dd>
-				<dt>Har lagt inn reservasjon mot å motta digital post</dt>
+				<dt>Reservasjon</dt>
 				<dd id="reservationStatus">${message.reservationStatus == null ? "[ikke tilgjengelig]" : message.reservationStatus}</dd>
-				<dt>Adresse til digital postkasse</dt>
+				<dt>Postkasseadresse</dt>
 				<dd id="postboxAddress">${message.postboxAddress == null ? "[ikke tilgjengelig]" : message.postboxAddress}</dd>
-				<dt>Organisasjonsnummer for leverandør av digital postkasse</dt>
+				<dt>Organisasjonsnummer</dt>
 				<dd id="postboxVendorOrgNumber">${message.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.postboxVendorOrgNumber}</dd>
-				<dt>Sertifikat for digital postkasse</dt>
-				<dd id="postboxCertificate">${message.postboxCertificate == null ? "[ikke tilgjengelig]" : message.postboxCertificate}</dd>
+				<dt>Postkassesertifikat</dt>
+				<dd id="postboxCertificate">
+					<c:choose>
+						<c:when test="${empty message.postboxCertificate}">
+							[ikke tilgjengelig]
+						</c:when>
+						<c:otherwise>
+							<spring:url value="/client/messages/${message.id}/postboxcertificate" var="downloadMessagePostboxCertificateUrl" />
+							<a href="${downloadMessagePostboxCertificateUrl}">Last ned postbokssertifikat (CER)</a>
+						</c:otherwise>
+					</c:choose>
+				</dd>
+				<dt>Mobiltelefonnummer</dt>
+				<dd id="mobile">${message.mobile == null ? "[ikke tilgjengelig]" : message.mobile}</dd>
+				<dt>E-postadresse</dt>
+				<dd id="email">${message.email == null ? "[ikke tilgjengelig]" : message.email}</dd>
 			</dl>
 			<h2>Meldinger</h2>
 			<h3>1. Hent personer fra oppslagstjenesten</h3>
@@ -210,7 +226,7 @@ ${message.exception}
 			<h3>3. Kvitteringer</h3>
 			<c:choose>
 				<c:when test="${empty message.receipts}">
-					<p>Ingen kvitteringer mottatt fra postboks.</p> 
+					<p>Ingen kvitteringer mottatt fra postkasse.</p> 
 				</c:when>
 				<c:otherwise>
 					<c:forEach items="${message.receipts}" var="receipt">

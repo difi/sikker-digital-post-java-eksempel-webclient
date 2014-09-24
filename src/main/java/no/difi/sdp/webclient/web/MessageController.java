@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -73,16 +74,19 @@ public class MessageController {
 		if (copy == null) {
 			// Sets default values from configuration
 			messageCommand.setLanguageCode("NO");
+			messageCommand.setRetrieveContactDetails(true);
 			messageCommand.setSenderOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
 			messageCommand.setTechnicalOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
 			messageCommand.setTechnicalAlias(environment.getProperty("meldingsformidler.avsender.key.alias"));
+			messageCommand.setContactRegisterStatus(Status.AKTIV);
+			messageCommand.setReservationStatus(Reservasjon.NEI);
 		} else {
 			Message message = messageService.getMessage(copy);
 			if (message == null) {
 				throw new NotFoundException();
 			} else {
 				// Sets default values from exisiting message
-				// Note that default file upload values are not allowed by web browsers so we can't copy document and attachments
+				// Note that default file upload values are not allowed by web browsers so we can't copy document, attachments and postbox certificate
 				messageCommand.setTechnicalAlias(message.getTechnicalAlias());
 				messageCommand.setTechnicalOrgNumber(message.getTechnicalOrgNumber());
 				messageCommand.setDelayedAvailabilityDate(message.getDelayedAvailabilityDate());
@@ -95,11 +99,18 @@ public class MessageController {
 				messageCommand.setMobileNotificationSchedule(message.getMobileNotificationSchedule());
 				messageCommand.setPriority(message.getPriority());
 				messageCommand.setRequiresMessageOpenedReceipt(message.getRequiresMessageOpenedReceipt());
+				messageCommand.setRetrieveContactDetails(message.getRetrieveContactDetails());
 				messageCommand.setSecurityLevel(message.getSecurityLevel());
 				messageCommand.setSenderId(message.getSenderId());
 				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
 				messageCommand.setSsn(message.getSsn());
 				messageCommand.setTitle(message.getDocument().getTitle());
+				messageCommand.setContactRegisterStatus(message.getContactRegisterStatus());
+				messageCommand.setReservationStatus(message.getReservationStatus());
+				messageCommand.setPostboxAddress(message.getPostboxAddress());
+				messageCommand.setPostboxVendorOrgNumber(message.getPostboxVendorOrgNumber());
+				messageCommand.setMobile(message.getMobile());
+				messageCommand.setEmail(message.getEmail());
 			}
 		}
 		model.addAttribute("messageCommand", messageCommand);
@@ -109,6 +120,7 @@ public class MessageController {
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")
 	public String send_message(@Valid @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) throws IOException {
+		validateUserSpecifiedContactDetails(messageCommand, bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
 			model.addAttribute("keypairAliases", postklientService.getKeypairAliases());
@@ -151,10 +163,35 @@ public class MessageController {
 		message.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
-		messageService.sendMessage(message, true);
+		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
+		if (! message.getRetrieveContactDetails()) {
+			message.setContactRegisterStatus(messageCommand.getContactRegisterStatus());
+			message.setReservationStatus(messageCommand.getReservationStatus());
+			message.setPostboxAddress(messageCommand.getPostboxAddress());
+			message.setPostboxVendorOrgNumber(messageCommand.getPostboxVendorOrgNumber());
+			message.setPostboxCertificate(messageCommand.getPostboxCertificate() == null ? null : messageCommand.getPostboxCertificate().getBytes());
+			message.setMobile(messageCommand.getMobile());
+			message.setEmail(messageCommand.getEmail());
+		}
+		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
 	}
 	
+	private void validateUserSpecifiedContactDetails(MessageCommand messageCommand, BindingResult bindingResult) {
+		if (messageCommand.getRetrieveContactDetails()) {
+			return;
+		}
+		if (messageCommand.getPostboxAddress() == null || messageCommand.getPostboxAddress().length() == 0) {
+			bindingResult.addError(new FieldError("messageCommand", "postboxAddress", "Du må oppgi postkasseadresse"));
+		}
+		if (messageCommand.getPostboxVendorOrgNumber() == null || messageCommand.getPostboxVendorOrgNumber().length() == 0) {
+			bindingResult.addError(new FieldError("messageCommand", "postboxVendorOrgNumber", "Du må oppgi organisasjonsnummer for postkasseleverandør"));
+		}
+		if (messageCommand.getPostboxCertificate() == null || messageCommand.getPostboxCertificate().isEmpty()) {
+			bindingResult.addError(new FieldError("messageCommand", "postboxCertificate", "Du må oppgi postkassesertifikat"));
+		}
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}")
 	public String show_message_page(@PathVariable Long id, Model model) throws NotFoundException {
 		Message message = messageService.getMessage(id);
@@ -189,6 +226,18 @@ public class MessageController {
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/postboxcertificate")
+	public void download_message_postboxcertificate(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
+		Message message = messageService.getMessage(id);
+		if (message == null || message.getPostboxCertificate() == null) {
+			throw new NotFoundException();
+		}
+		response.addHeader("Content-Disposition", "attachment; filename=\"message-" + message.getId() + "-postboxcertificate.cer\"");
+		response.setContentType("application/x-x509-ca-cert");
+		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getPostboxCertificate()));
+		IOUtils.copy(inputStream, response.getOutputStream());
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, value = "/messages/{id}/delete")
 	public String delete_message(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 		messageService.deleteMessage(id);
@@ -217,7 +266,6 @@ public class MessageController {
         attachment.setFilename(filename);
         attachment.setMimetype("application/pdf");
         attachment.setMessage(message);
-
         return attachment;
     }
 
@@ -276,11 +324,8 @@ public class MessageController {
         document.setMimetype("application/pdf");
         document.setTitle("Dokumenttittel for " + ssn);
         message.setDocument(document);
-        
-        if (postboxAddress == null || postboxVendor == null) {
-        	// Retrieves contact details from oppslagstjenesten
-        	messageService.sendMessage(message, true);
-        } else {
+        message.setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
+        if (! message.getRetrieveContactDetails()) {
         	// Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
         	message.setContactRegisterStatus(Status.AKTIV);
         	message.setReservationStatus(Reservasjon.NEI);
@@ -297,8 +342,8 @@ public class MessageController {
 				default:
 					throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
         	}
-        	messageService.sendMessage(message, false);
         }
+        messageService.sendMessage(message);
     }
 	
     @RequestMapping(method = RequestMethod.GET, value = "/report")

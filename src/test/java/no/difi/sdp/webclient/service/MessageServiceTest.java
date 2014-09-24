@@ -161,7 +161,8 @@ public class MessageServiceTest {
         message.setAttachments(new HashSet<Document>());
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
-        messageService.sendMessage(message, true);
+        message.setRetrieveContactDetails(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override
@@ -186,7 +187,8 @@ public class MessageServiceTest {
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setAttachments(new HashSet<Document>());
         message.setLanguageCode("NO");
-        messageService.sendMessage(message, true);
+        message.setRetrieveContactDetails(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override
@@ -229,7 +231,8 @@ public class MessageServiceTest {
         message.setMobileNotification("mobileNotification");
         message.setLanguageCode("NO");
         
-        messageService.sendMessage(message, true);
+        message.setRetrieveContactDetails(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override

@@ -120,7 +120,7 @@
 								<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel4" value="NIVAA_4" /> Sikkerhetsnivå 4</label>
 	 						</c:otherwise>
 	 					</c:choose>
-						<span class="help-block">Oppgi hvilket sikkerhetsnivå som mottaker må logge seg inn til sin postkasse med for å lese meldingen.</span>
+						<span class="help-block">Oppgi hvilket sikkerhetsnivå som mottaker må logge seg inn til sin postkasse med for å lese meldingen</span>
  					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('emailNotification') ? 'has-error' : ''}">
@@ -191,6 +191,92 @@
 						<input name="languageCode" id="languageCode" type="text" class="form-control" autocomplete="off" placeholder="Språk-kode" value="${messageCommand.languageCode}"/>
 					</div>
 				</div>
+				<div class="form-group ${errors.hasFieldErrors('retrieveContactDetails') ? 'has-error' : ''}">
+					<form:label path="retrieveContactDetails" cssClass="col-sm-2 control-label">Kontaktinformasjon</form:label>
+					<div class="col-sm-10">
+						<c:choose>
+							<c:when test="${messageCommand.retrieveContactDetails}">
+								<label class="checkbox-inline"><input type="checkbox" name="retrieveContactDetails" id="retrieveContactDetails" checked="checked"/> Hent kontaktinformasjon fra oppslagstjenesten for kontakt- og reservasjonsregisteret</label>
+							</c:when>
+							<c:otherwise>
+								<label class="checkbox-inline"><input type="checkbox" name="retrieveContactDetails" id="retrieveContactDetails" /> Hent kontaktinformasjon fra oppslagstjenesten for kontakt- og reservasjonsregisteret</label>
+							</c:otherwise>
+						</c:choose>
+					</div>
+				</div>
+				<div class="panel panel-default" id="contactDetails">
+					<div class="panel-heading">Kontaktinformasjon</div>
+					<div class="panel-body">
+						<div class="form-group ${errors.hasFieldErrors('contactRegisterStatus') ? 'has-error' : ''}">
+ 							<form:label path="priority" cssClass="col-sm-2 control-label">Status</form:label>
+ 							<div class="col-sm-10">
+ 								<c:choose>
+	 								<c:when test="${messageCommand.contactRegisterStatus == 'AKTIV' }">
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusAktiv" value="AKTIV" checked="checked" /> Aktiv</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusIkkeRegistrert" value="IKKE_REGISTRERT" /> Ikke registrert</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusSlettet" value="SLETTET" /> Slettet</label>
+									</c:when>
+									<c:when test="${messageCommand.contactRegisterStatus == 'IKKE_REGISTRERT' }">
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusAktiv" value="AKTIV" /> Aktiv</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusIkkeRegistrert" value="IKKE_REGISTRERT" checked="checked" /> Ikke registrert</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusSlettet" value="SLETTET" /> Slettet</label>
+									</c:when>
+									<c:otherwise>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusAktiv" value="AKTIV" /> Aktiv</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusIkkeRegistrert" value="IKKE_REGISTRERT" /> Ikke registrert</label>
+		 								<label class="radio-inline"><input type="radio" name="contactRegisterStatus" id="contactRegisterStatusSlettet" value="SLETTET" checked="checked" /> Slettet</label>
+	 								</c:otherwise>
+	 							</c:choose>
+			 				</div>
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('reservationStatus') ? 'has-error' : ''}">
+ 							<form:label path="priority" cssClass="col-sm-2 control-label">Reservasjon</form:label>
+ 							<div class="col-sm-10">
+ 								<c:choose>
+	 								<c:when test="${messageCommand.reservationStatus == 'NEI' }">
+		 								<label class="radio-inline"><input type="radio" name="reservationStatus" id="reservationStatusNei" value="NEI" checked="checked" /> Nei</label>
+		 								<label class="radio-inline"><input type="radio" name="reservationStatus" id="reservationStatusJa" value="JA" /> Ja</label>
+									</c:when>
+									<c:otherwise>
+		 								<label class="radio-inline"><input type="radio" name="reservationStatus" id="reservationStatusNei" value="NEI" /> Nei</label>
+		 								<label class="radio-inline"><input type="radio" name="reservationStatus" id="reservationStatusJa" value="JA" checked="checked" /> Ja</label>
+	 								</c:otherwise>
+	 							</c:choose>
+			 				</div>
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('postboxVendorOrgNumber') ? 'has-error' : ''}">
+							<form:label path="postboxVendorOrgNumber" cssClass="col-sm-2 control-label">Organisasjonsnummer</form:label>
+							<div class="col-sm-10">
+								<input name="postboxVendorOrgNumber" id="postboxVendorOrgNumber" type="text" class="form-control" autocomplete="off" placeholder="Organisasjonsnummer for postkasseleverandør" value="${messageCommand.postboxVendorOrgNumber}"/>
+								<span class="help-block">Digipost har organisasjonsnummer <em>984661185</em> og e-Boks har organisasjonsnummer <em>996460320</em></span>
+							</div>
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('postboxAddress') ? 'has-error' : ''}">
+							<form:label path="postboxAddress" cssClass="col-sm-2 control-label">Postkasseadresse</form:label>
+							<div class="col-sm-10">
+								<input name="postboxAddress" id="postboxAddress" type="text" class="form-control" autocomplete="off" placeholder="Postkasseadresse" value="${messageCommand.postboxAddress}"/>
+							</div>
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('postboxCertificate') ? 'has-error' : ''}">
+							<form:label path="postboxCertificate" cssClass="col-sm-2 control-label">Postkassesertifikat</form:label>
+							<div class="col-sm-10">
+								<input name="postboxCertificate" id="postboxCertificate" type="file" />
+							</div> 
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('mobile') ? 'has-error' : ''}">
+							<form:label path="mobile" cssClass="col-sm-2 control-label">Mobiltelefonnummer</form:label>
+							<div class="col-sm-10">
+								<input name="mobile" id="mobile" type="text" class="form-control" autocomplete="off" placeholder="Mobiltelefonnummer" value="${messageCommand.mobile}"/>
+							</div>
+						</div>
+						<div class="form-group ${errors.hasFieldErrors('email') ? 'has-error' : ''}">
+							<form:label path="email" cssClass="col-sm-2 control-label">E-postadresse</form:label>
+							<div class="col-sm-10">
+								<input name="email" id="email" type="text" class="form-control" autocomplete="off" placeholder="E-postadresse" value="${messageCommand.email}"/>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
 						<button type="submit" class="btn btn-primary">Send melding</button>
@@ -199,5 +285,21 @@
 			</form:form>
 		</div>
 		<br />
+		<script src="//code.jquery.com/jquery-2.1.0.min.js"><!-- --></script>
+		<script>
+		$(document).ready(function() {
+			var refresh = function() {
+				if ($("#retrieveContactDetails").is(':checked')) {
+					$("#contactDetails").hide();
+				} else {
+					$("#contactDetails").show();
+				}
+			};
+			refresh();
+			$("#retrieveContactDetails").click(function() {
+				refresh();
+			});
+		});
+		</script>
 	</body>
 </html>

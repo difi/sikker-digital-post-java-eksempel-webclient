@@ -138,6 +138,8 @@ public class Message {
 	@Basic(fetch = FetchType.LAZY)
 	private byte[] asic;
 	
+	private boolean retrieveContactDetails;
+	
 	public Long getId() {
 		return id;
 	}
@@ -450,4 +452,13 @@ public class Message {
 		this.asic = asice;
 	}
 
+	public boolean getRetrieveContactDetails() {
+		return retrieveContactDetails;
+	}
+
+	public void setRetrieveContactDetails(boolean retrieveContactDetails) {
+		this.retrieveContactDetails = retrieveContactDetails;
+	}
+
+	
 }
