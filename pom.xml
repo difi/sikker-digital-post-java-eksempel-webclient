@@ -231,6 +231,8 @@
 									<wsdl>http://begrep.difi.no/Oppslagstjenesten/xsd/oppslagstjeneste-ws-14-05.wsdl</wsdl>
 								</wsdlOption>
 							</wsdlOptions>
+							<fork>once</fork>
+							<additionalJvmArgs>-Djavax.xml.accessExternalSchema=all</additionalJvmArgs>
 						</configuration>
 						<goals>
 							<goal>wsdl2java</goal>
