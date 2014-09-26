@@ -13,7 +13,7 @@
 				<h1>Testavsender <small>Testklient for meldingsutsending gjennom Sikker Digital Post</small></h1>
 			</div>
 			<div class="alert alert-info">
-				Organisasjonsnummer <em>${avsenderOrganisasjonsnummer}</em> er integrert mot oppslagstjenesten på <em>${oppslagstjenestenUrl}</em> og meldingsformidler på <em>${meldingsformidlerUrl}</em>
+				Testavsender er integrert mot oppslagstjenesten på <em>${oppslagstjenestenUrl}</em> og meldingsformidler på <em>${meldingsformidlerUrl}</em>
 			</div>
 			<ul class="nav nav-tabs">
 				<spring:url value="/client/messages" var="showMessagesUrl" />
@@ -56,6 +56,23 @@
 						<span class="help-block">Du kan legge ved flere filer.</span>
 					</div>
 				</div>
+				<div class="form-group ${errors.hasFieldErrors('keyPairAlias') ? 'has-error' : ''}">
+					<form:label path="keyPairAlias" cssClass="col-sm-2 control-label">Databehandler<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+					<div class="col-sm-10">
+						<select class="form-control" name="keyPairAlias" id="keyPairAlias">
+							<c:forEach items="${keyPairAliases}" var="keyPairAlias">
+								<c:choose>
+									<c:when test="${keyPairAlias == messageCommand.keyPairAlias}">
+										<option selected="selected" value="${keyPairAlias}">${keyPairAlias}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${keyPairAlias}">${keyPairAlias}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading">Behandlingsansvarlig</div>
 					<div class="panel-body">
@@ -75,34 +92,6 @@
 							<form:label path="invoiceReference" cssClass="col-sm-2 control-label">Fakturareferanse</form:label>
 							<div class="col-sm-10">
 								<input name="invoiceReference" id="invoiceReference" type="text" class="form-control" autocomplete="off" placeholder="Fakturareferanse" value="${messageCommand.invoiceReference}"/>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="panel panel-default">
-					<div class="panel-heading">Databehandler</div>
-					<div class="panel-body">
-						<div class="form-group ${errors.hasFieldErrors('technicalOrgNumber') ? 'has-error' : ''}">
-							<form:label path="technicalOrgNumber" cssClass="col-sm-2 control-label">Organisasjonsnummer<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
-							<div class="col-sm-10">
-								<input name="technicalOrgNumber" id="technicalOrgNumber" type="text" class="form-control" autocomplete="off" placeholder="Organisasjonsnummer" value="${messageCommand.technicalOrgNumber}" />
-							</div>
-						</div>
-						<div class="form-group ${errors.hasFieldErrors('technicalAlias') ? 'has-error' : ''}">
-							<form:label path="technicalAlias" cssClass="col-sm-2 control-label">Alias for nøkkelpar<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
-							<div class="col-sm-10">
-								<select class="form-control" name="technicalAlias" id="technicalAlias">
-									<c:forEach items="${keypairAliases}" var="keypairAlias">
-										<c:choose>
-											<c:when test="${keypairAlias == messageCommand.technicalAlias}">
-												<option selected="selected" value="${keypairAlias}">${keypairAlias}</option>
-											</c:when>
-											<c:otherwise>
-												<option value="${keypairAlias}">${keypairAlias}</option>
-											</c:otherwise>
-										</c:choose>
-									</c:forEach>
-								</select>
 							</div>
 						</div>
 					</div>
@@ -298,6 +287,11 @@
 			refresh();
 			$("#retrieveContactDetails").click(function() {
 				refresh();
+			});
+			$("#keyPairAlias").change(function() {
+				var keyPairAlias = $("#keyPairAlias").val();
+				var orgNumber = keyPairAlias.substring(0, 9);
+				$("#senderOrgNumber").val(orgNumber);
 			});
 		});
 		</script>

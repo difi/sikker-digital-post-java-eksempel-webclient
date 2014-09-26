@@ -129,7 +129,7 @@ public class MessageService {
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
-    	message.setAsic(postklientService.createAsice(message.getTechnicalOrgNumber(), message.getTechnicalAlias(), forsendelse));
+    	message.setAsic(postklientService.createAsice(message.getKeyPairAlias(), forsendelse));
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
@@ -266,7 +266,7 @@ public class MessageService {
         try {
         	Forsendelse forsendelse = buildDigitalForsendelse(message);
     		enrichMessage(message, forsendelse);
-    		SikkerDigitalPostKlient postklient = postklientService.get(message.getTechnicalOrgNumber(), message.getTechnicalAlias());
+    		SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
     		postklient.send(forsendelse);
 			message.setDate(postKlientSoapRequestDate.getValue());
 	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
@@ -310,18 +310,16 @@ public class MessageService {
 	 * @return
 	 */
 	public void getReceipts() {
-		List<Object[]> waitingClients = messageRepository.waitingClients();
+		List<String> waitingClients = messageRepository.waitingClients();
 		if (waitingClients.size() == 0) {
 			LOGGER.info("No messages are waiting for receipt");
 			return;
 		}
-		for (Object[] client : waitingClients) {
-			String orgNumber = (String) client[0];
-			String alias = (String) client[1];
-			SikkerDigitalPostKlient postklient = postklientService.get(orgNumber, alias);
-			LOGGER.info("Retrieving prioritized receipts for orgnumber " + orgNumber + " and alias " + alias);
+		for (String keyPairAlias : waitingClients) {
+			SikkerDigitalPostKlient postklient = postklientService.get(keyPairAlias);
+			LOGGER.info("Retrieving prioritized receipts for keyPairAlias " + keyPairAlias);
 			while (getReceipt(Prioritet.PRIORITERT, postklient));
-			LOGGER.info("Retrieving normal receipts for orgnumber " + orgNumber + " and alias " + alias);
+			LOGGER.info("Retrieving normal receipts for keyPairAlias " + keyPairAlias);
 			while (getReceipt(Prioritet.NORMAL, postklient));
 		}
 	}

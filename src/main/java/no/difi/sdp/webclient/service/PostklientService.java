@@ -4,6 +4,8 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -35,73 +37,74 @@ public class PostklientService {
 	@Autowired
 	private CreateASiCE createAsice;
 	
-	private Map<String, Map<String, SikkerDigitalPostKlient>> postklientMap = new HashMap<String, Map<String, SikkerDigitalPostKlient>>(); // Cache
+	private Map<String, SikkerDigitalPostKlient> postklientMap = new HashMap<String, SikkerDigitalPostKlient>(); // Cache
 	
-	private Map<String, Map<String, TekniskAvsender>> tekniskAvsenderMap = new HashMap<String, Map<String, TekniskAvsender>>(); // Cache
+	private Map<String, TekniskAvsender> tekniskAvsenderMap = new HashMap<String, TekniskAvsender>(); // Cache
 	
 	private Map<String, Noekkelpar> noekkelparMap = new HashMap<String, Noekkelpar>(); // Cache
 	
+	private Pattern keyPairAliasOrgNumberPattern = Pattern.compile("^[0-9]{9}"); // Pattern for extracting orgNumber from keyPairAlias
+	
 	/**
-	 * Gets SikkerDigitalPostKlient given orgNumber and alias. Creates new SikkerDigitalPostKlient if no matching SikkerDigitalPostKlient was found in cache.
-	 * @param orgNumber
-	 * @param alias
+	 * Gets SikkerDigitalPostKlient given keyPairAlias. Creates new SikkerDigitalPostKlient if no matching SikkerDigitalPostKlient was found in cache.
+	 * @param keyPairAlias
 	 * @return
 	 */
-	public SikkerDigitalPostKlient get(String orgNumber, String alias) {
-		if (! postklientMap.containsKey(orgNumber)) {
-			postklientMap.put(orgNumber, new HashMap<String, SikkerDigitalPostKlient>());
+	public SikkerDigitalPostKlient get(String keyPairAlias) {
+		if (! postklientMap.containsKey(keyPairAlias)) {
+			postklientMap.put(keyPairAlias, createPostKlient(keyPairAlias));
 		}
-		if (! postklientMap.get(orgNumber).containsKey(alias)) {
-			postklientMap.get(orgNumber).put(alias, createPostKlient(orgNumber, alias));
-		}
-		return postklientMap.get(orgNumber).get(alias);	
+		return postklientMap.get(keyPairAlias);	
 	}
 
 	/**
-	 * Gets TekniskAvsender given orgNumber and alias. Creates new TekniskAvsender if no matching TekniskAvsender was found in cache.
-	 * @param orgNumber
-	 * @param alias
+	 * Gets TekniskAvsender given keyPairAlias. Creates new TekniskAvsender if no matching TekniskAvsender was found in cache.
+	 * @param keyPairAlias
 	 * @return
 	 */
-	private TekniskAvsender getTekniskAvsender(String orgNumber, String alias) {
-		if (! tekniskAvsenderMap.containsKey(orgNumber)) {
-			tekniskAvsenderMap.put(orgNumber, new HashMap<String, TekniskAvsender>());
+	private TekniskAvsender getTekniskAvsender(String keyPairAlias) {
+		if (! tekniskAvsenderMap.containsKey(keyPairAlias)) {
+			tekniskAvsenderMap.put(keyPairAlias, createTekniskAvsender(keyPairAlias));
 		}
-		if (! tekniskAvsenderMap.get(orgNumber).containsKey(alias)) {
-			tekniskAvsenderMap.get(orgNumber).put(alias, createTekniskAvsender(orgNumber, alias));
-		}
-		return tekniskAvsenderMap.get(orgNumber).get(alias);
+		return tekniskAvsenderMap.get(keyPairAlias);
 	}
 	
 	/**
-	 * Gets Noekkelpar given alias. Creates new Noekkelpar if no matching Noekkelpar was found in cache.
-	 * @param alias
+	 * Gets Noekkelpar given keyPairAlias. Creates new Noekkelpar if no matching Noekkelpar was found in cache.
+	 * @param keyPairAlias
 	 * @return
 	 */
-	private Noekkelpar getNoekkelpar(String alias) {
-		if (! noekkelparMap.containsKey(alias)) {
-			noekkelparMap.put(alias, createNoekkelpar(alias));
+	private Noekkelpar getNoekkelpar(String keyPairAlias) {
+		if (! noekkelparMap.containsKey(keyPairAlias)) {
+			noekkelparMap.put(keyPairAlias, createNoekkelpar(keyPairAlias));
 		}
-		return noekkelparMap.get(alias);
+		return noekkelparMap.get(keyPairAlias);
 	}
 	
-	private SikkerDigitalPostKlient createPostKlient(String orgNumber, String alias) {
-		TekniskAvsender tekniskAvsender = getTekniskAvsender(orgNumber, alias);
+	private SikkerDigitalPostKlient createPostKlient(String keyPairAlias) {
+		TekniskAvsender tekniskAvsender = getTekniskAvsender(keyPairAlias);
     	return new SikkerDigitalPostKlient(tekniskAvsender, klientKonfigurasjon);
 	}
 	
-	private TekniskAvsender createTekniskAvsender(String orgNumber, String alias) {
-    	Noekkelpar noekkelpar = getNoekkelpar(alias);
+	private TekniskAvsender createTekniskAvsender(String keyPairAlias) {
+    	Noekkelpar noekkelpar = getNoekkelpar(keyPairAlias);
+    	String orgNumber = extractOrgNumbeFromKeyPairAlias(keyPairAlias);
         TekniskAvsender tekniskAvsender = TekniskAvsender.builder(orgNumber, noekkelpar).build();
         return tekniskAvsender;
     }
 
-	private Noekkelpar createNoekkelpar(String alias) {
-		return Noekkelpar.fraKeyStore(keyStore, alias, environment.getProperty("meldingsformidler.avsender.key.password"));
+	private Noekkelpar createNoekkelpar(String keyPairAlias) {
+		return Noekkelpar.fraKeyStore(keyStore, keyPairAlias, environment.getProperty("sdp.databehandler.keypair.password"));
 	}
 	
-	public byte[] createAsice(String orgNumber, String alias, Forsendelse forsendelse) {
-		TekniskAvsender tekniskAvsender = getTekniskAvsender(orgNumber, alias);
+	private String extractOrgNumbeFromKeyPairAlias(String keyPairAlias) {
+		Matcher m = keyPairAliasOrgNumberPattern.matcher(keyPairAlias);
+		m.find();
+		return m.group();
+	}
+	
+	public byte[] createAsice(String keyPairAlias, Forsendelse forsendelse) {
+		TekniskAvsender tekniskAvsender = getTekniskAvsender(keyPairAlias);
 		return createAsice.createAsice(tekniskAvsender, forsendelse).getBytes();
 	}
 	

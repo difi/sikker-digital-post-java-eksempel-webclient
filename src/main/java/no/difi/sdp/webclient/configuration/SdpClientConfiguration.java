@@ -290,13 +290,13 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     
     @Bean
     public KeyStore keyStore() {
-    	return cryptoUtil().loadKeystore(environment.getProperty("meldingsformidler.avsender.keystore.type"), environment.getProperty("meldingsformidler.avsender.keystore.file"), environment.getProperty("meldingsformidler.avsender.keystore.password"));
+    	return cryptoUtil().loadKeystore(environment.getProperty("sdp.databehandler.keystore.type"), environment.getProperty("sdp.databehandler.keystore.file"), environment.getProperty("sdp.databehandler.keystore.password"));
     }
     
     @Bean
     public KlientKonfigurasjon klientKonfigurasjon() {
     	return KlientKonfigurasjon.builder()
-        		.meldingsformidlerRoot(environment.getProperty("meldingsformidler.url"))
+        		.meldingsformidlerRoot(environment.getProperty("sdp.meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
         		.build();
     }

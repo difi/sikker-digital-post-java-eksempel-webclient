@@ -75,9 +75,8 @@ public class MessageController {
 			// Sets default values from configuration
 			messageCommand.setLanguageCode("NO");
 			messageCommand.setRetrieveContactDetails(true);
-			messageCommand.setSenderOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-			messageCommand.setTechnicalOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-			messageCommand.setTechnicalAlias(environment.getProperty("meldingsformidler.avsender.key.alias"));
+			messageCommand.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
+			messageCommand.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
 			messageCommand.setContactRegisterStatus(Status.AKTIV);
 			messageCommand.setReservationStatus(Reservasjon.NEI);
 		} else {
@@ -87,8 +86,7 @@ public class MessageController {
 			} else {
 				// Sets default values from exisiting message
 				// Note that default file upload values are not allowed by web browsers so we can't copy document, attachments and postbox certificate
-				messageCommand.setTechnicalAlias(message.getTechnicalAlias());
-				messageCommand.setTechnicalOrgNumber(message.getTechnicalOrgNumber());
+				messageCommand.setKeyPairAlias(message.getKeyPairAlias());
 				messageCommand.setDelayedAvailabilityDate(message.getDelayedAvailabilityDate());
 				messageCommand.setEmailNotification(message.getEmailNotification());
 				messageCommand.setEmailNotificationSchedule(message.getEmailNotificationSchedule());
@@ -114,7 +112,7 @@ public class MessageController {
 			}
 		}
 		model.addAttribute("messageCommand", messageCommand);
-		model.addAttribute("keypairAliases", postklientService.getKeypairAliases());
+		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 		return "send_message_page";
 	}
 	
@@ -123,7 +121,7 @@ public class MessageController {
 		validateUserSpecifiedContactDetails(messageCommand, bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
-			model.addAttribute("keypairAliases", postklientService.getKeypairAliases());
+			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 			model.addAttribute("errors", bindingResult);
 			return "send_message_page";
 		}
@@ -152,8 +150,7 @@ public class MessageController {
 		message.setSenderOrgNumber(messageCommand.getSenderOrgNumber());
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
-		message.setTechnicalOrgNumber(messageCommand.getTechnicalOrgNumber());
-		message.setTechnicalAlias(messageCommand.getTechnicalAlias());
+		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
 		message.setSecurityLevel(messageCommand.getSecurityLevel());
 		message.setEmailNotification(messageCommand.getEmailNotification());
 		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
@@ -290,9 +287,8 @@ public class MessageController {
         message.setPriority(Prioritet.NORMAL);
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
-        message.setSenderOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-        message.setTechnicalOrgNumber(environment.getProperty("meldingsformidler.avsender.organisasjonsnummer"));
-        message.setTechnicalAlias(environment.getProperty("meldingsformidler.avsender.key.alias"));
+        message.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
+        message.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
         Set<Document> attachments = new HashSet<Document>();
         String pdfInputFileName;
         switch (size) {
@@ -417,12 +413,7 @@ public class MessageController {
 	
 	@ModelAttribute("meldingsformidlerUrl")
 	private String meldingsformidlerUrl() {
-		return environment.getProperty("meldingsformidler.url");
-	}
-	
-	@ModelAttribute("avsenderOrganisasjonsnummer")
-	private String avsenderOrgansisasjonsnummer() {
-		return environment.getProperty("meldingsformidler.avsender.organisasjonsnummer");
+		return environment.getProperty("sdp.meldingsformidler.url");
 	}
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)

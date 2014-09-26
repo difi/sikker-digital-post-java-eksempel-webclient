@@ -43,10 +43,7 @@ public class MessageCommand {
 	private String invoiceReference;
 	
 	@NotNull
-	private String technicalOrgNumber;
-	
-	@NotNull
-	private String technicalAlias;
+	private String keyPairAlias;
 	
 	@NotNull
 	private Sikkerhetsnivaa securityLevel;
@@ -152,20 +149,12 @@ public class MessageCommand {
 		this.invoiceReference = invoiceReference;
 	}
 	
-	public String getTechnicalOrgNumber() {
-		return technicalOrgNumber;
+	public String getKeyPairAlias() {
+		return keyPairAlias;
 	}
 
-	public void setTechnicalOrgNumber(String technicalOrgNumber) {
-		this.technicalOrgNumber = technicalOrgNumber;
-	}
-
-	public String getTechnicalAlias() {
-		return technicalAlias;
-	}
-
-	public void setTechnicalAlias(String technicalAlias) {
-		this.technicalAlias = technicalAlias;
+	public void setKeyPairAlias(String keyPairAlias) {
+		this.keyPairAlias = keyPairAlias;
 	}
 	
 	public Sikkerhetsnivaa getSecurityLevel() {
