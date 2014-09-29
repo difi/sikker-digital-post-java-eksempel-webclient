@@ -23,6 +23,9 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m")
 	public List<Object[]> list();
 
+	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m where m.status=?1")
+	public List<Object[]> list(MessageStatus messageStatus);
+	
 	@Query("select distinct m.keyPairAlias from Message m where m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_RECEIPT or m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_OPENED_RECEIPT")
 	public List<String> waitingClients();
 	

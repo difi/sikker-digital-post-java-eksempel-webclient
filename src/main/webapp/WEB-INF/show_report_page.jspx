@@ -36,7 +36,8 @@
 						<tbody>
 							<c:forEach items="${countByStatus}" var="countByStatusItem">
 								<tr>
-									<td>${countByStatusItem[0]}</td>
+									<spring:url value="/client/messages?status=${countByStatusItem[0]}" var="showMessagesByStatusUrl" />
+									<td><a href="${showMessagesByStatusUrl}">${countByStatusItem[0]}</a></td>
 									<td>${countByStatusItem[1]}</td>
 								</tr>
 							</c:forEach>

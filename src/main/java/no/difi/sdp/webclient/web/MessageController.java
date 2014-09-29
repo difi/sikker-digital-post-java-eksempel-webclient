@@ -248,8 +248,13 @@ public class MessageController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/messages")
-	public String show_message_list_page(Model model) {
-		List<Message> messages = messageService.getMessages();
+	public String show_message_list_page(Model model, @RequestParam(required = false) MessageStatus status) {
+		List<Message> messages;
+		if (status == null) {
+			messages = messageService.getMessages();
+		} else {
+			messages = messageService.getMessages(status);
+		}
 		model.addAttribute("messages", messages);
 		return "show_message_list_page";
 	}

@@ -286,6 +286,17 @@ public class MessageService {
 	 */
 	public List<Message> getMessages() {
 		List<Object[]> rawMessages = messageRepository.list();
+		List<Message> messages = toMessageList(rawMessages);
+		return messages;
+	}
+	
+	public List<Message> getMessages(MessageStatus messageStatus) {
+		List<Object[]> rawMessages = messageRepository.list(messageStatus);
+		List<Message> messages = toMessageList(rawMessages);
+		return messages;
+	}
+	
+	private List<Message> toMessageList(List<Object[]> rawMessages) {
 		List<Message> messages = new ArrayList<Message>();
 		for (Object[] rawMessage : rawMessages) {
 			// Refer to messageRepository.list() for field order
@@ -300,7 +311,7 @@ public class MessageService {
 		}
 		return messages;
 	}
-	
+
 	public Message getMessage(Long id) {
 		return messageRepository.findOne(id);
 	}
