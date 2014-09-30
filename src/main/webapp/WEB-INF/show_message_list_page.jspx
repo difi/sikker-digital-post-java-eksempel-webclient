@@ -22,7 +22,7 @@
 			</ul>
 			<br />
 			<c:choose>
-				<c:when test="${empty messages}">
+				<c:when test="${empty messagePage.content}">
 					<p>Ingen meldinger sendt til postboks.</p>
 				</c:when>
 				<c:otherwise>
@@ -36,7 +36,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${messages}" var="message">
+							<c:forEach items="${messagePage.content}" var="message">
 								<tr>
 									<spring:url value="/client/messages/${message.id}" var="messageUrl" />
 									<spring:url value="/client/messages/${message.id}/delete" var="deleteMessageUrl" />
@@ -56,6 +56,37 @@
 							</c:forEach>
 						</tbody>
 					</table>
+					<ul class="pagination">
+						<c:choose>
+							<c:when test="${messagePage.hasPrevious()}">
+								<spring:url value="/client/messages?status=${messageStatus}&amp;pageNumber=${messagePage.number - 1}" var="previousMessagePageUrl" />
+								<li><a href="${previousMessagePageUrl}">&#171;</a></li>
+							</c:when>
+							<c:otherwise>
+								<li class="disabled"><a href="#">&#171;</a></li>
+							</c:otherwise>
+						</c:choose>
+						<c:forEach begin="0" end="${messagePage.totalPages - 1}" var="pageNumber">
+							<c:choose>
+								<c:when test="${pageNumber == messagePage.number}">
+									<li class="active"><a href="#">${pageNumber}</a></li>
+								</c:when>
+								<c:otherwise>
+									<spring:url value="/client/messages?status=${messageStatus}&amp;pageNumber=${pageNumber}" var="messagePageUrl"/>
+									<li><a href="${messagePageUrl}">${pageNumber}</a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						<c:choose>
+							<c:when test="${messagePage.hasNext()}">
+								<spring:url value="/client/messages?status=${messageStatus}&amp;pageNumber=${messagePage.number + 1}" var="nextMessagePageUrl" />
+								<li><a href="${nextMessagePageUrl}">&#187;</a></li>
+							</c:when>
+							<c:otherwise>
+								<li class="disabled"><a href="#">&#187;</a></li>
+							</c:otherwise>
+						</c:choose>
+					</ul>
 				</c:otherwise>
 			</c:choose>
 			<spring:url value="/client/messages/delete" var="deleteAllMessagesUrl" />

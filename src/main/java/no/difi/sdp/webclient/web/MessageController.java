@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -248,14 +249,15 @@ public class MessageController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/messages")
-	public String show_message_list_page(Model model, @RequestParam(required = false) MessageStatus status) {
-		List<Message> messages;
+	public String show_message_list_page(Model model, @RequestParam(required = false) MessageStatus status, @RequestParam(defaultValue = "0") int pageNumber) {
+		Page<Message> messagePage;
 		if (status == null) {
-			messages = messageService.getMessages();
+			messagePage = messageService.getMessages(pageNumber);
 		} else {
-			messages = messageService.getMessages(status);
+			messagePage = messageService.getMessages(status, pageNumber);
 		}
-		model.addAttribute("messages", messages);
+		model.addAttribute("messagePage", messagePage);
+		model.addAttribute("messageStatus", status);
 		return "show_message_list_page";
 	}
 

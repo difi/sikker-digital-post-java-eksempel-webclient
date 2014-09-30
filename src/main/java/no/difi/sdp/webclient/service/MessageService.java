@@ -37,12 +37,17 @@ import no.difi.sdp.webclient.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MessageService {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(MessageService.class);
+	
+	private final static int NUMBER_OF_MESSAGES_PER_PAGE = 100;
 	
 	@Autowired
 	private MessageRepository messageRepository;
@@ -280,25 +285,27 @@ public class MessageService {
 		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);
 	}
 
-	/**
-	 * Gets all messages, but only the following fields are populated: id, date, ssn and document.title.
-	 * @return
-	 */
-	public List<Message> getMessages() {
-		List<Object[]> rawMessages = messageRepository.list();
-		List<Message> messages = toMessageList(rawMessages);
-		return messages;
+	public Page<Message> getMessages(int pageNumber) {
+		PageRequest pageRequest = buildPageRequest(pageNumber);
+		Page<Object[]> rawMessagePage = messageRepository.list(pageRequest);
+		Page<Message> messagePage = toMessagePage(rawMessagePage, pageRequest);
+		return messagePage;
 	}
 	
-	public List<Message> getMessages(MessageStatus messageStatus) {
-		List<Object[]> rawMessages = messageRepository.list(messageStatus);
-		List<Message> messages = toMessageList(rawMessages);
-		return messages;
+	public Page<Message> getMessages(MessageStatus messageStatus, int pageNumber) {
+		PageRequest pageRequest = buildPageRequest(pageNumber);
+		Page<Object[]> rawMessagePage = messageRepository.list(messageStatus, pageRequest);
+		Page<Message> messagePage = toMessagePage(rawMessagePage, pageRequest);
+		return messagePage;
 	}
 	
-	private List<Message> toMessageList(List<Object[]> rawMessages) {
+	private PageRequest buildPageRequest(int pageNumber) {
+		return new PageRequest(pageNumber, NUMBER_OF_MESSAGES_PER_PAGE);
+	}
+	
+	private Page<Message> toMessagePage(Page<Object[]> rawMessagePage, PageRequest pageRequest) {
 		List<Message> messages = new ArrayList<Message>();
-		for (Object[] rawMessage : rawMessages) {
+		for (Object[] rawMessage : rawMessagePage.getContent()) {
 			// Refer to messageRepository.list() for field order
 			Message message = new Message();
 			message.setId((Long) rawMessage[0]);
@@ -309,7 +316,7 @@ public class MessageService {
 			message.setDocument(document);
 			messages.add(message);
 		}
-		return messages;
+		return new PageImpl<Message>(messages, pageRequest, rawMessagePage.getTotalElements());
 	}
 
 	public Message getMessage(Long id) {

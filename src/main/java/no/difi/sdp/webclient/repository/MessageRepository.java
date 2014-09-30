@@ -5,6 +5,8 @@ import java.util.List;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,10 +23,10 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	public List<Object[]> getReport();
 
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m order by m.id desc")
-	public List<Object[]> list();
-
+	public Page<Object[]> list(Pageable pageable);
+	
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m where m.status=?1 order by m.id desc")
-	public List<Object[]> list(MessageStatus messageStatus);
+	public Page<Object[]> list(MessageStatus messageStatus, Pageable pageable);
 	
 	@Query("select distinct m.keyPairAlias from Message m where m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_RECEIPT or m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_OPENED_RECEIPT")
 	public List<String> waitingClients();
