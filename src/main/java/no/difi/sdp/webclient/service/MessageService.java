@@ -225,7 +225,7 @@ public class MessageService {
         		.build();
     }
     
-    public void sendMessage(Message message)  {
+    public void sendMessage(Message message, boolean saveBinaryContent)  {
     	try {
     		if (message.getRetrieveContactDetails()) {
     			retrieveContactDetailsFromOppslagstjeneste(message);
@@ -243,8 +243,19 @@ public class MessageService {
     	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest));
     	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload));
     	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse));
+    	if (! saveBinaryContent) {
+    		removeBinaryContent(message);
+    	}
     	messageRepository.save(message);
 	}
+    
+    private void removeBinaryContent(Message message) {
+    	message.setAsic(null);
+		message.getDocument().setContent(null);
+		for (Document attachment : message.getAttachments()) {
+			attachment.setContent(null);
+		}
+    }
     
     private void retrieveContactDetailsFromOppslagstjeneste(Message message) throws MessageServiceException {
     	try {

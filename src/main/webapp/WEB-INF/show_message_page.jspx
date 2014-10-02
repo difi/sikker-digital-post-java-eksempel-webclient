@@ -100,18 +100,36 @@ ${message.exception}
 						</thead>
 						<tbody>
 							<tr>
-								<spring:url value="/client/messages/documents/${message.document.id}" var="downloadMessageDocumentUrl" />
 								<td>Hoveddokument</td>
 								<td id="title">${message.document.title}</td>
-								<td id="documentFilename"><a href="${downloadMessageDocumentUrl}">${message.document.filename}</a></td>
+								<td id="documentFilename">
+									<c:choose>
+										<c:when test="${empty message.document.content}">
+											${message.document.filename}
+										</c:when>
+										<c:otherwise>
+											<spring:url value="/client/messages/documents/${message.document.id}" var="downloadMessageDocumentUrl" />
+											<a href="${downloadMessageDocumentUrl}">${message.document.filename}</a>
+										</c:otherwise>
+									</c:choose>
+								</td>
 								<td id="documentMimetype">${message.document.mimetype}</td>
 							</tr>
 							<c:forEach items="${message.attachments}" var="attachment">
 								<tr>
-									<spring:url value="/client/messages/documents/${attachment.id}" var="downloadMessageDocumentUrl" />
 									<td>Vedlegg</td>
 									<td>${attachment.title}</td>
-									<td><a href="${downloadMessageDocumentUrl}">${attachment.filename}</a></td>
+									<td>
+										<c:choose>
+											<c:when test="${empty attachment.content}">
+												${attachment.filename}
+											</c:when>
+											<c:otherwise>
+												<spring:url value="/client/messages/documents/${attachment.id}" var="downloadMessageDocumentUrl" />
+												<a href="${downloadMessageDocumentUrl}">${attachment.filename}</a>
+											</c:otherwise>
+										</c:choose>
+									</td>
 									<td>${attachment.mimetype}</td>
 								</tr>
 							</c:forEach>

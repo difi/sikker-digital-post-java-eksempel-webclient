@@ -171,7 +171,7 @@ public class MessageController {
 			message.setMobile(messageCommand.getMobile());
 			message.setEmail(messageCommand.getEmail());
 		}
-		messageService.sendMessage(message);
+		messageService.sendMessage(message, true);
 		return "redirect:/client/messages/" + message.getId();
 	}
 	
@@ -203,7 +203,7 @@ public class MessageController {
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/documents/{id}")
 	public void download_message_document(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
 		Document document = messageService.getDocument(id);
-		if (document == null) {
+		if (document == null || document.getContent() == null) {
 			throw new NotFoundException();
 		}
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + document.getFilename() + "\"");
@@ -346,7 +346,7 @@ public class MessageController {
 					throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
         	}
         }
-        messageService.sendMessage(message);
+        messageService.sendMessage(message, false);
     }
 	
     @RequestMapping(method = RequestMethod.GET, value = "/report")
