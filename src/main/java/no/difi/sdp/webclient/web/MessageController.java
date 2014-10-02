@@ -290,7 +290,7 @@ public class MessageController {
     public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
         Message message = new Message();
         message.setSsn(ssn);
-        message.setInsensitiveTitle("Tittel for " + ssn);
+        message.setInsensitiveTitle("Brev til " + ssn + " " + new Date());
         message.setPriority(Prioritet.NORMAL);
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
@@ -325,7 +325,7 @@ public class MessageController {
         document.setFilename("testfil.pdf");
         document.setContent(pdf);
         document.setMimetype("application/pdf");
-        document.setTitle("Dokumenttittel for " + ssn);
+        document.setTitle("Brev til " + ssn + " " + new Date());
         message.setDocument(document);
         message.setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
         if (! message.getRetrieveContactDetails()) {
