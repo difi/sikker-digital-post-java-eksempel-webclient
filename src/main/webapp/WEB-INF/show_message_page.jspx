@@ -169,7 +169,7 @@ ${message.exception}
 				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
 				<dt>Motta åpningskvittering</dt>
 				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
-				<dt>Forsinket åpningsdato</dt>
+				<dt>Virkningsdato</dt>
 				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
 				<dt>Prioritet</dt>
 				<dd id="priority">${message.priority == null ? "[ikke tilgjengelig]" : message.priority}</dd>

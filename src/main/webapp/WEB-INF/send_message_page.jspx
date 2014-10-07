@@ -53,7 +53,7 @@
 					<form:label path="attachments" cssClass="col-sm-2 control-label">Vedlegg</form:label>
 					<div class="col-sm-10">
 						<input name="attachments" id="attachments" type="file" multiple="multiple" />
-						<span class="help-block">Du kan legge ved flere filer.</span>
+						<span class="help-block">Du kan legge ved flere filer</span>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('keyPairAlias') ? 'has-error' : ''}">
@@ -85,13 +85,13 @@
 						<div class="form-group ${errors.hasFieldErrors('senderId') ? 'has-error' : ''}">
 							<form:label path="senderId" cssClass="col-sm-2 control-label">Avsenderidentifikator</form:label>
 							<div class="col-sm-10">
-								<input name="senderId" id="senderId" type="text" class="form-control" autocomplete="off" placeholder="Avsenderidentifikator" value="${messageCommand.senderId}"/>
+								<input name="senderId" id="senderId" type="text" class="form-control" autocomplete="off" placeholder="Valgfri identifikator for en ansvarlig enhet innen for en virksomhet. Identifikatoren opprettes av Sentralforvalter." value="${messageCommand.senderId}"/>
 							</div>
 						</div>
 						<div class="form-group ${errors.hasFieldErrors('invoiceReference') ? 'has-error' : ''}">
 							<form:label path="invoiceReference" cssClass="col-sm-2 control-label">Fakturareferanse</form:label>
 							<div class="col-sm-10">
-								<input name="invoiceReference" id="invoiceReference" type="text" class="form-control" autocomplete="off" placeholder="Fakturareferanse" value="${messageCommand.invoiceReference}"/>
+								<input name="invoiceReference" id="invoiceReference" type="text" class="form-control" autocomplete="off" placeholder="Valgfri referanse for å kunne sortere fakturagrunnlaget fra Sentralforvalter i intern organisasjon. Maks 40 tegn." value="${messageCommand.invoiceReference}"/>
 							</div>
 						</div>
 					</div>
@@ -121,8 +121,7 @@
 				<div class="form-group ${errors.hasFieldErrors('emailNotificationSchedule') ? 'has-error' : ''}">
 					<form:label path="emailNotificationSchedule" cssClass="col-sm-2 control-label">Epost-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende epost-varsel" value="${messageCommand.emailNotificationSchedule}"/>
-						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
+						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende epostvarsel, 0 er samme dag som virkningsdato" value="${messageCommand.emailNotificationSchedule}"/>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('mobileNotification') ? 'has-error' : ''}">
@@ -134,8 +133,7 @@
 				<div class="form-group ${errors.hasFieldErrors('mobileNotificationSchedule') ? 'has-error' : ''}">
 					<form:label path="mobileNotificationSchedule" cssClass="col-sm-2 control-label">SMS-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende sms-varsel" value="${messageCommand.mobileNotificationSchedule}" />
-						<span class="help-block">Eksempel: <em>0, 5, 8</em></span>
+						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende sms-varsel, 0 er samme dag som virkningsdato" value="${messageCommand.mobileNotificationSchedule}" />
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('requiresMessageOpenedReceipt') ? 'has-error' : ''}">
@@ -152,10 +150,10 @@
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('delayedAvailabilityDate') ? 'has-error' : ''}">
-					<form:label path="delayedAvailabilityDate" cssClass="col-sm-2 control-label">Forsinket åpningsdato</form:label>
+					<form:label path="delayedAvailabilityDate" cssClass="col-sm-2 control-label">Virkningsdato</form:label>
 					<div class="col-sm-10">
 						<fmt:formatDate value="${messageCommand.delayedAvailabilityDate}" type="both" pattern="yyyy-MM-dd HH:mm:ss" var="delayedAvailabilityDateString"/>
-						<input name="delayedAvailabilityDate" id="delayedAvailabilityDate" type="text" class="form-control" autocomplete="off" placeholder="Oppgi forsinket åpningsdato dersom du ønsker at meldingen ikke skal bli tilgjengelig for mottaker før en bestemt dato" value="${delayedAvailabilityDateString}"/>
+						<input name="delayedAvailabilityDate" id="delayedAvailabilityDate" type="text" class="form-control" autocomplete="off" placeholder="Virkningsdato" value="${delayedAvailabilityDateString}"/>
 						<span class="help-block">Eksempel: <em>2014-06-12 13:00:00</em></span>
 					</div>
 				</div>
@@ -250,7 +248,8 @@
 							<form:label path="postboxCertificate" cssClass="col-sm-2 control-label">Postkassesertifikat</form:label>
 							<div class="col-sm-10">
 								<input name="postboxCertificate" id="postboxCertificate" type="file" />
-							</div> 
+								<span class="help-block">X.509-sertifikat i DER-encoding</span>
+							</div>
 						</div>
 						<div class="form-group ${errors.hasFieldErrors('mobile') ? 'has-error' : ''}">
 							<form:label path="mobile" cssClass="col-sm-2 control-label">Mobiltelefonnummer</form:label>
