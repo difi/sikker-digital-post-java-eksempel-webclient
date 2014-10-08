@@ -8,8 +8,10 @@ import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -47,6 +49,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class MessageController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageController.class);
+	
+	private static final String FORM_ATTACHMENT_NAME_PREFIX = "attachmentName";
+	private static final String FORM_ATTACHMENT_TITLE_PREFIX = "attachmentTitle";
 	
 	@Autowired
 	private Environment environment;
@@ -118,7 +123,7 @@ public class MessageController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")
-	public String send_message(@Valid @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) throws IOException {
+	public String send_message(@Valid @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
 		validateUserSpecifiedContactDetails(messageCommand, bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
@@ -139,7 +144,7 @@ public class MessageController {
 		for (MultipartFile multipartFile : messageCommand.getAttachments()) {
 			if (! multipartFile.isEmpty()) {
 				Document attachment = new Document();
-				attachment.setTitle(multipartFile.getOriginalFilename()); // Uses attachment filename for attachment title
+				attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
 				attachment.setContent(multipartFile.getBytes());
 				attachment.setFilename(multipartFile.getOriginalFilename());
 				attachment.setMimetype(multipartFile.getContentType());
@@ -175,6 +180,36 @@ public class MessageController {
 		return "redirect:/client/messages/" + message.getId();
 	}
 	
+	/**
+	 * Resolves the attachment title for a given MultipartFile.
+	 * See send_message_page.js for frontend implementation.
+	 * 
+	 * @param multipartFile
+	 * @param request
+	 * @return Attachment title
+	 */
+	private String resolveAttachmentTitle(MultipartFile multipartFile, HttpServletRequest request) {
+		String attachmentTitle = null;
+		for (Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
+			if (parameter.getKey().startsWith(FORM_ATTACHMENT_NAME_PREFIX)) {
+				// We matched an attachmentName#-parameter
+				if (multipartFile.getOriginalFilename().equals(parameter.getValue()[0])) {
+					// The attachmentName#-parameter matched the attachment we are resolving a title for
+					// The attachmentNumber of the attachmentName#-parameter allows us to resolve the attachmentTitle#-parameter
+					String attachmentNumber = parameter.getKey().replace(FORM_ATTACHMENT_NAME_PREFIX, "");
+					String attachmentTitleParameter = FORM_ATTACHMENT_TITLE_PREFIX + attachmentNumber;
+					attachmentTitle = request.getParameter(attachmentTitleParameter);
+					if (attachmentTitle != null && attachmentTitle.length() > 0) {
+						// The attachment title was provided
+						return attachmentTitle;
+					}
+				}
+			}
+		}
+		// No attachment title was provided, falls back to using the original filename as attachment title
+		return multipartFile.getOriginalFilename();
+	}
+
 	private void validateUserSpecifiedContactDetails(MessageCommand messageCommand, BindingResult bindingResult) {
 		if (messageCommand.getRetrieveContactDetails()) {
 			return;
