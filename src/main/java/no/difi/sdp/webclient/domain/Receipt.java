@@ -33,11 +33,13 @@ public class Receipt {
 	@Enumerated(EnumType.STRING)
 	private Feiltype errorType;
 	
+	@Lob
 	private String errorDetails;
 	
 	@Enumerated(EnumType.STRING)
 	private Varslingskanal notificationErrorChannel;
 	
+	@Lob
 	private String notificationErrorDescription;
 	
 	@Lob
