@@ -26,7 +26,7 @@
 				<dt>Status</dt>
 				<dd id="status">${message.status}</dd>
 				<dt>Tidspunkt for sending</dt>
-				<dd id="date">${message.date}</dd>
+				<dd id="date">${message.date == null ? "[ikke tilgjengelig]" : message.date}</dd>
 				<dt>Konversasjons-id</dt>
 				<dd id="conversationId">${message.conversationId == null ? "[ikke tilgjengelig]" : message.conversationId}</dd>
 				<dt>Sendt dokumentpakke (ASiC)</dt>
