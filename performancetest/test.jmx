@@ -180,7 +180,7 @@
                       <stringProp name="Argument.name">postboxVendor</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
@@ -291,7 +291,7 @@
                       <stringProp name="Argument.desc">false</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
@@ -403,7 +403,7 @@
                       <stringProp name="Argument.desc">false</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
@@ -913,7 +913,7 @@
                       <stringProp name="Argument.desc">false</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
@@ -1025,7 +1025,7 @@
                       <stringProp name="Argument.desc">false</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
@@ -1137,7 +1137,7 @@
                       <stringProp name="Argument.desc">false</stringProp>
                     </elementProp>
                     <elementProp name="postboxAddress" elementType="HTTPArgument">
-                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <boolProp name="HTTPArgument.always_encode">true</boolProp>
                       <stringProp name="Argument.value">${postboxfordigipost}</stringProp>
                       <stringProp name="Argument.metadata">=</stringProp>
                       <boolProp name="HTTPArgument.use_equals">true</boolProp>
