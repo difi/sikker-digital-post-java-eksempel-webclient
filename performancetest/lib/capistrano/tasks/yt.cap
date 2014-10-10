@@ -9,51 +9,67 @@ end
 namespace :yt do
 
   jmeter_directory = "apache-jmeter-2.11"
-  jmeter_zip_filename = "apache-jmeter-2.11.zip"
   jmeter_test_zip_filename = "jmeter-test.zip"
   jmeter_test_filename = "test.jmx"
-  jmeter_testdata_filename = "testdata.csv"
+  jmeter_digipost_test_filename = "digipost_yt_testbrukere.csv"
+  jmeter_eboks_test_filename = "eboks_yt_testbrukere.csv"
   testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
-  tomcat_config_filename="tomcat.conf"
+  testavsender_config_filename = "configuration.properties"
+  tomcat_config_filename="tomcat7.conf"
   jmeter_startupscript_filename="jmeter"
-	
+  linux_limits_filename="limits.conf"
+
   desc "Setups performance test environment (installs tomcat7, deploys testavsender to tomcat7, installs jmeter and distributes jmeter test scipt)"
   task :setup do
+    # Copies the previously built version of testavsender
 	FileUtils.cp("../target/" + testavsender_war_filename, testavsender_war_filename);
+	# Compress current version of test data and script
     File.delete(jmeter_test_zip_filename) if File.exists?(jmeter_test_zip_filename)
 	Zip::File.open(jmeter_test_zip_filename, Zip::File::CREATE) do |zipfile|
       zipfile.add(jmeter_test_filename, jmeter_test_filename)
-	  zipfile.add(jmeter_testdata_filename, jmeter_testdata_filename)
+	  zipfile.add(jmeter_digipost_test_filename, jmeter_digipost_test_filename)
+	  zipfile.add(jmeter_eboks_test_filename, jmeter_eboks_test_filename)
     end
 	
     on roles(:client, :controller) do
       host.ssh_options ||= fetch(:ssh_options)
-	  
-      sudo "yum install tomcat7 -y"
+	  # Moves files
+      Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
+	  Yt::move_file testavsender_config_filename, "#{fetch(:tmp_path)}/#{testavsender_config_filename}", host
+	  Yt::move_file tomcat_config_filename, "#{fetch(:tmp_path)}/#{tomcat_config_filename}", host
+	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
+	  Yt::move_file jmeter_startupscript_filename, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename}", host
+	  Yt::move_file linux_limits_filename, "#{fetch(:tmp_path)}/#{linux_limits_filename}", host
+	  # Overrides linux limits configuration
+	  sudo :cp, "#{fetch(:tmp_path)}/#{linux_limits_filename} /etc/security/#{linux_limits_filename}"
+	  # Installs Oracles JDK and set as default JVM
+	  sudo 'wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-linux-x64.rpm'
+	  sudo "rpm -i jdk-7u67-linux-x64.rpm || :"
+	  sudo "/usr/sbin/alternatives --install /usr/bin/java java /usr/java/jdk1.7.0_67/bin/java 20000"
+	  # Installs tomcat
+	  sudo "yum install tomcat7 -y"
+	  # Enables tomcat service
 	  sudo "chkconfig tomcat7 on"
-	  Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
+	  # Overrides testavsender configuration
+	  sudo :rm, "-rf" , "/etc/opt/testavsender"
+	  sudo :mkdir, "-p", "/etc/opt/testavsender"
+	  sudo :chmod, "-R 777", "/etc/opt/testavsender"
+	  sudo :cp, "#{fetch(:tmp_path)}/#{testavsender_config_filename} /etc/opt/testavsender/#{testavsender_config_filename}"
+	  # Overrides tomcat configuration
+	  sudo :cp, "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat7/#{tomcat_config_filename}"
+	  # Deploys new version of testavsender to tomcat
 	  sudo "service tomcat7 stop"
 	  sudo :rm, "-rf", "/var/lib/tomcat7/webapps/*"
 	  sudo :cp, "#{fetch(:tmp_path)}/#{testavsender_war_filename} /var/lib/tomcat7/webapps/ROOT.war"
-	  sudo :rm, "-rf", "/etc/tomcat"
-	  sudo :mkdir, "/etc/tomcat"
-	  Yt::move_file tomcat_config_filename, "#{fetch(:tmp_path)}/#{tomcat_config_filename}", host
-	  sudo :cp, "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat/tomcat.conf"
 	  sudo "service tomcat7 start"
-	  
+	  # Installs jmeter
 	  sudo :rm, "-rf" , release_path
       sudo :mkdir, "-p", release_path
-	  
-      Yt::move_file jmeter_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_zip_filename}", host
-      sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_zip_filename} -d #{release_path}"
-      
-	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
-	  sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
-	  
-	  Yt::move_file jmeter_startupscript_filename, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename}", host
-      sudo :cp, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
-	  
 	  sudo :chmod, "-R 777", "#{release_path}/"
+	  sudo "wget http://apache.vianett.no//jmeter/binaries/apache-jmeter-2.11.zip"
+	  sudo "unzip -o apache-jmeter-2.11.zip -d #{release_path}"
+      sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
+	  sudo :cp, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
     end
   end
 

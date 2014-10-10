@@ -6,7 +6,7 @@ module Yt
     password = host.netssh_options[:password]
     puts "#{username}@#{host.hostname}:#{to}"
     puts ""
-    last = 0
+	last = 0
     ::Net::SCP.upload!(
         String(host.hostname),
         username,
@@ -14,10 +14,7 @@ module Yt
         to,
         :ssh => host.netssh_options
     ) do |ch, name, sent, total|
-      precent = sent / (total / 100)
-      progress = precent - last
-      progress.times { print "." }
-      last = precent
+      print "copying #{name} : #{sent} / #{total} = #{sent*100/total}%\n"
     end
     puts ""
   end
