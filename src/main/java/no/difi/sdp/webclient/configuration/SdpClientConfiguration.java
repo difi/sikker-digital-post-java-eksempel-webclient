@@ -6,6 +6,7 @@ import java.security.KeyStore;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -298,6 +299,10 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     	return KlientKonfigurasjon.builder()
         		.meldingsformidlerRoot(environment.getProperty("sdp.meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
+        		.maxConnectionPoolSize(environment.getProperty("sdp.connectionpool.size", Integer.class))
+        		.connectionRequestTimeout(environment.getProperty("sdp.connectionpool.connectionRequestTimeout", Integer.class), TimeUnit.MILLISECONDS)
+        		.connectionTimeout(environment.getProperty("sdp.connectionpool.connectionTimeout", Integer.class), TimeUnit.MILLISECONDS)
+        		.socketTimeout(environment.getProperty("sdp.connectionpool.socketTimeout", Integer.class), TimeUnit.MILLISECONDS)
         		.build();
     }
     
