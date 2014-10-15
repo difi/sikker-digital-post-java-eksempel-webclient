@@ -300,9 +300,9 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
         		.meldingsformidlerRoot(environment.getProperty("sdp.meldingsformidler.url"))
         		.soapInterceptors(postKlientSoapInterceptor())
         		.maxConnectionPoolSize(environment.getProperty("sdp.connectionpool.size", Integer.class))
-        		.connectionRequestTimeout(environment.getProperty("sdp.connectionpool.connectionRequestTimeout", Integer.class), TimeUnit.MILLISECONDS)
-        		.connectionTimeout(environment.getProperty("sdp.connectionpool.connectionTimeout", Integer.class), TimeUnit.MILLISECONDS)
-        		.socketTimeout(environment.getProperty("sdp.connectionpool.socketTimeout", Integer.class), TimeUnit.MILLISECONDS)
+        		.connectionRequestTimeout(environment.getProperty("sdp.connectionpool.connectionRequestTimeoutMs", Integer.class), TimeUnit.MILLISECONDS)
+        		.connectionTimeout(environment.getProperty("sdp.connectionpool.connectionTimeoutMs", Integer.class), TimeUnit.MILLISECONDS)
+        		.socketTimeout(environment.getProperty("sdp.connectionpool.socketTimeoutMs", Integer.class), TimeUnit.MILLISECONDS)
         		.build();
     }
     
