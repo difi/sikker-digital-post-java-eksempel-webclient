@@ -424,6 +424,7 @@ public class MessageService {
 		} catch (Exception e) {
 			LOGGER.error("Failed acknowledging retrieved receipt", e);
 			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECEIPT);
+			message.setException(stringUtil.toString(e));
 			messageRepository.save(message);
 		}
 		return true;
