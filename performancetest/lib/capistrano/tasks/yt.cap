@@ -16,6 +16,7 @@ namespace :yt do
   testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
   testavsender_config_filename = "configuration.properties"
   tomcat_config_filename="tomcat7.conf"
+  tomcat_server_xml_filename="server.xml"
   jmeter_startupscript_filename="jmeter"
   linux_limits_filename="limits.conf"
 
@@ -37,6 +38,7 @@ namespace :yt do
       Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
 	  Yt::move_file testavsender_config_filename, "#{fetch(:tmp_path)}/#{testavsender_config_filename}", host
 	  Yt::move_file tomcat_config_filename, "#{fetch(:tmp_path)}/#{tomcat_config_filename}", host
+	  Yt::move_file tomcat_server_xml_filename, "#{fetch(:tmp_path)}/#{tomcat_server_xml_filename}", host
 	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
 	  Yt::move_file jmeter_startupscript_filename, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename}", host
 	  Yt::move_file linux_limits_filename, "#{fetch(:tmp_path)}/#{linux_limits_filename}", host
@@ -61,6 +63,7 @@ namespace :yt do
 	  sudo :chmod, "-R 777", "/etc/opt/testavsender"
 	  # Overrides tomcat configuration
 	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat7/#{tomcat_config_filename}"
+	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{tomcat_server_xml_filename} /etc/tomcat7/#{tomcat_server_xml_filename}"
 	  # Deploys new version of testavsender to tomcat
 	  sudo "service tomcat7 stop"
 	  sudo :rm, "-rf", "/var/lib/tomcat7/webapps/*"
