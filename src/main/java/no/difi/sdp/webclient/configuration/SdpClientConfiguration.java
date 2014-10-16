@@ -6,6 +6,8 @@ import java.security.KeyStore;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManagerFactory;
@@ -49,6 +51,8 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -74,7 +78,7 @@ import org.springframework.ws.context.MessageContext;
 @EnableJpaRepositories(basePackages = "no.difi.sdp.webclient.repository")
 @EnableTransactionManagement
 @EnableScheduling
-public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
+public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements SchedulingConfigurer {
 	
 	private final static Logger LOGGER = LoggerFactory.getLogger(SdpClientConfiguration.class);
 	
@@ -368,5 +372,15 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter {
     	messageService.getReceipts();
     	LOGGER.info("Done retrieving receipts");
     }
+
+	@Override
+	public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
+		scheduledTaskRegistrar.setScheduler(scheduledTaskExecutor());
+	}
+	
+	@Bean(destroyMethod = "shutdown")
+	public Executor scheduledTaskExecutor() {
+		return Executors.newScheduledThreadPool(environment.getProperty("sdp.receiptconnectionpool.size", Integer.class));
+	}
 
 }
