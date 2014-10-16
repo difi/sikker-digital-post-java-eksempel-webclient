@@ -134,7 +134,9 @@ public class MessageService {
     
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
-    	message.setAsic(postklientService.createAsice(message.getKeyPairAlias(), forsendelse));
+    	if (message.getSaveBinaryContent()) {
+    		message.setAsic(postklientService.createAsice(message.getKeyPairAlias(), forsendelse));
+    	}
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
@@ -225,7 +227,7 @@ public class MessageService {
         		.build();
     }
     
-    public void sendMessage(Message message, boolean saveBinaryContent)  {
+    public void sendMessage(Message message)  {
     	try {
     		if (message.getRetrieveContactDetails()) {
     			retrieveContactDetailsFromOppslagstjeneste(message);
@@ -243,7 +245,7 @@ public class MessageService {
     	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest));
     	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload));
     	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse));
-    	if (! saveBinaryContent) {
+    	if (! message.getSaveBinaryContent()) {
     		removeBinaryContent(message);
     	}
     	messageRepository.save(message);

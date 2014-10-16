@@ -167,6 +167,7 @@ public class MessageController {
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
 		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
+		message.setSaveBinaryContent(true);
 		if (! message.getRetrieveContactDetails()) {
 			message.setContactRegisterStatus(messageCommand.getContactRegisterStatus());
 			message.setReservationStatus(messageCommand.getReservationStatus());
@@ -176,7 +177,7 @@ public class MessageController {
 			message.setMobile(messageCommand.getMobile());
 			message.setEmail(messageCommand.getEmail());
 		}
-		messageService.sendMessage(message, true);
+		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
 	}
 	
@@ -363,6 +364,7 @@ public class MessageController {
         document.setTitle("Brev til " + ssn + " " + new Date());
         message.setDocument(document);
         message.setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
+        message.setSaveBinaryContent(false);
         if (! message.getRetrieveContactDetails()) {
         	// Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
         	message.setContactRegisterStatus(Status.AKTIV);
@@ -381,7 +383,7 @@ public class MessageController {
 					throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
         	}
         }
-        messageService.sendMessage(message, false);
+        messageService.sendMessage(message);
     }
 	
     @RequestMapping(method = RequestMethod.GET, value = "/report")
