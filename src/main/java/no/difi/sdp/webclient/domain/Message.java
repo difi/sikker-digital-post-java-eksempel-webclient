@@ -137,6 +137,8 @@ public class Message {
 	
 	private boolean retrieveContactDetails;
 	
+	private boolean saveBinaryContent;
+	
 	public Long getId() {
 		return id;
 	}
@@ -447,6 +449,14 @@ public class Message {
 
 	public void setRetrieveContactDetails(boolean retrieveContactDetails) {
 		this.retrieveContactDetails = retrieveContactDetails;
+	}
+
+	public boolean getSaveBinaryContent() {
+		return saveBinaryContent;
+	}
+
+	public void setSaveBinaryContent(boolean saveBinaryContent) {
+		this.saveBinaryContent = saveBinaryContent;
 	}
 
 	

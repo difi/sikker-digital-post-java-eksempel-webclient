@@ -162,7 +162,8 @@ public class MessageServiceTest {
         message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
         message.setRetrieveContactDetails(true);
-        messageService.sendMessage(message, true);
+        message.setSaveBinaryContent(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override
@@ -188,7 +189,8 @@ public class MessageServiceTest {
         message.setAttachments(new HashSet<Document>());
         message.setLanguageCode("NO");
         message.setRetrieveContactDetails(true);
-        messageService.sendMessage(message, true);
+        message.setSaveBinaryContent(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override
@@ -232,7 +234,8 @@ public class MessageServiceTest {
         message.setLanguageCode("NO");
         
         message.setRetrieveContactDetails(true);
-        messageService.sendMessage(message, true);
+        message.setSaveBinaryContent(true);
+        messageService.sendMessage(message);
 
         verify(klient).send(argThat(new AssertValue<Forsendelse>() {
             @Override

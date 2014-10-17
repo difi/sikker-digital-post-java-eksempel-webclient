@@ -16,6 +16,7 @@ namespace :yt do
   testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
   testavsender_config_filename = "configuration.properties"
   tomcat_config_filename="tomcat7.conf"
+  tomcat_server_xml_filename="server.xml"
   jmeter_startupscript_filename="jmeter"
   linux_limits_filename="limits.conf"
 
@@ -37,11 +38,12 @@ namespace :yt do
       Yt::move_file testavsender_war_filename, "#{fetch(:tmp_path)}/#{testavsender_war_filename}", host
 	  Yt::move_file testavsender_config_filename, "#{fetch(:tmp_path)}/#{testavsender_config_filename}", host
 	  Yt::move_file tomcat_config_filename, "#{fetch(:tmp_path)}/#{tomcat_config_filename}", host
+	  Yt::move_file tomcat_server_xml_filename, "#{fetch(:tmp_path)}/#{tomcat_server_xml_filename}", host
 	  Yt::move_file jmeter_test_zip_filename, "#{fetch(:tmp_path)}/#{jmeter_test_zip_filename}", host
 	  Yt::move_file jmeter_startupscript_filename, "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename}", host
 	  Yt::move_file linux_limits_filename, "#{fetch(:tmp_path)}/#{linux_limits_filename}", host
 	  # Overrides linux limits configuration
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{linux_limits_filename} /etc/security/#{linux_limits_filename}"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{linux_limits_filename} /etc/security/#{linux_limits_filename}"
 	  # Installs Oracles JDK and set as default JVM
 	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-linux-x64.rpm'
 	  sudo "rpm -i jdk-7u67-linux-x64.rpm || :"
@@ -49,7 +51,7 @@ namespace :yt do
 	  # Installs JCE
 	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip'
 	  sudo "unzip -o UnlimitedJCEPolicyJDK7.zip"
-	  sudo :cp, "-u", "UnlimitedJCEPolicy/* /usr/java/jdk1.7.0_67/jre/lib/security/"
+	  sudo :cp, "-f", "UnlimitedJCEPolicy/* /usr/java/jdk1.7.0_67/jre/lib/security/"
 	  # Installs tomcat
 	  sudo "yum install tomcat7 -y"
 	  # Enables tomcat service
@@ -57,14 +59,15 @@ namespace :yt do
 	  # Overrides testavsender configuration
 	  sudo :rm, "-rf" , "/etc/opt/testavsender"
 	  sudo :mkdir, "-p", "/etc/opt/testavsender"
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{testavsender_config_filename} /etc/opt/testavsender/#{testavsender_config_filename}"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{testavsender_config_filename} /etc/opt/testavsender/#{testavsender_config_filename}"
 	  sudo :chmod, "-R 777", "/etc/opt/testavsender"
 	  # Overrides tomcat configuration
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat7/#{tomcat_config_filename}"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{tomcat_config_filename} /etc/tomcat7/#{tomcat_config_filename}"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{tomcat_server_xml_filename} /etc/tomcat7/#{tomcat_server_xml_filename}"
 	  # Deploys new version of testavsender to tomcat
 	  sudo "service tomcat7 stop"
 	  sudo :rm, "-rf", "/var/lib/tomcat7/webapps/*"
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{testavsender_war_filename} /var/lib/tomcat7/webapps/ROOT.war"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{testavsender_war_filename} /var/lib/tomcat7/webapps/ROOT.war"
 	  sudo "service tomcat7 start"
 	  # Installs jmeter
 	  sudo :rm, "-rf" , release_path
@@ -72,10 +75,10 @@ namespace :yt do
 	  sudo "wget -nc http://apache.vianett.no//jmeter/binaries/apache-jmeter-2.11.zip"
 	  sudo "unzip -o apache-jmeter-2.11.zip -d #{release_path}"
       sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
 	  sudo "wget -nc http://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-1.2.0.zip"
 	  sudo "unzip -o JMeterPlugins-Standard-1.2.0.zip -d JMeterPlugins-Standard-1.2.0"
-	  sudo :cp, "-u", "JMeterPlugins-Standard-1.2.0/lib/ext/JMeterPlugins-Standard.jar #{release_path}/#{jmeter_directory}/lib/ext" 
+	  sudo :cp, "-f", "JMeterPlugins-Standard-1.2.0/lib/ext/JMeterPlugins-Standard.jar #{release_path}/#{jmeter_directory}/lib/ext" 
 	  sudo :chmod, "-R 777", "#{release_path}/"
     end
   end
@@ -85,7 +88,7 @@ namespace :yt do
     on roles(:client, :controller) do
       host.ssh_options ||= fetch(:ssh_options)
       Yt::move_file jmeter_test_filename, "#{fetch(:tmp_path)}", host
-	  sudo :cp, "-u", "#{fetch(:tmp_path)}/#{jmeter_test_filename} #{release_path}/#{jmeter_directory}/#{jmeter_test_filename}"
+	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{jmeter_test_filename} #{release_path}/#{jmeter_directory}/#{jmeter_test_filename}"
     end
   end
 
