@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManagerFactory;
@@ -21,7 +20,6 @@ import no.difi.sdp.webclient.configuration.util.ClientKeystorePasswordCallbackHa
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
-import no.difi.sdp.webclient.service.MessageService;
 
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -29,10 +27,9 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,10 +46,10 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -78,15 +75,11 @@ import org.springframework.ws.context.MessageContext;
 @EnableJpaRepositories(basePackages = "no.difi.sdp.webclient.repository")
 @EnableTransactionManagement
 @EnableScheduling
-public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements SchedulingConfigurer {
-	
-	private final static Logger LOGGER = LoggerFactory.getLogger(SdpClientConfiguration.class);
+@EnableAsync(mode = AdviceMode.PROXY, proxyTargetClass = true, order = 3)
+public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
 	
 	@Autowired
 	private Environment environment;
-	
-	@Autowired
-	private MessageService messageService;
 	
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -366,21 +359,18 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements S
         return jpaTransactionManager;
     }
     
-    @Scheduled(fixedRate = 10000, initialDelay = 10000) // Note that in a production environment this rate is unacceptably high, but for testing purposes it is useful to get quick feedback
-    public void retrieveReceiptPeriodically() {
-    	LOGGER.info("Started retrieving receipts");
-    	messageService.getReceipts();
-    	LOGGER.info("Done retrieving receipts");
-    }
-
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-		scheduledTaskRegistrar.setScheduler(scheduledTaskExecutor());
+    @Override
+	public Executor getAsyncExecutor() {
+		return asyncExecutor();
 	}
-	
+
 	@Bean(destroyMethod = "shutdown")
-	public Executor scheduledTaskExecutor() {
-		return Executors.newScheduledThreadPool(environment.getProperty("sdp.receiptconnectionpool.size", Integer.class));
+	public Executor asyncExecutor() {
+		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+		threadPoolTaskExecutor.setMaxPoolSize(environment.getProperty("sdp.asyncconnectionpool.size", Integer.class));
+		threadPoolTaskExecutor.setCorePoolSize(environment.getProperty("sdp.asyncconnectionpool.size", Integer.class));
+		threadPoolTaskExecutor.setQueueCapacity(0); // We don't want to queue when we've reached the max capacity
+        threadPoolTaskExecutor.initialize();
+        return threadPoolTaskExecutor;
 	}
-
 }

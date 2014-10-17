@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -112,7 +114,7 @@ public class MessageService {
         	return;
         }
     	Person person = hentPersonerRespons.getPerson().get(0);
-        message.setContactRegisterStatus(person.getStatus());
+    	message.setContactRegisterStatus(person.getStatus());
         Reservasjon reservasjon = person.getReservasjon();
         if (reservasjon != null) {
         	message.setReservationStatus(person.getReservasjon());
@@ -340,19 +342,23 @@ public class MessageService {
 	 * Gets all receipts from meldingsformidler for all integrations and priorities.
 	 * @return
 	 */
-	public void getReceipts() {
+	@Async
+	@Scheduled(fixedRate = 10000, initialDelay = 10000) // Note that in a production environment this rate is unacceptably high, but for testing purposes it is useful to get quick feedback
+    public void getReceipts() {
 		List<String> waitingClients = messageRepository.waitingClients();
 		if (waitingClients.size() == 0) {
 			LOGGER.info("No messages are waiting for receipt");
 			return;
 		}
-		for (String keyPairAlias : waitingClients) {
+		LOGGER.info("Started retrieving receipts");
+    	for (String keyPairAlias : waitingClients) {
 			SikkerDigitalPostKlient postklient = postklientService.get(keyPairAlias);
 			LOGGER.info("Retrieving prioritized receipts for keyPairAlias " + keyPairAlias);
 			while (getReceipt(Prioritet.PRIORITERT, postklient));
 			LOGGER.info("Retrieving normal receipts for keyPairAlias " + keyPairAlias);
 			while (getReceipt(Prioritet.NORMAL, postklient));
 		}
+    	LOGGER.info("Done retrieving receipts");
 	}
 	
 	/**
