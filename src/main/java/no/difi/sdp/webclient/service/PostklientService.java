@@ -51,10 +51,11 @@ public class PostklientService {
 	 * @return
 	 */
 	public SikkerDigitalPostKlient get(String keyPairAlias) {
-		if (! postklientMap.containsKey(keyPairAlias)) {
+		return createPostKlient(keyPairAlias);
+		/*if (! postklientMap.containsKey(keyPairAlias)) {
 			postklientMap.put(keyPairAlias, createPostKlient(keyPairAlias));
 		}
-		return postklientMap.get(keyPairAlias);	
+		return postklientMap.get(keyPairAlias);*/	
 	}
 
 	/**
@@ -63,10 +64,11 @@ public class PostklientService {
 	 * @return
 	 */
 	private TekniskAvsender getTekniskAvsender(String keyPairAlias) {
-		if (! tekniskAvsenderMap.containsKey(keyPairAlias)) {
+		return createTekniskAvsender(keyPairAlias);
+		/*if (! tekniskAvsenderMap.containsKey(keyPairAlias)) {
 			tekniskAvsenderMap.put(keyPairAlias, createTekniskAvsender(keyPairAlias));
 		}
-		return tekniskAvsenderMap.get(keyPairAlias);
+		return tekniskAvsenderMap.get(keyPairAlias);*/
 	}
 	
 	/**
@@ -75,10 +77,11 @@ public class PostklientService {
 	 * @return
 	 */
 	private Noekkelpar getNoekkelpar(String keyPairAlias) {
-		if (! noekkelparMap.containsKey(keyPairAlias)) {
+		return createNoekkelpar(keyPairAlias);
+		/*if (! noekkelparMap.containsKey(keyPairAlias)) {
 			noekkelparMap.put(keyPairAlias, createNoekkelpar(keyPairAlias));
 		}
-		return noekkelparMap.get(keyPairAlias);
+		return noekkelparMap.get(keyPairAlias);*/
 	}
 	
 	private SikkerDigitalPostKlient createPostKlient(String keyPairAlias) {
