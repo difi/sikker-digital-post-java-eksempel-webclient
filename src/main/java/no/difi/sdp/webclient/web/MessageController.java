@@ -141,15 +141,17 @@ public class MessageController {
 		document.setMimetype(messageCommand.getDocument().getContentType());
 		message.setDocument(document);
 		Set<Document> attachments = new HashSet<Document>();
-		for (MultipartFile multipartFile : messageCommand.getAttachments()) {
-			if (! multipartFile.isEmpty()) {
-				Document attachment = new Document();
-				attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
-				attachment.setContent(multipartFile.getBytes());
-				attachment.setFilename(multipartFile.getOriginalFilename());
-				attachment.setMimetype(multipartFile.getContentType());
-				attachment.setMessage(message);
-				attachments.add(attachment);
+		if (messageCommand.getAttachments() != null) {
+			for (MultipartFile multipartFile : messageCommand.getAttachments()) {
+				if (! multipartFile.isEmpty()) {
+					Document attachment = new Document();
+					attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
+					attachment.setContent(multipartFile.getBytes());
+					attachment.setFilename(multipartFile.getOriginalFilename());
+					attachment.setMimetype(multipartFile.getContentType());
+					attachment.setMessage(message);
+					attachments.add(attachment);
+				}
 			}
 		}
 		message.setAttachments(attachments);
