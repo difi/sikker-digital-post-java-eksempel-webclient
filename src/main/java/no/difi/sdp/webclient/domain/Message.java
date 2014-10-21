@@ -35,6 +35,15 @@ public class Message {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date requestSentDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date responseReceivedDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date completedDate;
+	
 	@Ssn
 	private String ssn;
 	
@@ -153,6 +162,30 @@ public class Message {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	public Date getRequestSentDate() {
+		return requestSentDate;
+	}
+
+	public void setRequestSentDate(Date requestSentDate) {
+		this.requestSentDate = requestSentDate;
+	}
+
+	public Date getResponseReceivedDate() {
+		return responseReceivedDate;
+	}
+
+	public void setResponseReceivedDate(Date responseReceivedDate) {
+		this.responseReceivedDate = responseReceivedDate;
+	}
+
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
 	}
 	
 	public String getSsn() {
@@ -459,5 +492,4 @@ public class Message {
 		this.saveBinaryContent = saveBinaryContent;
 	}
 
-	
 }
