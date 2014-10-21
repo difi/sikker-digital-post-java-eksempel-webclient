@@ -28,6 +28,24 @@ public class Receipt {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date requestSentDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date responseReceivedDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date completedDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date ackRequestSentDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date ackResponseReceivedDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date postboxDate;
+	
 	private String type;
 	
 	@Enumerated(EnumType.STRING)
@@ -73,6 +91,54 @@ public class Receipt {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	public Date getRequestSentDate() {
+		return requestSentDate;
+	}
+
+	public void setRequestSentDate(Date requestSentDate) {
+		this.requestSentDate = requestSentDate;
+	}
+
+	public Date getResponseReceivedDate() {
+		return responseReceivedDate;
+	}
+
+	public void setResponseReceivedDate(Date responseReceivedDate) {
+		this.responseReceivedDate = responseReceivedDate;
+	}
+
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
+	}
+	
+	public Date getAckRequestSentDate() {
+		return ackRequestSentDate;
+	}
+
+	public void setAckRequestSentDate(Date ackRequestSentDate) {
+		this.ackRequestSentDate = ackRequestSentDate;
+	}
+
+	public Date getAckResponseReceivedDate() {
+		return ackResponseReceivedDate;
+	}
+
+	public void setAckResponseReceivedDate(Date ackResponseReceivedDate) {
+		this.ackResponseReceivedDate = ackResponseReceivedDate;
+	}
+	
+	public Date getPostboxDate() {
+		return postboxDate;
+	}
+
+	public void setPostboxDate(Date postboxDate) {
+		this.postboxDate = postboxDate;
 	}
 	
 	public String getType() {

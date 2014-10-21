@@ -64,31 +64,34 @@ public class MessageService {
 	private StringUtil stringUtil;
 	
 	@Autowired
-	private StringWriter xmlRetrievePersonsRequest;
+	private StringWriter xmlRetrievePersonsRequest; // Set by SdpClientConfiguration.oppslagstjenesteLoggingOutInterceptor
 	
 	@Autowired
-	private StringWriter xmlRetrievePersonsRequestPayload;
+	private StringWriter xmlRetrievePersonsRequestPayload; // Set by MessageService.extractOppslagstjenesteMessages(HentPersonerForespoersel, HentPersonerRespons)
 	
 	@Autowired
-	private StringWriter xmlRetrievePersonsResponse;
+	private StringWriter xmlRetrievePersonsResponse; // Set by SdpClientConfiguration.oppslagstjenesteLoggingInInterceptor
 	
 	@Autowired
-	private StringWriter xmlRetrievePersonsResponsePayload;
+	private StringWriter xmlRetrievePersonsResponsePayload; // Set by MessageService.extractOppslagstjenesteMessages(HentPersonerForespoersel, HentPersonerRespons)
 	
 	@Autowired
-	private Holder<StringWriter> postKlientSoapRequest;
+	private Holder<StringWriter> postKlientSoapRequest; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 	
 	@Autowired
-	private Holder<StringWriter> postKlientSoapRequestPayload;
+	private Holder<StringWriter> postKlientSoapRequestPayload; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 	
 	@Autowired
-	private Holder<Date> postKlientSoapRequestDate;
+	private Holder<Date> postKlientSoapRequestSentDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 	
 	@Autowired
-	private Holder<StringWriter> postKlientSoapResponse;
+	private Holder<StringWriter> postKlientSoapResponse; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 	
 	@Autowired
-	private Holder<StringWriter> postKlientSoapResponsePayload;
+	private Holder<StringWriter> postKlientSoapResponsePayload; // Set by SdpClientConfiguration.postKlientSoapInterceptor
+	
+	@Autowired
+	private Holder<Date> postKlientSoapResponseReceivedDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 	
 	@Autowired
 	private CryptoUtil cryptoUtil;
@@ -230,6 +233,7 @@ public class MessageService {
     }
     
     public void sendMessage(Message message)  {
+    	message.setDate(new Date());
     	try {
     		if (message.getRetrieveContactDetails()) {
     			retrieveContactDetailsFromOppslagstjeneste(message);
@@ -250,6 +254,7 @@ public class MessageService {
     	if (! message.getSaveBinaryContent()) {
     		removeBinaryContent(message);
     	}
+    	message.setCompletedDate(new Date());
     	messageRepository.save(message);
 	}
     
@@ -288,7 +293,8 @@ public class MessageService {
     		enrichMessage(message, forsendelse);
     		SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
     		postklient.send(forsendelse);
-			message.setDate(postKlientSoapRequestDate.getValue());
+			message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+			message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
 	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
 		} catch (Exception e) {
 			throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
@@ -369,6 +375,7 @@ public class MessageService {
 	 * @return True if a receipt was available from meldingsformidler, false if not.
 	 */
 	private boolean getReceipt(Prioritet prioritet, SikkerDigitalPostKlient postklient) {
+		Date date = new Date();
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
 				.builder(prioritet)
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
@@ -394,12 +401,16 @@ public class MessageService {
 		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
     	Message message = messages.get(0);
 		Receipt receipt = new Receipt();
+		message.getReceipts().add(receipt);
 		receipt.setMessage(message);
-		receipt.setDate(forretningsKvittering.getTidspunkt());
+		receipt.setDate(date);
+		receipt.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+		receipt.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
+		receipt.setCompletedDate(new Date());
+		receipt.setPostboxDate(forretningsKvittering.getTidspunkt());
 		receipt.setXmlRequest(xmlRequestString);
 		receipt.setXmlResponse(xmlResponseString);
 		receipt.setXmlResponsePayload(xmlResponsePayloadString);
-		messageRepository.save(message);
 		if (forretningsKvittering instanceof Feil) {
 			Feil feil = (Feil) forretningsKvittering;
 			LOGGER.error("Recieved error type " + feil.getFeiltype().toString() + " with details: " + feil.getDetaljer());
@@ -425,16 +436,16 @@ public class MessageService {
 		} else {
 			LOGGER.error("Recieved unknown receipt type " + forretningsKvittering.getClass());
 		}
-		message.getReceipts().add(receipt);
-		messageRepository.save(message);
 		try {
 			postklient.bekreft(forretningsKvittering);
 		} catch (Exception e) {
 			LOGGER.error("Failed acknowledging retrieved receipt", e);
 			message.setStatus(MessageStatus.FAILED_ACKNOWLEDGING_RETRIEVED_RECEIPT);
 			message.setException(stringUtil.toString(e));
-			messageRepository.save(message);
 		}
+		receipt.setAckRequestSentDate(postKlientSoapRequestSentDate.getValue());
+		receipt.setAckResponseReceivedDate(new Date());
+		messageRepository.save(message);
 		return true;
 	}
 

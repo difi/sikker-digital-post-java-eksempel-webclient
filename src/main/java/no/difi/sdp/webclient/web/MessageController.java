@@ -399,55 +399,59 @@ public class MessageController {
     	response.addHeader("Content-Disposition", "attachment; filename=\"report.csv\"");
 		response.setContentType("text/csv");
 		StringWriter writer = new StringWriter();
-		writer.write("id");
-		writer.write("\t");
-		writer.write("ssn");
-		writer.write("\t");
-		writer.write("postboxVendorOrgNumber");
-		writer.write("\t");
-		writer.write("postboxAddress");
-		writer.write("\t");
-		writer.write("status");
-		writer.write("\t");
-		writer.write("date");
-		writer.write("\t");
-		writer.write("receiptType");
-		writer.write("\t");
-		writer.write("receiptDate");
-		writer.write("\t");
-		writer.write("msUntilReciept");
-		writer.write("\n");
+		writeReportColumn(writer, "id", false);
+		writeReportColumn(writer, "ssn", false);
+		writeReportColumn(writer, "postboxVendorOrgNumber", false);
+		writeReportColumn(writer, "postboxAddress", false);
+		writeReportColumn(writer, "status", false);
+		writeReportColumn(writer, "date", false);
+		writeReportColumn(writer, "requestSentDate", false);
+		writeReportColumn(writer, "responseReceivedDate", false);
+		writeReportColumn(writer, "completedDate", false);
+		writeReportColumn(writer, "receiptType", false);
+		writeReportColumn(writer, "receiptDate", false);
+		writeReportColumn(writer, "receiptRequestSentDate", false);
+		writeReportColumn(writer, "receiptResponseReceivedDate", false);
+		writeReportColumn(writer, "receiptCompletedDate", false);
+		writeReportColumn(writer, "receiptAckRequestSentDate", false);
+		writeReportColumn(writer, "receiptAckResponseReceivedDate", false);
+		writeReportColumn(writer, "receiptPostboxDate", true);
 		List<Object[]> messages = messageService.getReport();
 		for (Object[] message : messages) {
-			String id = (String) message[0];
-			String ssn = (String) message[1];
-			String postboxVendorOrgNumber = (String) message[2];
-			String postboxAddress = (String) message[3];
-			MessageStatus status = (MessageStatus) message[4];
-			Date date = (Date) message[5];
-			String receiptType = (String) message[6];
-			Date receiptDate = (Date) message[7];
-			Long msUntilReciept = date == null || receiptDate == null ? null : receiptDate.getTime() - date.getTime();
-			writer.write(id == null ? "" : id);
-			writer.write("\t");
-			writer.write(ssn == null ? "" : ssn);
-			writer.write("\t");
-			writer.write(postboxVendorOrgNumber == null ? "" : postboxVendorOrgNumber);
-			writer.write("\t");
-			writer.write(postboxAddress == null ? "" : postboxAddress);
-			writer.write("\t");
-			writer.write(status == null ? "" : status.toString());
-			writer.write("\t");
-			writer.write(date == null ? "" : date.toString());
-			writer.write("\t");
-			writer.write(receiptType == null ? "" : receiptType);
-			writer.write("\t");
-			writer.write(receiptDate == null ? "" : receiptDate.toString());
-			writer.write("\t");
-			writer.write(msUntilReciept == null ? "" : msUntilReciept.toString());
-			writer.write("\n");
+			writeReportColumn(writer, (String) message[0], false);
+			writeReportColumn(writer, (String) message[1], false);
+			writeReportColumn(writer, (String) message[2], false);
+			writeReportColumn(writer, (String) message[3], false);
+			writeReportColumn(writer, (MessageStatus) message[4], false);
+			writeReportColumn(writer, (Date) message[5], false);
+			writeReportColumn(writer, (Date) message[6], false);
+			writeReportColumn(writer, (Date) message[7], false);
+			writeReportColumn(writer, (Date) message[8], false);
+			writeReportColumn(writer, (String) message[9], false);
+			writeReportColumn(writer, (Date) message[10], false);
+			writeReportColumn(writer, (Date) message[11], false);
+			writeReportColumn(writer, (Date) message[12], false);
+			writeReportColumn(writer, (Date) message[13], false);
+			writeReportColumn(writer, (Date) message[14], false);
+			writeReportColumn(writer, (Date) message[15], false);
+			writeReportColumn(writer, (Date) message[16], true);
 		}
     	return writer.toString();
+    }
+    
+    private void writeReportColumn(StringWriter writer, Enum<?> data, boolean lastColumn) {
+    	writer.write(data == null ? "" : data.toString());
+    	writer.write(lastColumn ? "\n" : "\t");
+    }
+    
+    private void writeReportColumn(StringWriter writer, String data, boolean lastColumn) {
+    	writer.write(data == null ? "" : data);
+    	writer.write(lastColumn ? "\n" : "\t");
+    }
+    
+    private void writeReportColumn(StringWriter writer, Date data, boolean lastColumn) {
+    	writer.write(data == null ? "" : String.valueOf(data.getTime()));
+    	writer.write(lastColumn ? "\n" : "\t");
     }
     
     @ModelAttribute("oppslagstjenestenUrl")

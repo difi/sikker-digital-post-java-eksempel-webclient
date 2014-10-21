@@ -140,12 +140,22 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements A
 	}
 	
 	/**
-	 * Holds the most recently captured postKlient SOAP request date for the current thread.
+	 * Holds the most recently captured postKlient SOAP request sent date for the current thread.
 	 * @return
 	 */
 	@Bean
 	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public Holder<Date> postKlientSoapRequestDate() {
+	public Holder<Date> postKlientSoapRequestSentDate() {
+		return new Holder<Date>();
+	}
+	
+	/**
+	 * Holds the most recently captured postKlient SOAP response received date for the current thread.
+	 * @return
+	 */
+	@Bean
+	@Scope(value =  "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	public Holder<Date> postKlientSoapResponseReceivedDate() {
 		return new Holder<Date>();
 	}
 	
@@ -262,13 +272,15 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements A
 				// Captures outgoing postklient SOAP message payloads (in practice only the message: Digitalpost)
 				postKlientSoapRequestPayload().setValue(new StringWriter());
 				stringUtil().transform(messageContext.getRequest().getPayloadSource(), postKlientSoapRequestPayload().getValue());
-				// Captures timestamp for sent message here since all client-side processing is completed at this point
-				postKlientSoapRequestDate().setValue(new Date());
+				// Captures request sent date
+				postKlientSoapRequestSentDate().setValue(new Date());
 				return true;
 			}
 
 			@Override
 			public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
+				// Captures response received date
+				postKlientSoapResponseReceivedDate().setValue(new Date());
 				// Captures incoming SOAP responses
 				postKlientSoapResponse().setValue(new StringWriter());
 				stringUtil().transform(messageContext.getResponse(), postKlientSoapResponse().getValue());

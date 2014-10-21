@@ -59,7 +59,7 @@
 								<tbody>
 									<c:forEach items="${message.receipts}" var="receipt">
 										<tr>
-											<td>${receipt.date}</td>
+											<td>${receipt.postboxDate}</td>
 											<td>${receipt.type}</td>
 											<td>
 												${receipt.errorType == null ? "" : receipt.errorType}
