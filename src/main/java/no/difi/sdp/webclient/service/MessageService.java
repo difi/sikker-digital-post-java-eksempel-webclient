@@ -291,6 +291,7 @@ public class MessageService {
         try {
         	Forsendelse forsendelse = buildDigitalForsendelse(message);
     		enrichMessage(message, forsendelse);
+    		messageRepository.save(message);
     		SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
     		postklient.send(forsendelse);
 			message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
