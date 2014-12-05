@@ -346,28 +346,44 @@ public class MessageService {
 	}
 	
 	/**
-	 * Gets all receipts from meldingsformidler for all integrations and priorities.
+	 * Gets all receipts with prioritized priority from meldingsformidler for all integrations.
 	 * @return
 	 */
 	@Async
-	@Scheduled(fixedRate = 10000, initialDelay = 10000) // Note that in a production environment this rate is unacceptably high, but for testing purposes it is useful to get quick feedback
-    public void getReceipts() {
-		List<String> waitingClients = messageRepository.waitingClients();
-		if (waitingClients.size() == 0) {
-			LOGGER.info("No messages are waiting for receipt");
-			return;
-		}
-		LOGGER.info("Started retrieving receipts");
-    	for (String keyPairAlias : waitingClients) {
-			SikkerDigitalPostKlient postklient = postklientService.get(keyPairAlias);
-			LOGGER.info("Retrieving prioritized receipts for keyPairAlias " + keyPairAlias);
-			while (getReceipt(Prioritet.PRIORITERT, postklient));
-			LOGGER.info("Retrieving normal receipts for keyPairAlias " + keyPairAlias);
-			while (getReceipt(Prioritet.NORMAL, postklient));
-		}
-    	LOGGER.info("Done retrieving receipts");
+	@Scheduled(fixedRate = 60000, initialDelay = 60000)
+    public void getPrioritizedReceipts() {
+		getReceipts(Prioritet.PRIORITERT);
 	}
-	
+
+    /**
+     * Gets all receipts with normal priority from meldingsformidler for all integrations.
+     * @return
+     */
+    @Async
+    @Scheduled(fixedRate = 60000, initialDelay = 60000)
+    public void getNormalReceipts() {
+        getReceipts(Prioritet.NORMAL);
+    }
+
+    /**
+     * Gets all receipts from meldingsformidler for all integrations and the given priority.
+     * @return
+     */
+    public void getReceipts(Prioritet prioritet) {
+        List<String> waitingClients = messageRepository.waitingClients();
+        if (waitingClients.size() == 0) {
+            LOGGER.info("No messages are waiting for receipt");
+            return;
+        }
+        LOGGER.info("Started retrieving receipts");
+        for (String keyPairAlias : waitingClients) {
+            SikkerDigitalPostKlient postklient = postklientService.get(keyPairAlias);
+            LOGGER.info("Retrieving " + prioritet + " receipts for keyPairAlias " + keyPairAlias);
+            while (getReceipt(prioritet, postklient));
+        }
+        LOGGER.info("Done retrieving receipts");
+    }
+
 	/**
 	 * Gets next receipt from meldingsformidler for a given integration and priority.
 	 * Resolves message for receipt from database and updates message status.
