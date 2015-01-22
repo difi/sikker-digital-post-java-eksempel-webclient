@@ -47,10 +47,7 @@ public class Message {
 	@Ssn
 	private String ssn;
 	
-	@NotNull
-	@Size(min = 1)
-	private String insensitiveTitle;
-	
+
 	@OneToOne(cascade = CascadeType.ALL)
 	private Document document;
 	
@@ -66,25 +63,7 @@ public class Message {
 	
 	@NotNull
 	private String keyPairAlias;
-	
-	@NotNull
-	private Sikkerhetsnivaa securityLevel;
-	
-	@Lob
-	private String emailNotification;
-	
-	private String emailNotificationSchedule;
-	
-	@Lob
-	private String mobileNotification;
-	
-	private String mobileNotificationSchedule;
-	
-	private boolean requiresMessageOpenedReceipt;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date delayedAvailabilityDate;
-	
+
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private Prioritet priority;
@@ -147,6 +126,12 @@ public class Message {
 	private boolean retrieveContactDetails;
 	
 	private boolean saveBinaryContent;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private DigitalPost digitalPost;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private FysiskPost fysiskPost;
 	
 	public Long getId() {
 		return id;
@@ -195,15 +180,7 @@ public class Message {
 	public void setSsn(String ssn) {
         this.ssn = ssn;
     }
-	
-	public String getInsensitiveTitle() {
-		return insensitiveTitle;
-	}
-	
-	public void setInsensitiveTitle(String insensitiveTitle) {
-        this.insensitiveTitle = insensitiveTitle;
-    }
-	
+
 	public Document getDocument() {
 		return document;
 	}
@@ -250,62 +227,6 @@ public class Message {
 
 	public void setKeyPairAlias(String keyPairAlias) {
 		this.keyPairAlias = keyPairAlias;
-	}
-	
-	public Sikkerhetsnivaa getSecurityLevel() {
-		return securityLevel;
-	}
-
-	public void setSecurityLevel(Sikkerhetsnivaa securityLevel) {
-		this.securityLevel = securityLevel;
-	}
-
-	public String getEmailNotification() {
-		return emailNotification;
-	}
-
-	public void setEmailNotification(String emailNotification) {
-		this.emailNotification = emailNotification;
-	}
-
-	public String getEmailNotificationSchedule() {
-		return emailNotificationSchedule;
-	}
-
-	public void setEmailNotificationSchedule(String emailNotificationSchedule) {
-		this.emailNotificationSchedule = emailNotificationSchedule;
-	}
-
-	public String getMobileNotification() {
-		return mobileNotification;
-	}
-	
-	public void setMobileNotification(String mobileNotification) {
-		this.mobileNotification = mobileNotification;
-	}
-	
-	public String getMobileNotificationSchedule() {
-		return mobileNotificationSchedule;
-	}
-
-	public void setMobileNotificationSchedule(String mobileNotificationSchedule) {
-		this.mobileNotificationSchedule = mobileNotificationSchedule;
-	}
-	
-	public boolean getRequiresMessageOpenedReceipt() {
-		return requiresMessageOpenedReceipt;
-	}
-	
-	public void setRequiresMessageOpenedReceipt(boolean requiresMessageOpenedReceipt) {
-		this.requiresMessageOpenedReceipt = requiresMessageOpenedReceipt;
-	}
-	
-	public Date getDelayedAvailabilityDate() {
-		return delayedAvailabilityDate;
-	}
-
-	public void setDelayedAvailabilityDate(Date delayedAvailabilityDate) {
-		this.delayedAvailabilityDate = delayedAvailabilityDate;
 	}
 
 	public Prioritet getPriority() {
@@ -492,4 +413,25 @@ public class Message {
 		this.saveBinaryContent = saveBinaryContent;
 	}
 
+	public DigitalPost getDigitalPost() {
+		if(digitalPost == null){
+			setDigitalPost(new DigitalPost());
+		}
+		return digitalPost;
+	}
+
+	public void setDigitalPost(DigitalPost digitalPost) {
+		this.digitalPost = digitalPost;
+	}
+
+	public FysiskPost getFysiskPost() {
+		if(fysiskPost == null){
+			setFysiskPost(new FysiskPost());
+		}
+		return fysiskPost;
+	}
+
+	public void setFysiskPost(FysiskPost fysiskPost) {
+		this.fysiskPost = fysiskPost;
+	}
 }

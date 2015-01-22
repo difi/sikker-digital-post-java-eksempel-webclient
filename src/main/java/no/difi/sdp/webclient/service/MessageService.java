@@ -145,23 +145,23 @@ public class MessageService {
     }
     
     private EpostVarsel buildEpostVarsel(Message message) {
-    	if (message.getEmailNotification() == null || message.getEmail() == null) {
+    	if (message.getDigitalPost().getEmailNotification() == null || message.getEmail() == null) {
     		return null;
     	}
-        EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getEmail(), message.getEmailNotification());
-        if (message.getEmailNotificationSchedule() != null) {
-        	epostVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getEmailNotificationSchedule()));
+        EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getEmail(), message.getDigitalPost().getEmailNotification());
+        if (message.getDigitalPost().getEmailNotificationSchedule() != null) {
+        	epostVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getEmailNotificationSchedule()));
         }
         return epostVarselBuilder.build();
     }
     
     private SmsVarsel buildSmsVarsel(Message message) {
-    	if (message.getMobileNotification() == null || message.getMobile() == null) {
+    	if (message.getDigitalPost().getMobileNotification() == null || message.getMobile() == null) {
     		return null;
     	}
-    	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getMobile(), message.getMobileNotification());
-    	if (message.getMobileNotificationSchedule() != null) {
-    		smsVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getMobileNotificationSchedule()));
+    	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getMobile(), message.getDigitalPost().getMobileNotification());
+    	if (message.getDigitalPost().getMobileNotificationSchedule() != null) {
+    		smsVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getMobileNotificationSchedule()));
     	}
         return smsVarselBuilder.build();
     }
@@ -215,12 +215,12 @@ public class MessageService {
     private Forsendelse buildDigitalForsendelse(Message message) {
     	Mottaker mottaker  = buildMottaker(message);
         DigitalPost digitalPost = DigitalPost
-        		.builder(mottaker, message.getInsensitiveTitle())
-        		.sikkerhetsnivaa(message.getSecurityLevel())
-        		.aapningskvittering(message.getRequiresMessageOpenedReceipt())
+        		.builder(mottaker, message.getDigitalPost().getInsensitiveTitle())
+        		.sikkerhetsnivaa(message.getDigitalPost().getSecurityLevel())
+        		.aapningskvittering(message.getDigitalPost().getRequiresMessageOpenedReceipt())
         		.epostVarsel(buildEpostVarsel(message))
         		.smsVarsel(buildSmsVarsel(message))
-        		.virkningsdato(message.getDelayedAvailabilityDate())
+        		.virkningsdato(message.getDigitalPost().getDelayedAvailabilityDate())
         		.build();
         Dokumentpakke dokumentPakke = buildDokumentpakke(message);
         Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
@@ -440,7 +440,7 @@ public class MessageService {
 			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
 		} else if (forretningsKvittering instanceof LeveringsKvittering) {
 			receipt.setType("Leveringskvittering");
-			if (message.getRequiresMessageOpenedReceipt()) {
+			if (message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
 				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
 			} else {
 				message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);

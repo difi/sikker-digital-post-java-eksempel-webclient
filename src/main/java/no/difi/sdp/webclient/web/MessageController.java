@@ -93,18 +93,18 @@ public class MessageController {
 				// Sets default values from exisiting message
 				// Note that default file upload values are not allowed by web browsers so we can't copy document, attachments and postbox certificate
 				messageCommand.setKeyPairAlias(message.getKeyPairAlias());
-				messageCommand.setDelayedAvailabilityDate(message.getDelayedAvailabilityDate());
-				messageCommand.setEmailNotification(message.getEmailNotification());
-				messageCommand.setEmailNotificationSchedule(message.getEmailNotificationSchedule());
-				messageCommand.setInsensitiveTitle(message.getInsensitiveTitle());
+				messageCommand.setDelayedAvailabilityDate(message.getDigitalPost().getDelayedAvailabilityDate());
+				messageCommand.setEmailNotification(message.getDigitalPost().getEmailNotification());
+				messageCommand.setEmailNotificationSchedule(message.getDigitalPost().getEmailNotificationSchedule());
+				messageCommand.setInsensitiveTitle(message.getDigitalPost().getInsensitiveTitle());
 				messageCommand.setInvoiceReference(message.getInvoiceReference());
 				messageCommand.setLanguageCode(message.getLanguageCode());
-				messageCommand.setMobileNotification(message.getMobileNotification());
-				messageCommand.setMobileNotificationSchedule(message.getMobileNotificationSchedule());
+				messageCommand.setMobileNotification(message.getDigitalPost().getMobileNotification());
+				messageCommand.setMobileNotificationSchedule(message.getDigitalPost().getMobileNotificationSchedule());
 				messageCommand.setPriority(message.getPriority());
-				messageCommand.setRequiresMessageOpenedReceipt(message.getRequiresMessageOpenedReceipt());
+				messageCommand.setRequiresMessageOpenedReceipt(message.getDigitalPost().getRequiresMessageOpenedReceipt());
 				messageCommand.setRetrieveContactDetails(message.getRetrieveContactDetails());
-				messageCommand.setSecurityLevel(message.getSecurityLevel());
+				messageCommand.setSecurityLevel(message.getDigitalPost().getSecurityLevel());
 				messageCommand.setSenderId(message.getSenderId());
 				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
 				messageCommand.setSsn(message.getSsn());
@@ -133,7 +133,7 @@ public class MessageController {
 		}
 		Message message = new Message();
 		message.setSsn(messageCommand.getSsn());
-		message.setInsensitiveTitle(messageCommand.getInsensitiveTitle());
+		message.getDigitalPost().setInsensitiveTitle(messageCommand.getInsensitiveTitle());
 		Document document = new Document();
 		document.setTitle(messageCommand.getTitle());
 		document.setContent(messageCommand.getDocument().getBytes());
@@ -159,13 +159,13 @@ public class MessageController {
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
 		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
-		message.setSecurityLevel(messageCommand.getSecurityLevel());
-		message.setEmailNotification(messageCommand.getEmailNotification());
-		message.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
-		message.setMobileNotification(messageCommand.getMobileNotification());
-		message.setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
-		message.setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
-		message.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
+		message.getDigitalPost().setSecurityLevel(messageCommand.getSecurityLevel());
+		message.getDigitalPost().setEmailNotification(messageCommand.getEmailNotification());
+		message.getDigitalPost().setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
+		message.getDigitalPost().setMobileNotification(messageCommand.getMobileNotification());
+		message.getDigitalPost().setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
+		message.getDigitalPost().setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
+		message.getDigitalPost().setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
 		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
@@ -328,9 +328,9 @@ public class MessageController {
     public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
         Message message = new Message();
         message.setSsn(ssn);
-        message.setInsensitiveTitle("Brev til " + ssn + " " + new Date());
+        message.getDigitalPost().setInsensitiveTitle("Brev til " + ssn + " " + new Date());
         message.setPriority(Prioritet.NORMAL);
-        message.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        message.getDigitalPost().setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
         message.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
         message.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
