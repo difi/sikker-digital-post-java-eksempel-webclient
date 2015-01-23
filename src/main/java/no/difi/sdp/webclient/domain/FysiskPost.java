@@ -1,13 +1,8 @@
 package no.difi.sdp.webclient.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
-/**
- *
- *
- */
 @Entity
 public class FysiskPost {
 
@@ -15,16 +10,42 @@ public class FysiskPost {
     @GeneratedValue
     private Long id;
 
-    private boolean posttype;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Posttype posttype;
 
-    /*
-    KonvoluttAdresse adressat: adresse,postnr,land etc
-    Posttype: A-/B-prioritet
-    Utskriftsfarge: farge, svart/kvitt
-    Returhaandtering: direkte/makuler
-    KonvoluttAdresse returadresse: adresse,postnr,land etc
-    TekniskMottaker utskriftsleverandoer: orgnr+sertifikat
-    */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Utskriftsfarge utskriftsfarge;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Returhaandtering returhaandtering;
+
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL)
+    private KonvoluttAdresse adressat;
+
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL)
+    private KonvoluttAdresse returadresse;
+
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL)
+    private TekniskMottaker utskriftsleverandoer;
+
+    public void FysiskPost(){
+
+    }
+
+    public void FysiskPost(Posttype posttype, Utskriftsfarge utskriftsfarge, Returhaandtering returhaandtering, KonvoluttAdresse adressat, KonvoluttAdresse returadresse){
+        this.posttype = posttype;
+        this.utskriftsfarge = utskriftsfarge;
+        this.returhaandtering = returhaandtering;
+        this.adressat = adressat;
+        this.returadresse = returadresse;
+    }
+
 
     public Long getId() {
         return id;
@@ -32,6 +53,54 @@ public class FysiskPost {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Utskriftsfarge getUtskriftsfarge() {
+        return utskriftsfarge;
+    }
+
+    public void setUtskriftsfarge(Utskriftsfarge utskriftsfarge) {
+        this.utskriftsfarge = utskriftsfarge;
+    }
+
+    public Posttype getPosttype() {
+        return posttype;
+    }
+
+    public void setPosttype(Posttype posttype) {
+        this.posttype = posttype;
+    }
+
+    public Returhaandtering getReturhaandtering() {
+        return returhaandtering;
+    }
+
+    public void setReturhaandtering(Returhaandtering returhaandtering) {
+        this.returhaandtering = returhaandtering;
+    }
+
+    public KonvoluttAdresse getAdressat() {
+        return adressat;
+    }
+
+    public void setAdressat(KonvoluttAdresse adressat) {
+        this.adressat = adressat;
+    }
+
+    public KonvoluttAdresse getReturadresse() {
+        return returadresse;
+    }
+
+    public void setReturadresse(KonvoluttAdresse returadresse) {
+        this.returadresse = returadresse;
+    }
+
+    public TekniskMottaker getUtskriftsleverandoer() {
+        return utskriftsleverandoer;
+    }
+
+    public void setUtskriftsleverandoer(TekniskMottaker utskriftsleverandoer) {
+        this.utskriftsleverandoer = utskriftsleverandoer;
     }
 }
 

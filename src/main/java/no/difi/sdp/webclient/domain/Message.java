@@ -1,29 +1,14 @@
 package no.difi.sdp.webclient.domain;
 
-import java.util.Date;
-import java.util.Set;
-
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.validation.Ssn;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Set;
 
 @Entity
 public class Message {
@@ -46,7 +31,6 @@ public class Message {
 	
 	@Ssn
 	private String ssn;
-	
 
 	@OneToOne(cascade = CascadeType.ALL)
 	private Document document;
