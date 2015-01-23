@@ -19,6 +19,7 @@ import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.webclient.domain.DigitalPost;
 import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
@@ -133,7 +134,8 @@ public class MessageController {
 		}
 		Message message = new Message();
 		message.setSsn(messageCommand.getSsn());
-		message.getDigitalPost().setInsensitiveTitle(messageCommand.getInsensitiveTitle());
+		DigitalPost digitalPost = new DigitalPost(messageCommand.getInsensitiveTitle());
+		message.setDigitalPost(digitalPost);
 		Document document = new Document();
 		document.setTitle(messageCommand.getTitle());
 		document.setContent(messageCommand.getDocument().getBytes());
@@ -159,13 +161,7 @@ public class MessageController {
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
 		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
-		message.getDigitalPost().setSecurityLevel(messageCommand.getSecurityLevel());
-		message.getDigitalPost().setEmailNotification(messageCommand.getEmailNotification());
-		message.getDigitalPost().setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
-		message.getDigitalPost().setMobileNotification(messageCommand.getMobileNotification());
-		message.getDigitalPost().setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
-		message.getDigitalPost().setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
-		message.getDigitalPost().setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
+		setDigitalPostData(messageCommand, digitalPost);
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
 		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
@@ -182,7 +178,17 @@ public class MessageController {
 		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
 	}
-	
+
+	private void setDigitalPostData(MessageCommand messageCommand, DigitalPost digitalPost) {
+		digitalPost.setSecurityLevel(messageCommand.getSecurityLevel());
+		digitalPost.setEmailNotification(messageCommand.getEmailNotification());
+		digitalPost.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
+		digitalPost.setMobileNotification(messageCommand.getMobileNotification());
+		digitalPost.setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
+		digitalPost.setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
+		digitalPost.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
+	}
+
 	/**
 	 * Resolves the attachment title for a given MultipartFile.
 	 * See send_message_page.js for frontend implementation.
@@ -328,9 +334,10 @@ public class MessageController {
     public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
         Message message = new Message();
         message.setSsn(ssn);
-        message.getDigitalPost().setInsensitiveTitle("Brev til " + ssn + " " + new Date());
+		DigitalPost digitalPost = new DigitalPost("Brev til " + ssn + " " + new Date());
+		message.setDigitalPost(digitalPost);
         message.setPriority(Prioritet.NORMAL);
-        message.getDigitalPost().setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        digitalPost.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
         message.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
         message.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));

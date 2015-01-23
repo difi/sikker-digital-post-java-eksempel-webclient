@@ -127,10 +127,10 @@ public class Message {
 	
 	private boolean saveBinaryContent;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	private DigitalPost digitalPost;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	private FysiskPost fysiskPost;
 	
 	public Long getId() {

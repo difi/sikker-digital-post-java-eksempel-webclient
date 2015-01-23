@@ -86,7 +86,7 @@ ${message.exception}
 				<dt>Fødselsnummer</dt>
 				<dd id="ssn">${message.ssn}</dd>
 				<dt>Ikke-sensitiv tittel</dt>
-				<dd id="insensitiveTitle">${message.insensitiveTitle}</dd>
+				<dd id="insensitiveTitle">${message.digitalPost.insensitiveTitle}</dd>
 				<dt>Dokument</dt>
 				<dd>
 					<table class="table table-striped table-bordered">
@@ -158,19 +158,19 @@ ${message.exception}
 					</table>
 				</dd>
 				<dt>Sikkerhetsnivå</dt>
-				<dd id="securityLevel">${message.securityLevel}</dd>
+				<dd id="securityLevel">${message.digitalPost.securityLevel}</dd>
 				<dt>Epost-varsel til mottaker</dt>
-				<dd id="emailNotification">${message.emailNotification == null ? "[ikke tilgjengelig]" : message.emailNotification}</dd>
+				<dd id="emailNotification">${message.digitalPost.emailNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotification}</dd>
 				<dt>Epost-varslingsintervall</dt>
-				<dd id="emailNotificationSchedule">${message.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.emailNotificationSchedule}</dd>
+				<dd id="emailNotificationSchedule">${message.digitalPost.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotificationSchedule}</dd>
 				<dt>SMS-varsel til mottaker</dt>
-				<dd id="mobileNotification">${message.mobileNotification == null ? "[ikke tilgjengelig]" : message.mobileNotification}</dd>
+				<dd id="mobileNotification">${message.digitalPost.mobileNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotification}</dd>
 				<dt>SMS-varslingsintervall</dt>
-				<dd id="mobileNotificationSchedule">${message.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.mobileNotificationSchedule}</dd>
+				<dd id="mobileNotificationSchedule">${message.digitalPost.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotificationSchedule}</dd>
 				<dt>Motta åpningskvittering</dt>
-				<dd id="requiresMessageOpenedReceipt">${message.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
+				<dd id="requiresMessageOpenedReceipt">${message.digitalPost.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
 				<dt>Virkningsdato</dt>
-				<dd id="delayedAvailabilityDate">${message.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.delayedAvailabilityDate}</dd>
+				<dd id="delayedAvailabilityDate">${message.digitalPost.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.digitalPost.delayedAvailabilityDate}</dd>
 				<dt>Prioritet</dt>
 				<dd id="priority">${message.priority == null ? "[ikke tilgjengelig]" : message.priority}</dd>
 				<dt>Språk-kode</dt>

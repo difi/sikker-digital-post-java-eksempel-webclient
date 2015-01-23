@@ -15,6 +15,17 @@ public class FysiskPost {
     @GeneratedValue
     private Long id;
 
+    private boolean posttype;
+
+    /*
+    KonvoluttAdresse adressat: adresse,postnr,land etc
+    Posttype: A-/B-prioritet
+    Utskriftsfarge: farge, svart/kvitt
+    Returhaandtering: direkte/makuler
+    KonvoluttAdresse returadresse: adresse,postnr,land etc
+    TekniskMottaker utskriftsleverandoer: orgnr+sertifikat
+    */
+
     public Long getId() {
         return id;
     }

@@ -41,6 +41,13 @@ public class DigitalPost {
     @Temporal(TemporalType.TIMESTAMP)
     private Date delayedAvailabilityDate;
 
+    public DigitalPost() {
+    }
+
+    public DigitalPost(String insensitiveTitle) {
+        this.insensitiveTitle = insensitiveTitle;
+    }
+
 
     public Long getId() {
         return id;
