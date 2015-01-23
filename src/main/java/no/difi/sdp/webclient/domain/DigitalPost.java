@@ -11,13 +11,9 @@ import java.util.Date;
  *
  *
  */
-@Entity
+@Embeddable
 public class DigitalPost {
 
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     @NotNull
     @Size(min = 1)
@@ -46,15 +42,6 @@ public class DigitalPost {
 
     public DigitalPost(String insensitiveTitle) {
         this.insensitiveTitle = insensitiveTitle;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getInsensitiveTitle() {

@@ -1,21 +1,20 @@
 package no.difi.sdp.webclient.domain;
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.Embeddable;
 import java.util.List;
 
-@Entity
+@Embeddable
 public class KonvoluttAdresse {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     public enum Type { NORSK, UTENLANDSK }
 
+    @NotNull
     private Type type;
+
+    @NotNull
     private String navn;
 
     @ElementCollection
@@ -26,14 +25,6 @@ public class KonvoluttAdresse {
 
     private String landkode;
     private String land;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Type getType() {
         return type;

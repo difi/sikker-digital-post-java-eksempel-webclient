@@ -3,12 +3,8 @@ package no.difi.sdp.webclient.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Entity
+@Embeddable
 public class FysiskPost {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -23,15 +19,24 @@ public class FysiskPost {
     private Returhaandtering returhaandtering;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @Embedded
     private KonvoluttAdresse adressat;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @Embedded
+    @AttributeOverrides( {
+            @AttributeOverride(name="type", column = @Column(name="returType") ),
+            @AttributeOverride(name="navn", column = @Column(name="returNavn") ),
+            @AttributeOverride(name="adresselinjer", column = @Column(name="returAdresselinjer") ),
+            @AttributeOverride(name="postnummer", column = @Column(name="returPostnummer") ),
+            @AttributeOverride(name="poststed", column = @Column(name="returPoststed") ),
+            @AttributeOverride(name="landkode", column = @Column(name="returLandkode") ),
+            @AttributeOverride(name="land", column = @Column(name="returLand") )
+    } )
     private KonvoluttAdresse returadresse;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @Embedded
     private TekniskMottaker utskriftsleverandoer;
 
     public void FysiskPost(){
@@ -44,15 +49,6 @@ public class FysiskPost {
         this.returhaandtering = returhaandtering;
         this.adressat = adressat;
         this.returadresse = returadresse;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Utskriftsfarge getUtskriftsfarge() {

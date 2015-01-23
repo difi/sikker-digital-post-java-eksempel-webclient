@@ -111,10 +111,10 @@ public class Message {
 	
 	private boolean saveBinaryContent;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = true)
+	@Embedded
 	private DigitalPost digitalPost;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = true)
+	@Embedded
 	private FysiskPost fysiskPost;
 	
 	public Long getId() {
