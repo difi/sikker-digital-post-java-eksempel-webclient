@@ -351,16 +351,17 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     }
     
     private void sendMessageToMeldingsformidler(Message message) throws MessageServiceException {
-    	if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
-    		throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
-        }
 
-        if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
-            throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
-        }
-        try {
-            Forsendelse forsendelse = null;
+        Forsendelse forsendelse = null;
+        
         if (message.isDigital()){
+            if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
+                throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
+            }
+
+            if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
+                throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
+            }
     	// In most (but not all) scenarios the check below should be included
         //if (message.getReservationStatus().equals(Reservasjon.JA)) {
         //	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
@@ -371,6 +372,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         } else if(!message.isDigital()) {
             forsendelse = buildFysiskForsendelse(message);
         }
+        try {
         enrichMessage(message, forsendelse);
         messageRepository.save(message);
         SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
