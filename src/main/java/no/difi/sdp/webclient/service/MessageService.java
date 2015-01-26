@@ -289,7 +289,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Returhaandtering returhaandtering = Returhaandtering.valueOf(fysiskPost.getReturhaandtering().toString());
         Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
         Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
-        Sertifikat sertifikat = Sertifikat.fraBase64X509String("TODO");
+        Sertifikat sertifikat = Sertifikat.fraCertificate(fysiskPost.getUtskriftsleverandoer().getSertifikat());
         TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().organisasjonsnummer, sertifikat );
 
         FysiskPost fysiskpost = FysiskPost.builder()
@@ -354,27 +354,37 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     	if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
     		throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
         }
+
+        if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
+            throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
+        }
+        try {
+            Forsendelse forsendelse = null;
+        if (message.isDigital()){
     	// In most (but not all) scenarios the check below should be included
         //if (message.getReservationStatus().equals(Reservasjon.JA)) {
         //	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
         //}
-        if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
-        	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
+
+        	forsendelse = buildDigitalForsendelse(message);
+
+        } else if(!message.isDigital()) {
+            forsendelse = buildFysiskForsendelse(message);
         }
-        try {
-        	Forsendelse forsendelse = buildDigitalForsendelse(message);
-    		enrichMessage(message, forsendelse);
-    		messageRepository.save(message);
-    		SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
-    		postklient.send(forsendelse);
-			message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
-			message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
-	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
-		} catch (Exception e) {
-			throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
-		}
+        enrichMessage(message, forsendelse);
+        messageRepository.save(message);
+        SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
+        postklient.send(forsendelse);
+        message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+        message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
+        message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
+
+        } catch (Exception e) {
+            throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
+        }
     }
-	
+
+
 	private void extractOppslagstjenesteMessages(HentPersonerForespoersel hentPersonerForespoersel, HentPersonerRespons hentPersonerRespons) {
 		stringUtil.marshalJaxbObject(hentPersonerForespoersel, xmlRetrievePersonsRequestPayload);
 		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);

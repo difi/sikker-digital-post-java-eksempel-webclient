@@ -1,23 +1,24 @@
 package no.difi.sdp.webclient.domain;
 
 import javax.persistence.Embeddable;
+import java.security.cert.X509Certificate;
 
 @Embeddable
 public class TekniskMottaker {
 
     public final String organisasjonsnummer;
-    public final String sertifikat;
+    private X509Certificate x509Certificate;
 
-    public TekniskMottaker(String organisasjonsnummer, String sertifikat) {
+    public TekniskMottaker(String organisasjonsnummer, X509Certificate sertifikat) {
         this.organisasjonsnummer = organisasjonsnummer;
-        this.sertifikat = sertifikat;
+        this.x509Certificate = sertifikat;
     }
 
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;
     }
 
-    public String getSertifikat() {
-        return sertifikat;
+    public X509Certificate getSertifikat() {
+        return x509Certificate;
     }
 }
