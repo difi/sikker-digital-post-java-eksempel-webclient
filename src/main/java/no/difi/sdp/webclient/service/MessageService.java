@@ -45,60 +45,60 @@ import java.util.List;
 public class MessageService {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(MessageService.class);
-	
+
 	private final static int NUMBER_OF_MESSAGES_PER_PAGE = 100;
-	
+
 	@Autowired
 	private MessageRepository messageRepository;
-    
+
 	@Autowired
 	private DocumentRepository documentRepository;
-	
+
 	@Autowired
 	private Oppslagstjeneste1405 oppslagstjeneste;
-    
+
 	@Autowired
 	private StringUtil stringUtil;
-	
+
 	@Autowired
 	private StringWriter xmlRetrievePersonsRequest; // Set by SdpClientConfiguration.oppslagstjenesteLoggingOutInterceptor
-	
+
 	@Autowired
 	private StringWriter xmlRetrievePersonsRequestPayload; // Set by MessageService.extractOppslagstjenesteMessages(HentPersonerForespoersel, HentPersonerRespons)
-	
+
 	@Autowired
 	private StringWriter xmlRetrievePersonsResponse; // Set by SdpClientConfiguration.oppslagstjenesteLoggingInInterceptor
-	
+
 	@Autowired
 	private StringWriter xmlRetrievePersonsResponsePayload; // Set by MessageService.extractOppslagstjenesteMessages(HentPersonerForespoersel, HentPersonerRespons)
-	
+
 	@Autowired
 	private Holder<StringWriter> postKlientSoapRequest; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private Holder<StringWriter> postKlientSoapRequestPayload; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private Holder<Date> postKlientSoapRequestSentDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private Holder<StringWriter> postKlientSoapResponse; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private Holder<StringWriter> postKlientSoapResponsePayload; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private Holder<Date> postKlientSoapResponseReceivedDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-	
+
 	@Autowired
 	private CryptoUtil cryptoUtil;
-	
+
 	@Autowired
 	private ConfigurationService configurationService;
-	
+
 	@Autowired
 	private PostklientService postklientService;
-	
+
 	private HentPersonerForespoersel buildHentPersonerForespoersel(String ssn) {
     	HentPersonerForespoersel hentPersonerForespoersel = new HentPersonerForespoersel();
         hentPersonerForespoersel.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
@@ -108,7 +108,7 @@ public class MessageService {
         hentPersonerForespoersel.getPersonidentifikator().add(ssn);
         return hentPersonerForespoersel;
     }
-    
+
     private void enrichMessage(Message message, HentPersonerRespons hentPersonerRespons) {
     	if (hentPersonerRespons.getPerson().size() != 1) {
         	return;
@@ -125,7 +125,7 @@ public class MessageService {
             message.setPostboxVendorOrgNumber(sikkerDigitalPostAdresse.getPostkasseleverandoerAdresse());
         }
         message.setPostboxCertificate(person.getX509Sertifikat());
-        Kontaktinformasjon kontaktinformasjon = person.getKontaktinformasjon();    
+        Kontaktinformasjon kontaktinformasjon = person.getKontaktinformasjon();
     	if (kontaktinformasjon != null && kontaktinformasjon.getEpostadresse() != null) {
     		message.setEmail(kontaktinformasjon.getEpostadresse().getValue());
     	}
@@ -133,14 +133,14 @@ public class MessageService {
         	message.setMobile(kontaktinformasjon.getMobiltelefonnummer().getValue());
         }
     }
-    
+
     private void enrichMessage(Message message, Forsendelse forsendelse) {
     	message.setConversationId(forsendelse.getKonversasjonsId());
     	if (message.getSaveBinaryContent()) {
     		message.setAsic(postklientService.createAsice(message.getKeyPairAlias(), forsendelse));
     	}
     }
-    
+
     private EpostVarsel buildEpostVarsel(Message message) {
     	if (message.getDigitalPost().getEmailNotification() == null || message.getEmail() == null) {
     		return null;
@@ -151,7 +151,7 @@ public class MessageService {
         }
         return epostVarselBuilder.build();
     }
-    
+
     private SmsVarsel buildSmsVarsel(Message message) {
     	if (message.getDigitalPost().getMobileNotification() == null || message.getMobile() == null) {
     		return null;
@@ -162,19 +162,19 @@ public class MessageService {
     	}
         return smsVarselBuilder.build();
     }
-    
+
     private Sertifikat buildSertifikat(Message message) {
     	X509Certificate x509Certificate = cryptoUtil.loadX509Certificate(message.getPostboxCertificate());
     	return Sertifikat.fraCertificate(x509Certificate);
     }
-    
+
     private Mottaker buildMottaker(Message message) {
     	Sertifikat sertifikat = buildSertifikat(message);
     	return Mottaker
     			.builder(message.getSsn(), message.getPostboxAddress(), sertifikat, message.getPostboxVendorOrgNumber())
     			.build();
     }
-    
+
     private Dokument buildDokument(Document document) {
     	ByteArrayInputStream documentContent = new ByteArrayInputStream(document.getContent());
     	return Dokument
@@ -182,7 +182,7 @@ public class MessageService {
         		.mimeType(document.getMimetype())
         		.build();
     }
-    
+
     private List<Dokument> buildVedlegg(Message message) {
     	List<Dokument> attachments = new ArrayList<Dokument>();
     	for (Document document : message.getAttachments()) {
@@ -208,7 +208,7 @@ public class MessageService {
     	builder.vedlegg(buildVedlegg(message));
     	return builder.build();
     }
-    
+
     private Forsendelse buildDigitalForsendelse(Message message) {
     	Mottaker mottaker  = buildMottaker(message);
         DigitalPost digitalPost = DigitalPost
@@ -290,7 +290,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
         Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
         Sertifikat sertifikat = Sertifikat.fraCertificate(fysiskPost.getUtskriftsleverandoer().getSertifikat());
-        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().organisasjonsnummer, sertifikat );
+        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().getOrganisasjonsnummer(), sertifikat );
 
         FysiskPost fysiskpost = FysiskPost.builder()
                 .adresse(buildAdressatAdresse(message))
@@ -304,7 +304,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 
         return Forsendelse.fysisk(behandlingsansvarlig,fysiskpost,dokumentPakke).build();
     }
-    
+
     public void sendMessage(Message message)  {
     	message.setDate(new Date());
     	try {
@@ -330,7 +330,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     	message.setCompletedDate(new Date());
     	messageRepository.save(message);
 	}
-    
+
     private void removeBinaryContent(Message message) {
     	message.setAsic(null);
 		message.getDocument().setContent(null);
@@ -338,7 +338,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			attachment.setContent(null);
 		}
     }
-    
+
     private void retrieveContactDetailsFromOppslagstjeneste(Message message) throws MessageServiceException {
     	try {
             HentPersonerForespoersel hentPersonerForespoersel = buildHentPersonerForespoersel(message.getSsn());
@@ -349,11 +349,11 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         	throw new MessageServiceException(MessageStatus.FAILED_RETRIEVING_PERSON_FROM_OPPSLAGSTJENESTE, e);
         }
     }
-    
+
     private void sendMessageToMeldingsformidler(Message message) throws MessageServiceException {
 
         Forsendelse forsendelse = null;
-        
+
         if (message.isDigital()){
             if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
                 throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
@@ -398,18 +398,18 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 		Page<Message> messagePage = toMessagePage(rawMessagePage, pageRequest);
 		return messagePage;
 	}
-	
+
 	public Page<Message> getMessages(MessageStatus messageStatus, int pageNumber) {
 		PageRequest pageRequest = buildPageRequest(pageNumber);
 		Page<Object[]> rawMessagePage = messageRepository.list(messageStatus, pageRequest);
 		Page<Message> messagePage = toMessagePage(rawMessagePage, pageRequest);
 		return messagePage;
 	}
-	
+
 	private PageRequest buildPageRequest(int pageNumber) {
 		return new PageRequest(pageNumber, NUMBER_OF_MESSAGES_PER_PAGE);
 	}
-	
+
 	private Page<Message> toMessagePage(Page<Object[]> rawMessagePage, PageRequest pageRequest) {
 		List<Message> messages = new ArrayList<Message>();
 		for (Object[] rawMessage : rawMessagePage.getContent()) {
@@ -419,7 +419,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			message.setDate((Date) rawMessage[1]);
 			message.setSsn((String) rawMessage[2]);
 			Document document = new Document();
-			document.setTitle((String) rawMessage[3]); 
+			document.setTitle((String) rawMessage[3]);
 			message.setDocument(document);
 			messages.add(message);
 		}
@@ -429,7 +429,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 	public Message getMessage(Long id) {
 		return messageRepository.findOne(id);
 	}
-	
+
 	/**
 	 * Gets all receipts with prioritized priority from meldingsformidler for all integrations.
 	 * @return
@@ -554,15 +554,15 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 	public void deleteMessage(Long id) {
 		messageRepository.delete(id);
 	}
-	
+
 	public void deleteAllMessages() {
 		messageRepository.deleteAll();
 	}
-	
+
 	public Document getDocument(Long id) {
 		return documentRepository.findOne(id);
 	}
-	
+
 	/**
 	 * Gets the following fields for all messages: id, ssn, date, postboxVendorOrgNumber, postboxAddress, status, receipt.type and receipt.date.
 	 * @return
@@ -570,31 +570,31 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 	public List<Object[]> getReport() {
 		return messageRepository.getReport();
 	}
-	
+
 	public List<Object[]> getCountByStatus() {
 		return messageRepository.countByStatus();
 	}
-	
+
 	private class MessageServiceException extends Exception {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		private MessageStatus status;
-		
+
 		public MessageServiceException(MessageStatus status, Exception e) {
 			super(e);
 			this.status = status;
 		}
-		
+
 		public MessageServiceException(MessageStatus status, String message) {
 			super(message);
 			this.status = status;
 		}
-		
+
 		public MessageStatus getStatus() {
 			return status;
 		}
-		
+
 	}
-	
+
 }
