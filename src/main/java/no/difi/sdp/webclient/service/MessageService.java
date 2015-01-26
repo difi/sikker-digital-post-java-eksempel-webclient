@@ -1,39 +1,29 @@
 package no.difi.sdp.webclient.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import no.difi.begrep.Kontaktinformasjon;
-import no.difi.begrep.Person;
-import no.difi.begrep.Reservasjon;
-import no.difi.begrep.SikkerDigitalPostAdresse;
-import no.difi.begrep.Status;
+import no.difi.begrep.*;
 import no.difi.kontaktinfo.wsdl.oppslagstjeneste_14_05.Oppslagstjeneste1405;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.Informasjonsbehov;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.domain.*;
+import no.difi.sdp.client.domain.TekniskMottaker;
 import no.difi.sdp.client.domain.digital_post.DigitalPost;
 import no.difi.sdp.client.domain.digital_post.EpostVarsel;
 import no.difi.sdp.client.domain.digital_post.SmsVarsel;
-import no.difi.sdp.client.domain.kvittering.AapningsKvittering;
-import no.difi.sdp.client.domain.kvittering.Feil;
-import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
-import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
-import no.difi.sdp.client.domain.kvittering.LeveringsKvittering;
-import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering;
+import no.difi.sdp.client.domain.fysisk_post.*;
+import no.difi.sdp.client.domain.fysisk_post.FysiskPost;
+import no.difi.sdp.client.domain.fysisk_post.KonvoluttAdresse;
+import no.difi.sdp.client.domain.fysisk_post.Posttype;
+import no.difi.sdp.client.domain.fysisk_post.Returhaandtering;
+import no.difi.sdp.client.domain.fysisk_post.Utskriftsfarge;
+import no.difi.sdp.client.domain.kvittering.*;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.repository.DocumentRepository;
 import no.difi.sdp.webclient.repository.MessageRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +33,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -231,6 +228,82 @@ public class MessageService {
 				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
         		.build();
     }
+
+    private KonvoluttAdresse buildAdressatAdresse(Message message){
+        no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = message.getFysiskPost().getAdressat();
+        KonvoluttAdresse konvoluttAdresse = null;
+
+        if(adressat.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK){
+
+
+            konvoluttAdresse = KonvoluttAdresse.build(adressat.getNavn())
+                    .iNorge(adressat.getAdresselinjer().get(0),
+                            adressat.getAdresselinjer().get(1),
+                            adressat.getAdresselinjer().get(2),
+                            adressat.getPostnummer(),
+                            adressat.getPoststed())
+                    .build();
+    }else if (adressat.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK){
+        konvoluttAdresse = KonvoluttAdresse.build(adressat.getNavn())
+                .iUtlandet(adressat.getAdresselinjer().get(0),
+                        adressat.getAdresselinjer().get(1),
+                        adressat.getAdresselinjer().get(2),
+                        adressat.getAdresselinjer().get(3),
+                        Landkoder.landkode(adressat.getLandkode()))
+                .build();
+    }
+
+        return konvoluttAdresse;
+    }
+
+private KonvoluttAdresse buildReturAdresse(Message message){
+    no.difi.sdp.webclient.domain.KonvoluttAdresse retur = message.getFysiskPost().getReturadresse();
+    KonvoluttAdresse returAdresse = null;
+
+    if(retur.getType() == no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK){
+
+        returAdresse = returAdresse.build(retur.getNavn())
+                .iNorge(retur.getAdresselinjer().get(0),
+                        retur.getAdresselinjer().get(1),
+                        retur.getAdresselinjer().get(2),
+                        retur.getPostnummer(),
+                        retur.getPoststed())
+                .build();
+
+    } else if (retur.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK){
+        returAdresse = returAdresse.build(retur.getNavn())
+                .iUtlandet(retur.getAdresselinjer().get(0),
+                        retur.getAdresselinjer().get(1),
+                        retur.getAdresselinjer().get(2),
+                        retur.getAdresselinjer().get(3),
+                        Landkoder.landkode(retur.getLandkode()))
+                .build();
+    }
+    return returAdresse;
+}
+
+    private Forsendelse buildFysiskForsendelse(Message message) {
+
+        no.difi.sdp.webclient.domain.FysiskPost fysiskPost = message.getFysiskPost();
+
+        Returhaandtering returhaandtering = Returhaandtering.valueOf(fysiskPost.getReturhaandtering().toString());
+        Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
+        Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
+        Sertifikat sertifikat = Sertifikat.fraCertificate(fysiskPost.getUtskriftsleverandoer().getSertifikat());
+        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().organisasjonsnummer, sertifikat );
+
+        FysiskPost fysiskpost = FysiskPost.builder()
+                .adresse(buildAdressatAdresse(message))
+                .retur(returhaandtering, buildReturAdresse(message))
+                .sendesMed(posttype)
+                .utskrift(utskriftsfarge, tekniskMottaker)
+                .build();
+
+        Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
+        Dokumentpakke dokumentPakke = buildDokumentpakke(message);
+
+        return Forsendelse.fysisk(behandlingsansvarlig,fysiskpost,dokumentPakke).build();
+    }
     
     public void sendMessage(Message message)  {
     	message.setDate(new Date());
@@ -278,30 +351,42 @@ public class MessageService {
     }
     
     private void sendMessageToMeldingsformidler(Message message) throws MessageServiceException {
-    	if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
-    		throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
-        }
+
+        Forsendelse forsendelse = null;
+        
+        if (message.isDigital()){
+            if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
+                throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
+            }
+
+            if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
+                throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
+            }
     	// In most (but not all) scenarios the check below should be included
         //if (message.getReservationStatus().equals(Reservasjon.JA)) {
         //	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
         //}
-        if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
-        	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
+
+        	forsendelse = buildDigitalForsendelse(message);
+
+        } else if(!message.isDigital()) {
+            forsendelse = buildFysiskForsendelse(message);
         }
         try {
-        	Forsendelse forsendelse = buildDigitalForsendelse(message);
-    		enrichMessage(message, forsendelse);
-    		messageRepository.save(message);
-    		SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
-    		postklient.send(forsendelse);
-			message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
-			message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
-	    	message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
-		} catch (Exception e) {
-			throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
-		}
+        enrichMessage(message, forsendelse);
+        messageRepository.save(message);
+        SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
+        postklient.send(forsendelse);
+        message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+        message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
+        message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
+
+        } catch (Exception e) {
+            throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
+        }
     }
-	
+
+
 	private void extractOppslagstjenesteMessages(HentPersonerForespoersel hentPersonerForespoersel, HentPersonerRespons hentPersonerRespons) {
 		stringUtil.marshalJaxbObject(hentPersonerForespoersel, xmlRetrievePersonsRequestPayload);
 		stringUtil.marshalJaxbObject(hentPersonerRespons, xmlRetrievePersonsResponsePayload);

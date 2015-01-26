@@ -116,6 +116,9 @@ public class Message {
 
 	@Embedded
 	private FysiskPost fysiskPost;
+
+    @NotNull
+    private boolean digital;
 	
 	public Long getId() {
 		return id;
@@ -415,7 +418,15 @@ public class Message {
 		return fysiskPost;
 	}
 
-	public void setFysiskPost(FysiskPost fysiskPost) {
+    public boolean isDigital() {
+        return digital;
+    }
+
+    public void setDigital(boolean digital) {
+        this.digital = digital;
+    }
+
+    public void setFysiskPost(FysiskPost fysiskPost) {
 		this.fysiskPost = fysiskPost;
 	}
 }
