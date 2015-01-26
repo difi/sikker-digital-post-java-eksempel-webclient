@@ -141,7 +141,7 @@ public class MessageController {
 			model.addAttribute("errors", bindingResult);
 			return "send_message_page";
 		}
-		Message message = new Message();
+		Message message = new Message(messageCommand.isDigitalPost());
 		message.setSsn(messageCommand.getSsn());
 		DigitalPost digitalPost = new DigitalPost(messageCommand.getDigitalPostCommand().getInsensitiveTitle());
 		message.setDigitalPost(digitalPost);
