@@ -1,20 +1,5 @@
 package no.difi.sdp.webclient.web;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
@@ -25,12 +10,13 @@ import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
-
+import no.difi.sdp.webclient.validation.MessageCommandValidator;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
@@ -40,11 +26,22 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 @Controller
 public class MessageController {
@@ -61,6 +58,11 @@ public class MessageController {
 	private MessageService messageService;
 	
 	@Autowired
+	@Qualifier("messageCommandValidator")
+	private Validator messageValidator;
+
+	@Autowired
+	@Qualifier("mvcValidator")
 	private Validator validator;
 	
 	@Autowired
@@ -77,7 +79,7 @@ public class MessageController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/", produces = "text/html")
 	public String show_send_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
-		MessageCommand messageCommand = new MessageCommand();
+		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.DIGITAL);
 		if (copy == null) {
 			// Sets default values from configuration
 			messageCommand.setLanguageCode("NO");
@@ -94,18 +96,11 @@ public class MessageController {
 				// Sets default values from exisiting message
 				// Note that default file upload values are not allowed by web browsers so we can't copy document, attachments and postbox certificate
 				messageCommand.setKeyPairAlias(message.getKeyPairAlias());
-				messageCommand.setDelayedAvailabilityDate(message.getDigitalPost().getDelayedAvailabilityDate());
-				messageCommand.setEmailNotification(message.getDigitalPost().getEmailNotification());
-				messageCommand.setEmailNotificationSchedule(message.getDigitalPost().getEmailNotificationSchedule());
-				messageCommand.setInsensitiveTitle(message.getDigitalPost().getInsensitiveTitle());
 				messageCommand.setInvoiceReference(message.getInvoiceReference());
 				messageCommand.setLanguageCode(message.getLanguageCode());
-				messageCommand.setMobileNotification(message.getDigitalPost().getMobileNotification());
-				messageCommand.setMobileNotificationSchedule(message.getDigitalPost().getMobileNotificationSchedule());
 				messageCommand.setPriority(message.getPriority());
-				messageCommand.setRequiresMessageOpenedReceipt(message.getDigitalPost().getRequiresMessageOpenedReceipt());
 				messageCommand.setRetrieveContactDetails(message.getRetrieveContactDetails());
-				messageCommand.setSecurityLevel(message.getDigitalPost().getSecurityLevel());
+				messageCommand.setDigitalPostCommand(setDigitalPostCommandValues(message.getDigitalPost()));
 				messageCommand.setSenderId(message.getSenderId());
 				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
 				messageCommand.setSsn(message.getSsn());
@@ -122,10 +117,24 @@ public class MessageController {
 		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 		return "send_message_page";
 	}
-	
+
+	private DigitalPostCommand setDigitalPostCommandValues(DigitalPost digitalPost) {
+		DigitalPostCommand digitalPostCommand = new DigitalPostCommand();
+		digitalPostCommand.setDelayedAvailabilityDate(digitalPost.getDelayedAvailabilityDate());
+		digitalPostCommand.setEmailNotification(digitalPost.getEmailNotification());
+		digitalPostCommand.setEmailNotificationSchedule(digitalPost.getEmailNotificationSchedule());
+		digitalPostCommand.setInsensitiveTitle(digitalPost.getInsensitiveTitle());
+		digitalPostCommand.setMobileNotification(digitalPost.getMobileNotification());
+		digitalPostCommand.setMobileNotificationSchedule(digitalPost.getMobileNotificationSchedule());
+		digitalPostCommand.setRequiresMessageOpenedReceipt(digitalPost.getRequiresMessageOpenedReceipt());
+		digitalPostCommand.setSecurityLevel(digitalPost.getSecurityLevel());
+		return digitalPostCommand;
+	}
+
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")
-	public String send_message(@Valid @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
+	public String send_message(@Validated @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
 		validateUserSpecifiedContactDetails(messageCommand, bindingResult);
+		messageValidator.validate(messageCommand, bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
 			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
@@ -134,7 +143,7 @@ public class MessageController {
 		}
 		Message message = new Message();
 		message.setSsn(messageCommand.getSsn());
-		DigitalPost digitalPost = new DigitalPost(messageCommand.getInsensitiveTitle());
+		DigitalPost digitalPost = new DigitalPost(messageCommand.getDigitalPostCommand().getInsensitiveTitle());
 		message.setDigitalPost(digitalPost);
 		Document document = new Document();
 		document.setTitle(messageCommand.getTitle());
@@ -161,7 +170,7 @@ public class MessageController {
 		message.setSenderId(messageCommand.getSenderId());
 		message.setInvoiceReference(messageCommand.getInvoiceReference());
 		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
-		setDigitalPostData(messageCommand, digitalPost);
+		setDigitalPostData(digitalPost, messageCommand.getDigitalPostCommand());
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
 		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
@@ -179,14 +188,14 @@ public class MessageController {
 		return "redirect:/client/messages/" + message.getId();
 	}
 
-	private void setDigitalPostData(MessageCommand messageCommand, DigitalPost digitalPost) {
-		digitalPost.setSecurityLevel(messageCommand.getSecurityLevel());
-		digitalPost.setEmailNotification(messageCommand.getEmailNotification());
-		digitalPost.setEmailNotificationSchedule(messageCommand.getEmailNotificationSchedule());
-		digitalPost.setMobileNotification(messageCommand.getMobileNotification());
-		digitalPost.setMobileNotificationSchedule(messageCommand.getMobileNotificationSchedule());
-		digitalPost.setRequiresMessageOpenedReceipt(messageCommand.getRequiresMessageOpenedReceipt());
-		digitalPost.setDelayedAvailabilityDate(messageCommand.getDelayedAvailabilityDate());
+	private void setDigitalPostData(DigitalPost digitalPost, DigitalPostCommand digitalPostCommand) {
+		digitalPost.setSecurityLevel(digitalPostCommand.getSecurityLevel());
+		digitalPost.setEmailNotification(digitalPostCommand.getEmailNotification());
+		digitalPost.setEmailNotificationSchedule(digitalPostCommand.getEmailNotificationSchedule());
+		digitalPost.setMobileNotification(digitalPostCommand.getMobileNotification());
+		digitalPost.setMobileNotificationSchedule(digitalPostCommand.getMobileNotificationSchedule());
+		digitalPost.setRequiresMessageOpenedReceipt(digitalPostCommand.getRequiresMessageOpenedReceipt());
+		digitalPost.setDelayedAvailabilityDate(digitalPostCommand.getDelayedAvailabilityDate());
 	}
 
 	/**

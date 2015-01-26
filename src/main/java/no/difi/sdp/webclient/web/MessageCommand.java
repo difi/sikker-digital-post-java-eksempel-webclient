@@ -1,23 +1,23 @@
 package no.difi.sdp.webclient.web;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
-
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.validation.Document;
 import no.difi.sdp.webclient.validation.Ssn;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
+
+@Component
 public class MessageCommand {
+
+	public enum Type{FYSISK, DIGITAL};
+
+	private Type type;
 
 	@Ssn(message = "Ugyldig fødselsnummer.")
 	private String ssn;
@@ -26,9 +26,9 @@ public class MessageCommand {
 	@NotNull
 	private String title;
 
-	@Size(min = 1, message = "Du må oppgi ikke-sensitiv tittel.")
-	@NotNull
-	private String insensitiveTitle;
+	private FysiskPostCommand fysiskPostCommand;
+
+	private DigitalPostCommand digitalPostCommand;
 
 	@Document(message = "Du må oppgi hoveddokument.")
 	private MultipartFile document;
@@ -44,25 +44,7 @@ public class MessageCommand {
 	
 	@NotNull
 	private String keyPairAlias;
-	
-	@NotNull
-	private Sikkerhetsnivaa securityLevel;
-	
-	private String emailNotification;
-	
-	@Pattern(regexp = "^[0-9\\s,]*$", message = "Ugyldig verdi.")
-	private String emailNotificationSchedule;
-	
-	private String mobileNotification;
-	
-	@Pattern(regexp = "^[0-9\\s,]*$", message = "Ugyldig verdi.")
-	private String mobileNotificationSchedule;
-	
-	private boolean requiresMessageOpenedReceipt;
-	
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private Date delayedAvailabilityDate;
-	
+
 	@NotNull
 	private Prioritet priority;
 	
@@ -101,14 +83,35 @@ public class MessageCommand {
 		this.title = title;
 	}
 
-	public String getInsensitiveTitle() {
-		return insensitiveTitle;
+	public MessageCommand() {
 	}
-	
-	public void setInsensitiveTitle(String insensitiveTitle) {
-		this.insensitiveTitle = insensitiveTitle;
+
+	public MessageCommand(Type type) {
+		this.type = type;
 	}
-	
+
+	public FysiskPostCommand getFysiskPostCommand() {
+		if(fysiskPostCommand == null){
+			setFysiskPostCommand(new FysiskPostCommand());
+		}
+		return fysiskPostCommand;
+	}
+
+	public void setFysiskPostCommand(FysiskPostCommand fysiskPostCommand) {
+		this.fysiskPostCommand = fysiskPostCommand;
+	}
+
+	public DigitalPostCommand getDigitalPostCommand() {
+		if(digitalPostCommand == null){
+			setDigitalPostCommand(new DigitalPostCommand());
+		}
+		return digitalPostCommand;
+	}
+
+	public void setDigitalPostCommand(DigitalPostCommand digitalPostCommand) {
+		this.digitalPostCommand = digitalPostCommand;
+	}
+
 	public MultipartFile getDocument() {
 		return document;
 	}
@@ -155,62 +158,6 @@ public class MessageCommand {
 
 	public void setKeyPairAlias(String keyPairAlias) {
 		this.keyPairAlias = keyPairAlias;
-	}
-	
-	public Sikkerhetsnivaa getSecurityLevel() {
-		return securityLevel;
-	}
-	
-	public void setSecurityLevel(Sikkerhetsnivaa securityLevel) {
-		this.securityLevel = securityLevel;
-	}
-
-	public String getEmailNotification() {
-		return emailNotification;
-	}
-
-	public void setEmailNotification(String emailNotification) {
-		this.emailNotification = emailNotification;
-	}
-
-	public String getEmailNotificationSchedule() {
-		return emailNotificationSchedule;
-	}
-
-	public void setEmailNotificationSchedule(String emailNotificationSchedule) {
-		this.emailNotificationSchedule = emailNotificationSchedule;
-	}
-
-	public String getMobileNotification() {
-		return mobileNotification;
-	}
-
-	public void setMobileNotification(String mobileNotification) {
-		this.mobileNotification = mobileNotification;
-	}
-
-	public String getMobileNotificationSchedule() {
-		return mobileNotificationSchedule;
-	}
-
-	public void setMobileNotificationSchedule(String mobileNotificationSchedule) {
-		this.mobileNotificationSchedule = mobileNotificationSchedule;
-	}
-
-	public boolean getRequiresMessageOpenedReceipt() {
-		return requiresMessageOpenedReceipt;
-	}
-
-	public void setRequiresMessageOpenedReceipt(boolean requiresMessageOpenedReceipt) {
-		this.requiresMessageOpenedReceipt = requiresMessageOpenedReceipt;
-	}
-
-	public Date getDelayedAvailabilityDate() {
-		return delayedAvailabilityDate;
-	}
-
-	public void setDelayedAvailabilityDate(Date delayedAvailabilityDate) {
-		this.delayedAvailabilityDate = delayedAvailabilityDate;
 	}
 
 	public Prioritet getPriority() {
@@ -293,4 +240,19 @@ public class MessageCommand {
 		this.email = email;
 	}
 
+	public boolean isFysiskPost() {
+		return getType() == Type.FYSISK;
+	}
+
+	public boolean isDigitalPost() {
+		return getType() == Type.DIGITAL;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
 }

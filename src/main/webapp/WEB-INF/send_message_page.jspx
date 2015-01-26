@@ -25,6 +25,7 @@
 			</ul>
 			<br />
 			<form:form method="POST" action="messages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">
+				<input name="type" id="type" type="hidden" value="${messageCommand.type}"/>
 				<div class="form-group ${errors.hasFieldErrors('ssn') ? 'has-error' : ''}">
 					<form:label path="ssn" cssClass="col-sm-2 control-label">Fødselsnummer<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
 					<div class="col-sm-10">
@@ -38,9 +39,9 @@
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('insensitiveTitle') ? 'has-error' : ''}">
-					<form:label path="insensitiveTitle" cssClass="col-sm-2 control-label">Ikke-sensitiv tittel<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+					<form:label path="digitalPostCommand.insensitiveTitle" cssClass="col-sm-2 control-label">Ikke-sensitiv tittel<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
 					<div class="col-sm-10">
-						<input name="insensitiveTitle" id="insensitiveTitle" type="text" class="form-control" autocomplete="off" placeholder="Ikke-sensitiv tittel" value="${messageCommand.insensitiveTitle}"/>
+						<input name="digitalPostCommand.insensitiveTitle" id="insensitiveTitle" type="text" class="form-control" autocomplete="off" placeholder="Ikke-sensitiv tittel" value="${messageCommand.digitalPostCommand.insensitiveTitle}"/>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('document') ? 'has-error' : ''}">
@@ -101,63 +102,63 @@
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('securityLevel') ? 'has-error' : ''}">
- 					<form:label path="securityLevel" cssClass="col-sm-2 control-label">Sikkerhetsnivå</form:label>
+ 					<form:label path="digitalPostCommand.securityLevel" cssClass="col-sm-2 control-label">Sikkerhetsnivå</form:label>
  					<div class="col-sm-10">
  						<c:choose>
-	 						<c:when test="${messageCommand.securityLevel == 'NIVAA_4' }">
-		 						<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel3" value="NIVAA_3" /> Sikkerhetsnivå 3</label>
-								<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel4" value="NIVAA_4" checked="checked" /> Sikkerhetsnivå 4</label>
+	 						<c:when test="${messageCommand.digitalPostCommand.securityLevel == 'NIVAA_4' }">
+		 						<label class="radio-inline"><input type="radio" name="digitalPostCommand.securityLevel" id="securityLevel3" value="NIVAA_3" /> Sikkerhetsnivå 3</label>
+								<label class="radio-inline"><input type="radio" name="digitalPostCommand.securityLevel" id="securityLevel4" value="NIVAA_4" checked="checked" /> Sikkerhetsnivå 4</label>
 							</c:when>
 	 						<c:otherwise>
-		 						<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel3" value="NIVAA_3" checked="checked" /> Sikkerhetsnivå 3</label>
-								<label class="radio-inline"><input type="radio" name="securityLevel" id="securityLevel4" value="NIVAA_4" /> Sikkerhetsnivå 4</label>
+		 						<label class="radio-inline"><input type="radio" name="digitalPostCommand.securityLevel" id="securityLevel3" value="NIVAA_3" checked="checked" /> Sikkerhetsnivå 3</label>
+								<label class="radio-inline"><input type="radio" name="digitalPostCommand.securityLevel" id="securityLevel4" value="NIVAA_4" /> Sikkerhetsnivå 4</label>
 	 						</c:otherwise>
 	 					</c:choose>
 						<span class="help-block">Oppgi hvilket sikkerhetsnivå som mottaker må logge seg inn til sin postkasse med for å lese meldingen</span>
  					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('emailNotification') ? 'has-error' : ''}">
-					<form:label path="emailNotification" cssClass="col-sm-2 control-label">Epost-varsel til mottaker</form:label>
+					<form:label path="digitalPostCommand.emailNotification" cssClass="col-sm-2 control-label">Epost-varsel til mottaker</form:label>
 					<div class="col-sm-10">
-						<textarea name="emailNotification" id="emailNotification" class="form-control" rows="1" placeholder="Oppgi tekst for epost dersom du ønsker at mottaker skal bli varslet per epost når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.emailNotification}" /></textarea>
+						<textarea name="digitalPostCommand.emailNotification" id="emailNotification" class="form-control" rows="1" placeholder="Oppgi tekst for epost dersom du ønsker at mottaker skal bli varslet per epost når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.digitalPostCommand.emailNotification}" /></textarea>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('emailNotificationSchedule') ? 'has-error' : ''}">
-					<form:label path="emailNotificationSchedule" cssClass="col-sm-2 control-label">Epost-varslingsintervall</form:label>
+					<form:label path="digitalPostCommand.emailNotificationSchedule" cssClass="col-sm-2 control-label">Epost-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende epostvarsel, 0 er samme dag som virkningsdato" value="${messageCommand.emailNotificationSchedule}"/>
+						<input name="digitalPostCommand.emailNotificationSchedule" id="emailNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende epostvarsel, 0 er samme dag som virkningsdato" value="${messageCommand.digitalPostCommand.emailNotificationSchedule}"/>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('mobileNotification') ? 'has-error' : ''}">
-					<form:label path="mobileNotification" cssClass="col-sm-2 control-label">SMS-varsel til mottaker</form:label>
+					<form:label path="digitalPostCommand.mobileNotification" cssClass="col-sm-2 control-label">SMS-varsel til mottaker</form:label>
 					<div class="col-sm-10">
-						<textarea name="mobileNotification" id="mobileNotification" class="form-control" rows="1" placeholder="Oppgi tekst for SMS dersom du ønsker at mottaker skal bli varslet per SMS når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.mobileNotification}" /></textarea>
+						<textarea name="digitalPostCommand.mobileNotification" id="mobileNotification" class="form-control" rows="1" placeholder="Oppgi tekst for SMS dersom du ønsker at mottaker skal bli varslet per SMS når meldingen er tilgjengelig i mottakers postkasse"><c:out value="${messageCommand.digitalPostCommand.mobileNotification}" /></textarea>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('mobileNotificationSchedule') ? 'has-error' : ''}">
-					<form:label path="mobileNotificationSchedule" cssClass="col-sm-2 control-label">SMS-varslingsintervall</form:label>
+					<form:label path="digitalPostCommand.mobileNotificationSchedule" cssClass="col-sm-2 control-label">SMS-varslingsintervall</form:label>
 					<div class="col-sm-10">
-						<input name="mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende sms-varsel, 0 er samme dag som virkningsdato" value="${messageCommand.mobileNotificationSchedule}" />
+						<input name="digitalPostCommand.mobileNotificationSchedule" id="mobileNotificationSchedule" type="text" class="form-control" autocomplete="off" placeholder="Oppgi ett eller flere antall dager du ønsker å sende sms-varsel, 0 er samme dag som virkningsdato" value="${messageCommand.digitalPostCommand.mobileNotificationSchedule}" />
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('requiresMessageOpenedReceipt') ? 'has-error' : ''}">
-					<form:label path="requiresMessageOpenedReceipt" cssClass="col-sm-2 control-label">Motta åpningskvittering</form:label>
+					<form:label path="digitalPostCommand.requiresMessageOpenedReceipt" cssClass="col-sm-2 control-label">Motta åpningskvittering</form:label>
 					<div class="col-sm-10">
 						<c:choose>
-							<c:when test="${messageCommand.requiresMessageOpenedReceipt}">
-								<label class="checkbox-inline"><input type="checkbox" name="requiresMessageOpenedReceipt" id="requiresMessageOpenedReceipt" checked="checked"/> Motta åpningskvittering</label>
+							<c:when test="${messageCommand.digitalPostCommand.requiresMessageOpenedReceipt}">
+								<label class="checkbox-inline"><input type="checkbox" name="digitalPostCommand.requiresMessageOpenedReceipt" id="requiresMessageOpenedReceipt" checked="checked"/> Motta åpningskvittering</label>
 							</c:when>
 							<c:otherwise>
-								<label class="checkbox-inline"><input type="checkbox" name="requiresMessageOpenedReceipt" id="requiresMessageOpenedReceipt" /> Motta åpningskvittering</label>
+								<label class="checkbox-inline"><input type="checkbox" name="digitalPostCommand.requiresMessageOpenedReceipt" id="requiresMessageOpenedReceipt" /> Motta åpningskvittering</label>
 							</c:otherwise>
 						</c:choose>
 					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('delayedAvailabilityDate') ? 'has-error' : ''}">
-					<form:label path="delayedAvailabilityDate" cssClass="col-sm-2 control-label">Virkningsdato</form:label>
+					<form:label path="digitalPostCommand.delayedAvailabilityDate" cssClass="col-sm-2 control-label">Virkningsdato</form:label>
 					<div class="col-sm-10">
-						<fmt:formatDate value="${messageCommand.delayedAvailabilityDate}" type="both" pattern="yyyy-MM-dd HH:mm:ss" var="delayedAvailabilityDateString"/>
-						<input name="delayedAvailabilityDate" id="delayedAvailabilityDate" type="text" class="form-control" autocomplete="off" placeholder="Virkningsdato" value="${delayedAvailabilityDateString}"/>
+						<fmt:formatDate value="${messageCommand.digitalPostCommand.delayedAvailabilityDate}" type="both" pattern="yyyy-MM-dd HH:mm:ss" var="delayedAvailabilityDateString"/>
+						<input name="digitalPostCommand.delayedAvailabilityDate" id="delayedAvailabilityDate" type="text" class="form-control" autocomplete="off" placeholder="Virkningsdato" value="${delayedAvailabilityDateString}"/>
 						<span class="help-block">Eksempel: <em>2014-06-12 13:00:00</em></span>
 					</div>
 				</div>

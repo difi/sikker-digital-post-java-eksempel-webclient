@@ -5,8 +5,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class TekniskMottaker {
 
-    public final String organisasjonsnummer;
-    public final String sertifikat;
+    private String organisasjonsnummer;
+    private String sertifikat;
 
     public TekniskMottaker(String organisasjonsnummer, String sertifikat) {
         this.organisasjonsnummer = organisasjonsnummer;

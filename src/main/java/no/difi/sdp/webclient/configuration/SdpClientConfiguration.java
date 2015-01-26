@@ -52,6 +52,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartResolver;
@@ -66,7 +67,7 @@ import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.context.MessageContext;
 
 @Configuration
-@ComponentScan( { "no.difi.sdp.webclient.web", "no.difi.sdp.webclient.service" } )
+@ComponentScan( { "no.difi.sdp.webclient.web", "no.difi.sdp.webclient.service", "no.difi.sdp.webclient.validation" } )
 @PropertySources( {
 	@PropertySource(value = "classpath:configuration.properties"), // Defaults
 	@PropertySource(value = "file:/etc/opt/testavsender/configuration.properties", ignoreResourceNotFound = true) // Optional overrides
@@ -370,7 +371,7 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements A
         jpaTransactionManager.setEntityManagerFactory(entityManagerFactory());
         return jpaTransactionManager;
     }
-    
+
     @Override
 	public Executor getAsyncExecutor() {
 		return asyncExecutor();
