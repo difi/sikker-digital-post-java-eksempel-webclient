@@ -290,7 +290,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
         Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
         Sertifikat sertifikat = Sertifikat.fraCertificate(fysiskPost.getUtskriftsleverandoer().getSertifikat());
-        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().organisasjonsnummer, sertifikat );
+        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().getOrganisasjonsnummer(), sertifikat );
 
         FysiskPost fysiskpost = FysiskPost.builder()
                 .adresse(buildAdressatAdresse(message))
@@ -353,7 +353,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     private void sendMessageToMeldingsformidler(Message message) throws MessageServiceException {
 
         Forsendelse forsendelse = null;
-        
+
         if (message.isDigital()){
             if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
                 throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
