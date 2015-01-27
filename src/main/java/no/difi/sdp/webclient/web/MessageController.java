@@ -4,10 +4,7 @@ import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
-import no.difi.sdp.webclient.domain.DigitalPost;
-import no.difi.sdp.webclient.domain.Document;
-import no.difi.sdp.webclient.domain.Message;
-import no.difi.sdp.webclient.domain.MessageStatus;
+import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
 import no.difi.sdp.webclient.validation.MessageCommandValidator;
@@ -129,6 +126,16 @@ public class MessageController {
 		digitalPostCommand.setRequiresMessageOpenedReceipt(digitalPost.getRequiresMessageOpenedReceipt());
 		digitalPostCommand.setSecurityLevel(digitalPost.getSecurityLevel());
 		return digitalPostCommand;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/utskrift", produces = "text/html")
+	public String show_print_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
+		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.FYSISK);
+		model.addAttribute("messageCommand", messageCommand);
+		model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
+		model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
+		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+		return "print_message_page";
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")

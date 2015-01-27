@@ -2,7 +2,7 @@ package no.difi.sdp.webclient.validation;
 
 import no.difi.sdp.webclient.web.MessageCommand;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -15,7 +15,12 @@ import org.springframework.validation.Validator;
 public class MessageCommandValidator implements Validator {
 
     @Autowired
+    @Qualifier("mvcValidator")
     private Validator basicValidator;
+
+    @Autowired
+    @Qualifier("fysiskPostCommandValidator")
+    private FysiskPostCommandValidator fysiskPostValidator;
 
     @Override
     public boolean supports(Class<?> aClass) {
@@ -27,7 +32,7 @@ public class MessageCommandValidator implements Validator {
 
         MessageCommand message = (MessageCommand) o;
         if (message.isFysiskPost()) {
-            basicValidator.validate(message.getFysiskPostCommand(), errors);
+            fysiskPostValidator.validate(message.getFysiskPostCommand(), errors);
 
         } else if (message.isDigitalPost()) {
             basicValidator.validate(message.getDigitalPostCommand(), errors);
