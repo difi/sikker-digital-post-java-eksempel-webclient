@@ -1,7 +1,5 @@
 package no.difi.sdp.webclient.domain;
 
-import no.difi.begrep.Reservasjon;
-import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.webclient.validation.Ssn;
 
@@ -54,24 +52,7 @@ public class Message {
 	
 	@NotNull
 	private String languageCode;
-	
-	@Enumerated(EnumType.STRING)
-	private Status contactRegisterStatus;
-	
-	@Enumerated(EnumType.STRING)
-	private Reservasjon reservationStatus;
-	
-	private String email;
-	
-	private String mobile;
-	
-	@Lob
-	private byte[] postboxCertificate;
-	
-	private String postboxAddress;
-	
-	private String postboxVendorOrgNumber;
-	
+
 	private String conversationId;
 	
 	@Lob
@@ -94,7 +75,7 @@ public class Message {
 	
 	@Lob
 	private String xmlSendMessageResponse;
-	
+
 	private MessageStatus status;
 	
 	@Lob
@@ -106,9 +87,7 @@ public class Message {
 	@Lob
 	@Basic(fetch = FetchType.LAZY)
 	private byte[] asic;
-	
-	private boolean retrieveContactDetails;
-	
+
 	private boolean saveBinaryContent;
 
 	@Embedded
@@ -231,62 +210,6 @@ public class Message {
 	public void setLanguageCode(String languageCode) {
 		this.languageCode = languageCode;
 	}
-	
-	public Status getContactRegisterStatus() {
-		return contactRegisterStatus;
-	}
-
-	public void setContactRegisterStatus(Status contactRegisterStatus) {
-		this.contactRegisterStatus = contactRegisterStatus;
-	}
-
-	public Reservasjon getReservationStatus() {
-		return reservationStatus;
-	}
-
-	public void setReservationStatus(Reservasjon reservationStatus) {
-		this.reservationStatus = reservationStatus;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getMobile() {
-		return mobile;
-	}
-	
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
-	}
-	
-	public byte[] getPostboxCertificate() {
-		return postboxCertificate;
-	}
-
-	public void setPostboxCertificate(byte[] postboxCertificate) {
-		this.postboxCertificate = postboxCertificate;
-	}
-
-	public String getPostboxAddress() {
-		return postboxAddress;
-	}
-
-	public void setPostboxAddress(String postboxAddress) {
-		this.postboxAddress = postboxAddress;
-	}
-
-	public String getPostboxVendorOrgNumber() {
-		return postboxVendorOrgNumber;
-	}
-
-	public void setPostboxVendorOrgNumber(String postboxVendorOrgNumber) {
-		this.postboxVendorOrgNumber = postboxVendorOrgNumber;
-	}
 
 	public String getConversationId() {
 		return conversationId;
@@ -351,20 +274,20 @@ public class Message {
 	public void setXmlSendMessageResponse(String xmlSendMessageResponse) {
 		this.xmlSendMessageResponse = xmlSendMessageResponse;
 	}
-
-	public MessageStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(MessageStatus status) {
-		this.status = status;
-	}
 	
 	public String getException() {
 		return exception;
 	}
 
-	public void setException(String exception) {
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
+    }
+
+    public void setException(String exception) {
 		this.exception = exception;
 	}
 	
@@ -382,14 +305,6 @@ public class Message {
 
 	public void setAsic(byte[] asice) {
 		this.asic = asice;
-	}
-
-	public boolean getRetrieveContactDetails() {
-		return retrieveContactDetails;
-	}
-
-	public void setRetrieveContactDetails(boolean retrieveContactDetails) {
-		this.retrieveContactDetails = retrieveContactDetails;
 	}
 
 	public boolean getSaveBinaryContent() {

@@ -10,7 +10,6 @@ import no.difi.sdp.webclient.domain.Message;
 import no.difi.sdp.webclient.domain.MessageStatus;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
-import no.difi.sdp.webclient.validation.MessageCommandValidator;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -99,18 +97,18 @@ public class MessageController {
 				messageCommand.setInvoiceReference(message.getInvoiceReference());
 				messageCommand.setLanguageCode(message.getLanguageCode());
 				messageCommand.setPriority(message.getPriority());
-				messageCommand.setRetrieveContactDetails(message.getRetrieveContactDetails());
+				messageCommand.setRetrieveContactDetails(message.getDigitalPost().getRetrieveContactDetails());
 				messageCommand.setDigitalPostCommand(setDigitalPostCommandValues(message.getDigitalPost()));
 				messageCommand.setSenderId(message.getSenderId());
 				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
 				messageCommand.setSsn(message.getSsn());
 				messageCommand.setTitle(message.getDocument().getTitle());
-				messageCommand.setContactRegisterStatus(message.getContactRegisterStatus());
-				messageCommand.setReservationStatus(message.getReservationStatus());
-				messageCommand.setPostboxAddress(message.getPostboxAddress());
-				messageCommand.setPostboxVendorOrgNumber(message.getPostboxVendorOrgNumber());
-				messageCommand.setMobile(message.getMobile());
-				messageCommand.setEmail(message.getEmail());
+				messageCommand.setContactRegisterStatus(message.getDigitalPost().getContactRegisterStatus());
+				messageCommand.setReservationStatus(message.getDigitalPost().getReservationStatus());
+				messageCommand.setPostboxAddress(message.getDigitalPost().getPostboxAddress());
+				messageCommand.setPostboxVendorOrgNumber(message.getDigitalPost().getPostboxVendorOrgNumber());
+				messageCommand.setMobile(message.getDigitalPost().getMobile());
+				messageCommand.setEmail(message.getDigitalPost().getEmail());
 			}
 		}
 		model.addAttribute("messageCommand", messageCommand);
@@ -173,16 +171,16 @@ public class MessageController {
 		setDigitalPostData(digitalPost, messageCommand.getDigitalPostCommand());
 		message.setPriority(messageCommand.getPriority());
 		message.setLanguageCode(messageCommand.getLanguageCode());
-		message.setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
+		message.getDigitalPost().setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
 		message.setSaveBinaryContent(true);
-		if (! message.getRetrieveContactDetails()) {
-			message.setContactRegisterStatus(messageCommand.getContactRegisterStatus());
-			message.setReservationStatus(messageCommand.getReservationStatus());
-			message.setPostboxAddress(messageCommand.getPostboxAddress());
-			message.setPostboxVendorOrgNumber(messageCommand.getPostboxVendorOrgNumber());
-			message.setPostboxCertificate(messageCommand.getPostboxCertificate() == null ? null : messageCommand.getPostboxCertificate().getBytes());
-			message.setMobile(messageCommand.getMobile());
-			message.setEmail(messageCommand.getEmail());
+		if (! message.getDigitalPost().getRetrieveContactDetails()) {
+			message.getDigitalPost().setContactRegisterStatus(messageCommand.getContactRegisterStatus());
+			message.getDigitalPost().setReservationStatus(messageCommand.getReservationStatus());
+			message.getDigitalPost().setPostboxAddress(messageCommand.getPostboxAddress());
+			message.getDigitalPost().setPostboxVendorOrgNumber(messageCommand.getPostboxVendorOrgNumber());
+			message.getDigitalPost().setPostboxCertificate(messageCommand.getPostboxCertificate() == null ? null : messageCommand.getPostboxCertificate().getBytes());
+			message.getDigitalPost().setMobile(messageCommand.getMobile());
+			message.getDigitalPost().setEmail(messageCommand.getEmail());
 		}
 		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
@@ -280,12 +278,12 @@ public class MessageController {
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/postboxcertificate")
 	public void download_message_postboxcertificate(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
 		Message message = messageService.getMessage(id);
-		if (message == null || message.getPostboxCertificate() == null) {
+		if (message == null || message.getDigitalPost().getPostboxCertificate() == null) {
 			throw new NotFoundException();
 		}
 		response.addHeader("Content-Disposition", "attachment; filename=\"message-" + message.getId() + "-postboxcertificate.cer\"");
 		response.setContentType("application/x-x509-ca-cert");
-		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getPostboxCertificate()));
+		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getDigitalPost().getPostboxCertificate()));
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
 	
@@ -381,21 +379,21 @@ public class MessageController {
         document.setMimetype("application/pdf");
         document.setTitle("Brev til " + ssn + " " + new Date());
         message.setDocument(document);
-        message.setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
+        message.getDigitalPost().setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
         message.setSaveBinaryContent(false);
-        if (! message.getRetrieveContactDetails()) {
+        if (! message.getDigitalPost().getRetrieveContactDetails()) {
         	// Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
-        	message.setContactRegisterStatus(Status.AKTIV);
-        	message.setReservationStatus(Reservasjon.NEI);
-        	message.setPostboxAddress(postboxAddress);
+        	message.getDigitalPost().setContactRegisterStatus(Status.AKTIV);
+        	message.getDigitalPost().setReservationStatus(Reservasjon.NEI);
+        	message.getDigitalPost().setPostboxAddress(postboxAddress);
         	switch (postboxVendor) {
 				case DIGIPOST:
-					message.setPostboxVendorOrgNumber(environment.getProperty("performancetest.digipost.orgnr"));
-		        	message.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.digipost.postbox.certificate")));
+					message.getDigitalPost().setPostboxVendorOrgNumber(environment.getProperty("performancetest.digipost.orgnr"));
+		        	message.getDigitalPost().setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.digipost.postbox.certificate")));
 					break;
 				case EBOKS:
-					message.setPostboxVendorOrgNumber(environment.getProperty("performancetest.eboks.orgnr"));
-		        	message.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.eboks.postbox.certificate")));
+					message.getDigitalPost().setPostboxVendorOrgNumber(environment.getProperty("performancetest.eboks.orgnr"));
+		        	message.getDigitalPost().setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.eboks.postbox.certificate")));
 					break;
 				default:
 					throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());

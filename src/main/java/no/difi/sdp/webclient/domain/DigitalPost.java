@@ -1,5 +1,7 @@
 package no.difi.sdp.webclient.domain;
 
+import no.difi.begrep.Reservasjon;
+import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 
 import javax.persistence.*;
@@ -14,6 +16,8 @@ import java.util.Date;
 @Embeddable
 public class DigitalPost {
 
+    @Enumerated(EnumType.STRING)
+    private Status contactRegisterStatus;
 
     @NotNull
     @Size(min = 1)
@@ -37,11 +41,35 @@ public class DigitalPost {
     @Temporal(TemporalType.TIMESTAMP)
     private Date delayedAvailabilityDate;
 
+    private boolean retrieveContactDetails;
+
+    @Enumerated(EnumType.STRING)
+    private Reservasjon reservationStatus;
+
+    private String postboxVendorOrgNumber;
+
+    private String postboxAddress;
+
+    @Lob
+    private byte[] postboxCertificate;
+
+    private String mobile;
+
+    private String email;
+
     public DigitalPost() {
     }
 
     public DigitalPost(String insensitiveTitle) {
         this.insensitiveTitle = insensitiveTitle;
+    }
+
+    public Status getContactRegisterStatus() {
+        return contactRegisterStatus;
+    }
+
+    public void setContactRegisterStatus(Status contactRegisterStatus) {
+        this.contactRegisterStatus = contactRegisterStatus;
     }
 
     public String getInsensitiveTitle() {
@@ -108,5 +136,59 @@ public class DigitalPost {
         this.delayedAvailabilityDate = delayedAvailabilityDate;
     }
 
+    public boolean getRetrieveContactDetails() {
+        return retrieveContactDetails;
+    }
 
+    public void setRetrieveContactDetails(boolean retrieveContactDetails) {
+        this.retrieveContactDetails = retrieveContactDetails;
+    }
+
+    public Reservasjon getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public void setReservationStatus(Reservasjon reservationStatus) {
+        this.reservationStatus = reservationStatus;
+    }
+
+    public String getPostboxVendorOrgNumber() {
+        return postboxVendorOrgNumber;
+    }
+
+    public void setPostboxVendorOrgNumber(String postboxVendorOrgNumber) {
+        this.postboxVendorOrgNumber = postboxVendorOrgNumber;
+    }
+
+    public String getPostboxAddress() {
+        return postboxAddress;
+    }
+
+    public void setPostboxAddress(String postboxAddress) {
+        this.postboxAddress = postboxAddress;
+    }
+
+    public byte[] getPostboxCertificate() {
+        return postboxCertificate;
+    }
+
+    public void setPostboxCertificate(byte[] postboxCertificate) {
+        this.postboxCertificate = postboxCertificate;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
