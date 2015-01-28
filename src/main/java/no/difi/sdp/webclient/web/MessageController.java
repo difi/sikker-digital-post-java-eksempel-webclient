@@ -4,10 +4,7 @@ import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
-import no.difi.sdp.webclient.domain.DigitalPost;
-import no.difi.sdp.webclient.domain.Document;
-import no.difi.sdp.webclient.domain.Message;
-import no.difi.sdp.webclient.domain.MessageStatus;
+import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
 import org.apache.commons.codec.binary.Base64;
@@ -129,6 +126,16 @@ public class MessageController {
 		return digitalPostCommand;
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/utskrift", produces = "text/html")
+	public String show_print_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
+		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.FYSISK);
+		model.addAttribute("messageCommand", messageCommand);
+		model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
+		model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
+		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+		return "print_message_page";
+	}
+
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")
 	public String send_message(@Validated @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
 		validateUserSpecifiedContactDetails(messageCommand, bindingResult);
@@ -139,7 +146,7 @@ public class MessageController {
 			model.addAttribute("errors", bindingResult);
 			return "send_message_page";
 		}
-		Message message = new Message();
+		Message message = new Message(messageCommand.isDigitalPost());
 		message.setSsn(messageCommand.getSsn());
 		DigitalPost digitalPost = new DigitalPost(messageCommand.getDigitalPostCommand().getInsensitiveTitle());
 		message.setDigitalPost(digitalPost);

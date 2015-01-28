@@ -98,7 +98,14 @@ public class Message {
 
     @NotNull
     private boolean digital;
-	
+
+	public Message() {
+	}
+
+	public Message(boolean digital) {
+		this.digital = digital;
+	}
+
 	public Long getId() {
 		return id;
 	}
