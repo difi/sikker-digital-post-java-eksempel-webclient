@@ -114,23 +114,25 @@ public class MessageService {
         	return;
         }
     	Person person = hentPersonerRespons.getPerson().get(0);
-    	message.setContactRegisterStatus(person.getStatus());
+    	message.getDigitalPost().setContactRegisterStatus(person.getStatus());
         Reservasjon reservasjon = person.getReservasjon();
         if (reservasjon != null) {
-        	message.setReservationStatus(person.getReservasjon());
+        	message.getDigitalPost().setReservationStatus(person.getReservasjon());
         }
         SikkerDigitalPostAdresse sikkerDigitalPostAdresse = person.getSikkerDigitalPostAdresse();
         if (sikkerDigitalPostAdresse != null) {
-        	message.setPostboxAddress(sikkerDigitalPostAdresse.getPostkasseadresse());
-            message.setPostboxVendorOrgNumber(sikkerDigitalPostAdresse.getPostkasseleverandoerAdresse());
+        	message.getDigitalPost().setPostboxAddress(sikkerDigitalPostAdresse.getPostkasseadresse());
+            message.getDigitalPost().setPostboxVendorOrgNumber(sikkerDigitalPostAdresse.getPostkasseleverandoerAdresse());
         }
-        message.setPostboxCertificate(person.getX509Sertifikat());
-        Kontaktinformasjon kontaktinformasjon = person.getKontaktinformasjon();
+
+        message.getDigitalPost().setPostboxCertificate(person.getX509Sertifikat());
+        Kontaktinformasjon kontaktinformasjon = person.getKontaktinformasjon();    
+
     	if (kontaktinformasjon != null && kontaktinformasjon.getEpostadresse() != null) {
-    		message.setEmail(kontaktinformasjon.getEpostadresse().getValue());
+    		message.getDigitalPost().setEmail(kontaktinformasjon.getEpostadresse().getValue());
     	}
     	if (kontaktinformasjon != null && kontaktinformasjon.getMobiltelefonnummer() != null) {
-        	message.setMobile(kontaktinformasjon.getMobiltelefonnummer().getValue());
+        	message.getDigitalPost().setMobile(kontaktinformasjon.getMobiltelefonnummer().getValue());
         }
     }
 
@@ -142,10 +144,10 @@ public class MessageService {
     }
 
     private EpostVarsel buildEpostVarsel(Message message) {
-    	if (message.getDigitalPost().getEmailNotification() == null || message.getEmail() == null) {
+    	if (message.getDigitalPost().getEmailNotification() == null || message.getDigitalPost().getEmail() == null) {
     		return null;
     	}
-        EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getEmail(), message.getDigitalPost().getEmailNotification());
+        EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getDigitalPost().getEmail(), message.getDigitalPost().getEmailNotification());
         if (message.getDigitalPost().getEmailNotificationSchedule() != null) {
         	epostVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getEmailNotificationSchedule()));
         }
@@ -153,10 +155,10 @@ public class MessageService {
     }
 
     private SmsVarsel buildSmsVarsel(Message message) {
-    	if (message.getDigitalPost().getMobileNotification() == null || message.getMobile() == null) {
+    	if (message.getDigitalPost().getMobileNotification() == null || message.getDigitalPost().getMobile() == null) {
     		return null;
     	}
-    	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getMobile(), message.getDigitalPost().getMobileNotification());
+    	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getDigitalPost().getMobile(), message.getDigitalPost().getMobileNotification());
     	if (message.getDigitalPost().getMobileNotificationSchedule() != null) {
     		smsVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getMobileNotificationSchedule()));
     	}
@@ -164,14 +166,14 @@ public class MessageService {
     }
 
     private Sertifikat buildSertifikat(Message message) {
-    	X509Certificate x509Certificate = cryptoUtil.loadX509Certificate(message.getPostboxCertificate());
+    	X509Certificate x509Certificate = cryptoUtil.loadX509Certificate(message.getDigitalPost().getPostboxCertificate());
     	return Sertifikat.fraCertificate(x509Certificate);
     }
 
     private Mottaker buildMottaker(Message message) {
     	Sertifikat sertifikat = buildSertifikat(message);
     	return Mottaker
-    			.builder(message.getSsn(), message.getPostboxAddress(), sertifikat, message.getPostboxVendorOrgNumber())
+    			.builder(message.getSsn(), message.getDigitalPost().getPostboxAddress(), sertifikat, message.getDigitalPost().getPostboxVendorOrgNumber())
     			.build();
     }
 
@@ -308,7 +310,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     public void sendMessage(Message message)  {
     	message.setDate(new Date());
     	try {
-    		if (message.getRetrieveContactDetails()) {
+    		if (message.getDigitalPost().getRetrieveContactDetails()) {
     			retrieveContactDetailsFromOppslagstjeneste(message);
     		}
     		sendMessageToMeldingsformidler(message);
@@ -355,11 +357,11 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Forsendelse forsendelse = null;
 
         if (message.isDigital()){
-            if (! message.getContactRegisterStatus().equals(Status.AKTIV)) {
+            if (! message.getDigitalPost().getContactRegisterStatus().equals(Status.AKTIV)) {
                 throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har ikke status som aktiv i kontaktregisteret.");
             }
 
-            if (message.getPostboxAddress() == null || message.getPostboxVendorOrgNumber() == null || message.getPostboxCertificate() == null) {
+            if (message.getDigitalPost().getPostboxAddress() == null || message.getDigitalPost().getPostboxVendorOrgNumber() == null || message.getDigitalPost().getPostboxCertificate() == null) {
                 throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker mangler postboksadresse, postboksleverandør eller postbokssertifikat i kontaktregisteret.");
             }
     	// In most (but not all) scenarios the check below should be included
