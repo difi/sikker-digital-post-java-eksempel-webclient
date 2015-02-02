@@ -303,7 +303,12 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements A
     public KeyStore keyStore() {
     	return cryptoUtil().loadKeystore(environment.getProperty("sdp.databehandler.keystore.type"), environment.getProperty("sdp.databehandler.keystore.file"), environment.getProperty("sdp.databehandler.keystore.password"));
     }
-    
+
+	@Bean
+    public KeyStore keyStoreTekniskMottaker() {
+    	return cryptoUtil().loadKeystore(environment.getProperty("sdp.tekniskmottaker.keystore.type"), environment.getProperty("sdp.tekniskmottaker.keystore.file"), environment.getProperty("sdp.tekniskmottaker.keystore.password"));
+    }
+
     @Bean
     public KlientKonfigurasjon klientKonfigurasjon() {
     	return KlientKonfigurasjon.builder()

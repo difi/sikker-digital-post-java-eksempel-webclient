@@ -27,7 +27,8 @@ public class FysiskPostCommand {
     @NotNull
     private KonvoluttAdresse returadresse;
 
-    private TekniskMottaker utskriftsleverandoer;
+    @NotNull
+    private String utskriftsleverandoer;
 
     public Posttype getPosttype() {
         return posttype;
@@ -69,11 +70,11 @@ public class FysiskPostCommand {
         this.returadresse = returadresse;
     }
 
-    public TekniskMottaker getUtskriftsleverandoer() {
+    public String getUtskriftsleverandoer() {
         return utskriftsleverandoer;
     }
 
-    public void setUtskriftsleverandoer(TekniskMottaker utskriftsleverandoer) {
+    public void setUtskriftsleverandoer(String utskriftsleverandoer) {
         this.utskriftsleverandoer = utskriftsleverandoer;
     }
 }

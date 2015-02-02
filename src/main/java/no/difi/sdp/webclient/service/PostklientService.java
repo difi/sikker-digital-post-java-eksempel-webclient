@@ -24,7 +24,10 @@ public class PostklientService {
 
 	@Autowired
 	private KeyStore keyStore;
-	
+
+	@Autowired
+	private KeyStore keyStoreTekniskMottaker;
+
 	@Autowired
 	private CryptoUtil cryptoUtil;
 	
@@ -111,5 +114,9 @@ public class PostklientService {
 	public List<String> getKeypairAliases() {
 		return cryptoUtil.getKeypairAliases(keyStore);
 	}
-	
+
+	public List<String> getKeyStoreTekniskMottakerAliases() {
+		return cryptoUtil.getKeypairAliases(keyStoreTekniskMottaker);
+	}
+
 }

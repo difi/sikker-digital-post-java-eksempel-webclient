@@ -30,6 +30,31 @@
                         <input name="fysiskPostCommand.adressat.navn" id="navn" type="text" class="form-control" autocomplete="off" placeholder="Navn" value="${messageCommand.fysiskPostCommand.adressat.navn}" />
                     </div>
                 </div>
+                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje1') ? 'has-error' : ''}">
+                    <form:label path="fysiskPostCommand.adressat.adresselinje1" cssClass="col-sm-2 control-label">Adresselinje 1<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+                    <div class="col-sm-10">
+                        <input name="fysiskPostCommand.adressat.adresselinje1" id="adresselinje1" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 1" value="${messageCommand.fysiskPostCommand.adressat.adresselinje1}" />
+                    </div>
+                </div>
+                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje2') ? 'has-error' : ''}">
+                    <form:label path="fysiskPostCommand.adressat.adresselinje2" cssClass="col-sm-2 control-label">Adresselinje 2<br /></form:label>
+                    <div class="col-sm-10">
+                        <input name="fysiskPostCommand.adressat.adresselinje2" id="adresselinje2" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 2" value="${messageCommand.fysiskPostCommand.adressat.adresselinje2}" />
+                    </div>
+                </div>
+                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje3') ? 'has-error' : ''}">
+                    <form:label path="fysiskPostCommand.adressat.adresselinje3" cssClass="col-sm-2 control-label">Adresselinje 3<br /></form:label>
+                    <div class="col-sm-10">
+                        <input name="fysiskPostCommand.adressat.adresselinje3" id="adresselinje3" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 3" value="${messageCommand.fysiskPostCommand.adressat.adresselinje3}" />
+                    </div>
+                </div>
+                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje4') ? 'has-error' : ''}">
+                    <form:label path="fysiskPostCommand.adressat.adresselinje4" cssClass="col-sm-2 control-label">Adresselinje 4<br /></form:label>
+                    <div class="col-sm-10">
+                        <input name="fysiskPostCommand.adressat.adresselinje4" id="adresselinje4" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 4" value="${messageCommand.fysiskPostCommand.adressat.adresselinje4}" />
+                    </div>
+                </div>
+
                 <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.postnummer') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.postnummer" cssClass="col-sm-2 control-label">Postnummer</form:label>
                     <div class="col-sm-10">
@@ -48,6 +73,13 @@
                         <input name="fysiskPostCommand.adressat.land" id="land" type="text" class="form-control" autocomplete="off" placeholder="Land" value="${messageCommand.fysiskPostCommand.adressat.land}"/>
                     </div>
                 </div>
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.landkode') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.adressat.landkode" cssClass="col-sm-2 control-label">Landkode</form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.adressat.landkode" id="landkode" type="text" class="form-control" autocomplete="off" placeholder="To-bokstavs landkode ihht ISO 3166-1 alpha-2 standarden" value="${messageCommand.fysiskPostCommand.adressat.landkode}"/>
+                            <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO 3166-1 alpha-2 standarden</a>
+                        </div>
+                    </div>
             </div>
         </div>
         <div class="form-group ${errors.hasFieldErrors('title') ? 'has-error' : ''}">
@@ -78,8 +110,8 @@
             <form:label path="fysiskPostCommand.posttype" cssClass="col-sm-2 control-label">Posttype<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
 
-                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeA" value="${posttypeAText}" checked="checked"/> A prioritet</label>
-                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeB" value="${posttypeBText}" /> B prioritet</label>
+                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeA" value="${posttypeAText}" /> A prioritet</label>
+                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeB" value="${posttypeBText}" checked="checked"/> B prioritet</label>
             </div>
         </div>
 
@@ -97,8 +129,8 @@
             <form:label path="fysiskPostCommand.returhaandtering" cssClass="col-sm-2 control-label">Returhaandtering<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
 
-                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandtering" value="DIREKTE_RETUR" checked="checked"/> Direkte retur</label>
-                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandtering" value="MAKULERING_MED_MELDING" /> Makulering med melding</label>
+                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandtering" value="DIREKTE_RETUR"/> Direkte retur</label>
+                <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandtering" value="MAKULERING_MED_MELDING" checked="checked"/> Makulering med melding</label>
             </div>
         </div>
         <div class="panel panel-default">
@@ -110,6 +142,30 @@
                         <input name="fysiskPostCommand.returadresse.navn" id="returNavn" type="text" class="form-control" autocomplete="off" placeholder="Navn" value="${messageCommand.fysiskPostCommand.returadresse.navn}" />
                     </div>
                 </div>
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje1') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.adresselinje1" cssClass="col-sm-2 control-label">Adresselinje 1<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.returadresse.adresselinje1" id="returAdresselinje1" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 1" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje1}" />
+                        </div>
+                    </div>
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje2') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.adresselinje2" cssClass="col-sm-2 control-label">Adresselinje 2<br /></form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.returadresse.adresselinje2" id="returAdresselinje2" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 2" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje2}" />
+                        </div>
+                    </div>
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje3') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.adresselinje3" cssClass="col-sm-2 control-label">Adresselinje 3<br /></form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.returadresse.adresselinje3" id="returAdresselinje3" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 3" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje3}" />
+                        </div>
+                    </div>
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje4') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.adresselinje4" cssClass="col-sm-2 control-label">Adresselinje 4<br /></form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.returadresse.adresselinje4" id="returAdresselinje4" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 4" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje4}" />
+                        </div>
+                    </div>
                     <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.postnummer') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.postnummer" cssClass="col-sm-2 control-label">Postnummer</form:label>
                         <div class="col-sm-10">
@@ -128,7 +184,30 @@
                             <input name="fysiskPostCommand.returadresse.land" id="returLand" type="text" class="form-control" autocomplete="off" placeholder="Land" value="${messageCommand.fysiskPostCommand.returadresse.land}"/>
                         </div>
                     </div>
-                    
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.landkode') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.landkode" cssClass="col-sm-2 control-label">Landkode</form:label>
+                        <div class="col-sm-10">
+                            <input name="fysiskPostCommand.returadresse.landkode" id="returLandkode" type="text" class="form-control" autocomplete="off" placeholder="To-bokstavs landkode ihht ISO 3166-1 alpha-2 standarden" value="${messageCommand.fysiskPostCommand.returadresse.landkode}"/>
+                            <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO 3166-1 alpha-2 standarden</a>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.utskriftsleverandoer') ? 'has-error' : ''}">
+            <form:label path="fysiskPostCommand.utskriftsleverandoer" cssClass="col-sm-2 control-label">Teknisk mottaker<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+            <div class="col-sm-10">
+                <select class="form-control" name="fysiskPostCommand.utskriftsleverandoer" id="utskriftsleverandoer">
+                    <c:forEach items="${keyPairTekniskMottakerAliases}" var="keyPairTekniskMottakerAlias">
+                        <c:choose>
+                            <c:when test="${keyPairTekniskMottakerAlias == messageCommand.fysiskPostCommand.utskriftsleverandoer}">
+                                <option selected="selected" value="${keyPairTekniskMottakerAlias}">${keyPairTekniskMottakerAlias}</option>
+                            </c:when>
+                            <c:otherwise>
+                                <option value="${keyPairTekniskMottakerAlias}">${keyPairTekniskMottakerAlias}</option>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </select>
             </div>
         </div>
         <div class="form-group ${errors.hasFieldErrors('keyPairAlias') ? 'has-error' : ''}">

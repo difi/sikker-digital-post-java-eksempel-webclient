@@ -135,6 +135,7 @@ public class MessageController {
 		model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
 		model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
 		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
 		return "print_message_page";
 	}
 

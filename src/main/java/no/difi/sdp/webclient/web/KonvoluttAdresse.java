@@ -3,8 +3,6 @@ package no.difi.sdp.webclient.web;
 import com.sun.istack.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  *
  */
@@ -18,7 +16,10 @@ public class KonvoluttAdresse {
     @NotNull
     private String navn;
 
-    private List<String> adresselinjer;
+    private String adresselinje1;
+    private String adresselinje2;
+    private String adresselinje3;
+    private String adresselinje4;
 
     private String postnummer;
     private String poststed;
@@ -42,12 +43,36 @@ public class KonvoluttAdresse {
         this.navn = navn;
     }
 
-    public List<String> getAdresselinjer() {
-        return adresselinjer;
+    public String getAdresselinje1() {
+        return adresselinje1;
     }
 
-    public void setAdresselinjer(List<String> adresselinjer) {
-        this.adresselinjer = adresselinjer;
+    public void setAdresselinje1(String adresselinje1) {
+        this.adresselinje1 = adresselinje1;
+    }
+
+    public String getAdresselinje2() {
+        return adresselinje2;
+    }
+
+    public void setAdresselinje2(String adresselinje2) {
+        this.adresselinje2 = adresselinje2;
+    }
+
+    public String getAdresselinje3() {
+        return adresselinje3;
+    }
+
+    public void setAdresselinje3(String adresselinje3) {
+        this.adresselinje3 = adresselinje3;
+    }
+
+    public String getAdresselinje4() {
+        return adresselinje4;
+    }
+
+    public void setAdresselinje4(String adresselinje4) {
+        this.adresselinje4 = adresselinje4;
     }
 
     public String getPostnummer() {
