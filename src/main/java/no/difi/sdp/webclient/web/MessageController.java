@@ -5,6 +5,7 @@ import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.*;
+import no.difi.sdp.webclient.domain.TekniskMottaker;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
 import org.apache.commons.codec.binary.Base64;
@@ -32,11 +33,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 @Controller
 public class MessageController {
@@ -151,34 +149,8 @@ public class MessageController {
 		message.setSsn(messageCommand.getSsn());
 		DigitalPost digitalPost = new DigitalPost(messageCommand.getDigitalPostCommand().getInsensitiveTitle());
 		message.setDigitalPost(digitalPost);
-		Document document = new Document();
-		document.setTitle(messageCommand.getTitle());
-		document.setContent(messageCommand.getDocument().getBytes());
-		document.setFilename(messageCommand.getDocument().getOriginalFilename());
-		document.setMimetype(messageCommand.getDocument().getContentType());
-		message.setDocument(document);
-		Set<Document> attachments = new HashSet<Document>();
-		if (messageCommand.getAttachments() != null) {
-			for (MultipartFile multipartFile : messageCommand.getAttachments()) {
-				if (! multipartFile.isEmpty()) {
-					Document attachment = new Document();
-					attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
-					attachment.setContent(multipartFile.getBytes());
-					attachment.setFilename(multipartFile.getOriginalFilename());
-					attachment.setMimetype(multipartFile.getContentType());
-					attachment.setMessage(message);
-					attachments.add(attachment);
-				}
-			}
-		}
-		message.setAttachments(attachments);
-		message.setSenderOrgNumber(messageCommand.getSenderOrgNumber());
-		message.setSenderId(messageCommand.getSenderId());
-		message.setInvoiceReference(messageCommand.getInvoiceReference());
-		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
+		setCommonMessageAttributes(messageCommand, request, message);
 		setDigitalPostData(digitalPost, messageCommand.getDigitalPostCommand());
-		message.setPriority(messageCommand.getPriority());
-		message.setLanguageCode(messageCommand.getLanguageCode());
 		message.getDigitalPost().setRetrieveContactDetails(messageCommand.getRetrieveContactDetails());
 		message.setSaveBinaryContent(true);
 		if (! message.getDigitalPost().getRetrieveContactDetails()) {
@@ -192,6 +164,88 @@ public class MessageController {
 		}
 		messageService.sendMessage(message);
 		return "redirect:/client/messages/" + message.getId();
+	}
+
+	private Set<Document> getAttachments(MessageCommand messageCommand, HttpServletRequest request, Message message) throws IOException {
+		Set<Document> attachments = new HashSet<>();
+		if (messageCommand.getAttachments() != null) {
+			for (MultipartFile multipartFile : messageCommand.getAttachments()) {
+				if (! multipartFile.isEmpty()) {
+					Document attachment = new Document();
+					attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
+					attachment.setContent(multipartFile.getBytes());
+					attachment.setFilename(multipartFile.getOriginalFilename());
+					attachment.setMimetype(multipartFile.getContentType());
+					attachment.setMessage(message);
+					attachments.add(attachment);
+				}
+			}
+		}
+		return attachments;
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/printmessages")
+	public String send_print_message(@Validated @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
+		messageValidator.validate(messageCommand, bindingResult);
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("messageCommand", messageCommand);
+			model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
+			model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
+			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+			model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
+			return "print_message_page";
+		}
+		Message message = new Message(messageCommand.isDigitalPost());
+//		message.setSsn(messageCommand.getSsn());
+
+		final FysiskPostCommand fysiskPostCommand = messageCommand.getFysiskPostCommand();
+		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = convertAdresse(fysiskPostCommand.getAdressat());
+		no.difi.sdp.webclient.domain.KonvoluttAdresse returAdresse = convertAdresse(fysiskPostCommand.getReturadresse());
+		FysiskPost fysiskPost = new FysiskPost(fysiskPostCommand.getPosttype(), fysiskPostCommand.getUtskriftsfarge(), fysiskPostCommand.getReturhaandtering(), adressat, returAdresse);
+//		fysiskPost.setUtskriftsleverandoer(new TekniskMottaker(fysiskPostCommand.getUtskriftsleverandoer()));
+		message.setFysiskPost(fysiskPost);
+		setCommonMessageAttributes(messageCommand, request, message);
+		messageService.sendMessage(message);
+
+		return "redirect:/client/messages/" + message.getId();
+	}
+
+	private void setCommonMessageAttributes(MessageCommand messageCommand, HttpServletRequest request, Message message) throws IOException {
+		message.setDocument(getDocument(messageCommand));
+		message.setAttachments(getAttachments(messageCommand, request, message));
+		message.setSenderOrgNumber(messageCommand.getSenderOrgNumber());
+		message.setSenderId(messageCommand.getSenderId());
+		message.setInvoiceReference(messageCommand.getInvoiceReference());
+		message.setKeyPairAlias(messageCommand.getKeyPairAlias());
+		message.setPriority(messageCommand.getPriority());
+		message.setLanguageCode(messageCommand.getLanguageCode());
+	}
+
+	private no.difi.sdp.webclient.domain.KonvoluttAdresse convertAdresse(KonvoluttAdresse adressatInput) {
+
+		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
+		adressat.setType(adressatInput.getType()== KonvoluttAdresse.Type.NORSK ? no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK : no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK);
+		List<String> adresse = new ArrayList<>(4);
+		adresse.add(adressatInput.getAdresselinje1());
+		adresse.add(adressatInput.getAdresselinje2());
+		adresse.add(adressatInput.getAdresselinje3());
+		adresse.add(adressatInput.getAdresselinje4());
+		adressat.setAdresselinjer(adresse);
+		adressat.setNavn(adressatInput.getNavn());
+		adressat.setPostnummer(adressatInput.getPostnummer());
+		adressat.setPoststed(adressatInput.getPostnummer());
+		adressat.setLand(adressatInput.getLand());
+		adressat.setLandkode(adressatInput.getLandkode());
+		return adressat;
+	}
+
+	private Document getDocument(MessageCommand messageCommand) throws IOException {
+		Document document = new Document();
+		document.setTitle(messageCommand.getTitle());
+		document.setContent(messageCommand.getDocument().getBytes());
+		document.setFilename(messageCommand.getDocument().getOriginalFilename());
+		document.setMimetype(messageCommand.getDocument().getContentType());
+		return document;
 	}
 
 	private void setDigitalPostData(DigitalPost digitalPost, DigitalPostCommand digitalPostCommand) {
@@ -324,9 +378,9 @@ public class MessageController {
         InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(filename);
         byte[] PDF = IOUtils.toByteArray(pdfInputStream);
         Document attachment = new Document();
-        attachment.setTitle("Testpdf " + filename);
+		attachment.setTitle("Testpdf " + filename);
         attachment.setContent(PDF);
-        attachment.setFilename(filename);
+		attachment.setFilename(filename);
         attachment.setMimetype("application/pdf");
         attachment.setMessage(message);
         return attachment;

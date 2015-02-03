@@ -13,7 +13,7 @@
 
     <jsp:include page="menu.jsp"><jsp:param name="printActive" value="active"/></jsp:include>
 
-    <form:form method="POST" action="messages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">
+    <form:form method="POST" action="printmessages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">
         <input name="type" id="type" type="hidden" value="${messageCommand.type}"/>
         <div class="panel panel-default">
             <div class="panel-heading">Adressat</div>

@@ -39,11 +39,11 @@ public class FysiskPost {
     @Embedded
     private TekniskMottaker utskriftsleverandoer;
 
-    public void FysiskPost(){
+    public FysiskPost(){
 
     }
 
-    public void FysiskPost(Posttype posttype, Utskriftsfarge utskriftsfarge, Returhaandtering returhaandtering, KonvoluttAdresse adressat, KonvoluttAdresse returadresse){
+    public FysiskPost(final Posttype posttype, final Utskriftsfarge utskriftsfarge, final Returhaandtering returhaandtering, final KonvoluttAdresse adressat, final KonvoluttAdresse returadresse){
         this.posttype = posttype;
         this.utskriftsfarge = utskriftsfarge;
         this.returhaandtering = returhaandtering;
