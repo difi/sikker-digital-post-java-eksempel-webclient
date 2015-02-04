@@ -106,6 +106,16 @@ public class Message {
 		this.digital = digital;
 	}
 
+    public Message(DigitalPost digitalPost){
+        this.digitalPost = digitalPost;
+        this.digital = true;
+    }
+
+    public Message(FysiskPost fysiskPost){
+        this.fysiskPost = fysiskPost;
+        this.digital = false;
+    }
+
 	public Long getId() {
 		return id;
 	}
