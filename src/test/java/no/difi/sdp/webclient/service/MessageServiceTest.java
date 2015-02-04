@@ -1,20 +1,26 @@
 package no.difi.sdp.webclient.service;
 
+import no.difi.begrep.Status;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
 import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.domain.Noekkelpar;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.TekniskAvsender;
+import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
+import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.webclient.configuration.util.Holder;
+import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.Configuration;
 import no.difi.sdp.webclient.domain.DigitalPost;
+import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
+import no.difi.sdp.webclient.repository.DocumentRepository;
 import no.difi.sdp.webclient.repository.MessageRepository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,7 +31,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -33,9 +43,6 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(classes = {SdpClientConfiguration.class})
 @WebAppConfiguration
 public class MessageServiceTest {
-
-//    @Mock
-//    Message message;
 
     @InjectMocks
     private MessageService service;
@@ -73,6 +80,24 @@ public class MessageServiceTest {
     @Mock
     private HentPersonerForespoersel hentPersonerForespoersel;
 
+    @Mock
+    private CryptoUtil cryptoUtil;
+
+    @Mock
+    private X509Certificate x509Certificate;
+
+    @Mock
+    private Holder<Date> postKlientSoapRequestSentDate;
+
+    @Mock
+    private Holder<Date> postKlientSoapResponseReceivedDate;
+
+    @Mock
+    private StringUtil stringUtil;
+
+    @Mock
+    private DocumentRepository documentRepository;
+
     @Before
     public void runBeforeEachTest(){
         MockitoAnnotations.initMocks(this);
@@ -99,7 +124,7 @@ public class MessageServiceTest {
         Long id = new Long(123);
 
         service.getDocument(id);
-        verify(messageRepository, times(1)).getOne(id);
+        verify(documentRepository, times(1)).findOne(id);
     }
 
     @Test
@@ -109,7 +134,7 @@ public class MessageServiceTest {
 
         service.getReceipts(Prioritet.NORMAL);
         verify(messageRepository, times(1)).waitingClients();
-        verify(postklientService, never());
+        verify(postklientService, never()).get(any());
     }
 
     @Test
@@ -133,32 +158,51 @@ public class MessageServiceTest {
     }
 
     @Test
-    @Ignore
     public void test_send_message_digital_do_not_use_oppslagstjeneste() {
 
-        Message message = new Message();
+        when(configuration.getMessagePartitionChannel()).thenReturn("MessagePartitionChannel");
+        when(configurationService.getConfiguration()).thenReturn(configuration);
+        when(cryptoUtil.loadX509Certificate(any())).thenReturn(x509Certificate);
+        when(postklientService.get(any())).thenReturn(sikkerDigitalPostKlient);
+        when(postKlientSoapRequestSentDate.getValue()).thenReturn(new Date());
+        when(postKlientSoapResponseReceivedDate.getValue()).thenReturn(new Date());
+        when(stringUtil.nullIfEmpty(anyString())).thenReturn("");
+
         DigitalPost digitalPost = new DigitalPost("tittel");
         digitalPost.setRetrieveContactDetails(false);
+        digitalPost.setContactRegisterStatus(Status.AKTIV);
+        digitalPost.setPostboxAddress("PostboxAdress");
+        digitalPost.setPostboxVendorOrgNumber("PostboxVendorOrgNumber");
+        digitalPost.setPostboxCertificate(new byte[] {(byte) 0xe7, 0x4f});
+        digitalPost.setInsensitiveTitle("Insensitive Tittel");
+        digitalPost.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        digitalPost.setRequiresMessageOpenedReceipt(false);
+        digitalPost.setDelayedAvailabilityDate(new Date());
 
-        message.setDigitalPost(digitalPost);
+        Document document = new Document();
+        document.setContent(new byte[]{0x2d, 0x2d});
+        document.setFilename("Document filename");
+        document.setId(new Long(123));
+
+        Message message = new Message(digitalPost);
+        message.setSenderOrgNumber("SenderOrgNummer");
+        message.setSenderId("SenderId");
+        message.setInvoiceReference("InvoiceReference");
+        message.setPriority(Prioritet.NORMAL);
+        message.setLanguageCode("Language");
+        message.setDocument(document);
+        Set<Document> documentSet = new HashSet<>();
+
+        message.setAttachments(documentSet);
 
         service.sendMessage(message);
-        verify(hentPersonerForespoersel.getInformasjonsbehov(), never());
-        verify(hentPersonerForespoersel.getPersonidentifikator(), never());
-        verify(messageRepository.save(any(Message.class)));
 
-
-        /*doThrow(new Exception());
-        Message message = new Message();
-        message.setDigitalPost(new DigitalPost("tittel"));
-        service.sendMessage(message);
-        verify(mockedMessageRepository).save(any(Message.class));
-*/
-
+        verify(hentPersonerForespoersel, never()).getInformasjonsbehov();
+        verify(hentPersonerForespoersel, never()).getPersonidentifikator();
+        verify(messageRepository, times(2)).save(message);
+        verify(sikkerDigitalPostKlient).send(any());
 
     }
-
-
 
     @Autowired
 	private MessageService messageService;
