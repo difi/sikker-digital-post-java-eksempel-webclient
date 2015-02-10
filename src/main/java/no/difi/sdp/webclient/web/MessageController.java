@@ -132,6 +132,9 @@ public class MessageController {
 		model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
 		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
+
+		// TODO: handle copy message
+		
 		return "print_message_page";
 	}
 
@@ -202,7 +205,7 @@ public class MessageController {
 		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = convertAdresse(fysiskPostCommand.getAdressat());
 		no.difi.sdp.webclient.domain.KonvoluttAdresse returAdresse = convertAdresse(fysiskPostCommand.getReturadresse());
 		FysiskPost fysiskPost = new FysiskPost(fysiskPostCommand.getPosttype(), fysiskPostCommand.getUtskriftsfarge(), fysiskPostCommand.getReturhaandtering(), adressat, returAdresse);
-//		fysiskPost.setUtskriftsleverandoer(new TekniskMottaker(fysiskPostCommand.getUtskriftsleverandoer()));
+		fysiskPost.setUtskriftsleverandoer(postklientService.createTekniskMottaker(fysiskPostCommand.getUtskriftsleverandoer()));
 		message.setFysiskPost(fysiskPost);
 		setCommonMessageAttributes(messageCommand, request, message);
 		messageService.sendMessage(message);
