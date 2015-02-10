@@ -21,9 +21,23 @@
                     <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.type') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.adressat.type" cssClass="col-sm-2 control-label">Type<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
                         <div class="col-sm-10">
-                            <input name="fysiskPostCommand.adressat.type" id="type" type="text" class="form-control" autocomplete="off" placeholder="Norsk" value="${messageCommand.fysiskPostCommand.adressat.type}" />
+                                <c:choose>
+                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type == 'UTENLANDSK' }">
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" /> Norsk</label>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                    </c:when>
+                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type == 'NORSK' }">
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" /> Norsk</label>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORMAL" /> Norsk</label>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
+                                    </c:otherwise>
+                                </c:choose>
                         </div>
                     </div>
+                    <div id="adressat">
                 <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.navn') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.navn" cssClass="col-sm-2 control-label">Navn<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
                     <div class="col-sm-10">
@@ -48,32 +62,32 @@
                         <input name="fysiskPostCommand.adressat.adresselinje3" id="adresselinje3" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 3" value="${messageCommand.fysiskPostCommand.adressat.adresselinje3}" />
                     </div>
                 </div>
-                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje4') ? 'has-error' : ''}">
+                <div id="adresse4Felt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.adresselinje4') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.adresselinje4" cssClass="col-sm-2 control-label">Adresselinje 4<br /></form:label>
                     <div class="col-sm-10">
                         <input name="fysiskPostCommand.adressat.adresselinje4" id="adresselinje4" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 4" value="${messageCommand.fysiskPostCommand.adressat.adresselinje4}" />
                     </div>
                 </div>
 
-                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.postnummer') ? 'has-error' : ''}">
+                <div id="postnummerFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.postnummer') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.postnummer" cssClass="col-sm-2 control-label">Postnummer</form:label>
                     <div class="col-sm-10">
                         <input name="fysiskPostCommand.adressat.postnummer" id="postnummer" type="text" class="form-control" autocomplete="off" placeholder="Postnummer" value="${messageCommand.fysiskPostCommand.adressat.postnummer}"/>
                     </div>
                 </div>
-                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.poststed') ? 'has-error' : ''}">
+                <div id="poststedFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.poststed') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.poststed" cssClass="col-sm-2 control-label">Poststed</form:label>
                     <div class="col-sm-10">
                         <input name="fysiskPostCommand.adressat.poststed" id="poststed" type="text" class="form-control" autocomplete="off" placeholder="Poststed" value="${messageCommand.fysiskPostCommand.adressat.poststed}"/>
                     </div>
                 </div>
-                <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.land') ? 'has-error' : ''}">
+                <div id="landFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.land') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.adressat.land" cssClass="col-sm-2 control-label">Land</form:label>
                     <div class="col-sm-10">
                         <input name="fysiskPostCommand.adressat.land" id="land" type="text" class="form-control" autocomplete="off" placeholder="Land" value="${messageCommand.fysiskPostCommand.adressat.land}"/>
                     </div>
                 </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.landkode') ? 'has-error' : ''}">
+                    <div id="landkodeFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.adressat.landkode') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.adressat.landkode" cssClass="col-sm-2 control-label">Landkode</form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.adressat.landkode" id="landkode" type="text" class="form-control" autocomplete="off" placeholder="To-bokstavs landkode ihht ISO 3166-1 alpha-2 standarden" value="${messageCommand.fysiskPostCommand.adressat.landkode}"/>
@@ -81,6 +95,7 @@
                         </div>
                     </div>
             </div>
+                </div>
         </div>
         <div class="form-group ${errors.hasFieldErrors('title') ? 'has-error' : ''}">
             <form:label path="title" cssClass="col-sm-2 control-label">Tittel<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
@@ -136,6 +151,26 @@
         <div class="panel panel-default">
             <div class="panel-heading">Returadresse</div>
                 <div class="panel-body">
+                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.type') ? 'has-error' : ''}">
+                        <form:label path="fysiskPostCommand.returadresse.type" cssClass="col-sm-2 control-label">Type<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+                        <div class="col-sm-10">
+                            <c:choose>
+                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type == 'UTENLANDSK' }">
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" /> Norsk</label>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                </c:when>
+                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type == 'NORSK' }">
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" /> Norsk</label>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                </c:when>
+                                <c:otherwise>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORMAL" /> Norsk</label>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                <div id="returAdresse">
                 <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.navn') ? 'has-error' : ''}">
                     <form:label path="fysiskPostCommand.returadresse.navn" cssClass="col-sm-2 control-label">Navn<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
                     <div class="col-sm-10">
@@ -160,37 +195,38 @@
                             <input name="fysiskPostCommand.returadresse.adresselinje3" id="returAdresselinje3" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 3" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje3}" />
                         </div>
                     </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje4') ? 'has-error' : ''}">
+                    <div id="adresse4ReturFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.adresselinje4') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.adresselinje4" cssClass="col-sm-2 control-label">Adresselinje 4<br /></form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.returadresse.adresselinje4" id="returAdresselinje4" type="text" class="form-control" autocomplete="off" placeholder="Adresselinje 4" value="${messageCommand.fysiskPostCommand.returadresse.adresselinje4}" />
                         </div>
                     </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.postnummer') ? 'has-error' : ''}">
+                    <div id="postnummerReturFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.postnummer') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.postnummer" cssClass="col-sm-2 control-label">Postnummer</form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.returadresse.postnummer" id="returPostnummer" type="text" class="form-control" autocomplete="off" placeholder="Postnummer" value="${messageCommand.fysiskPostCommand.returadresse.postnummer}"/>
                         </div>
                     </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.poststed') ? 'has-error' : ''}">
+                    <div id="poststedReturFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.poststed') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.poststed" cssClass="col-sm-2 control-label">Poststed</form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.returadresse.poststed" id="returPoststed" type="text" class="form-control" autocomplete="off" placeholder="Poststed" value="${messageCommand.fysiskPostCommand.returadresse.poststed}"/>
                         </div>
                     </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.land') ? 'has-error' : ''}">
+                    <div id="landReturFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.land') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.land" cssClass="col-sm-2 control-label">Land</form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.returadresse.land" id="returLand" type="text" class="form-control" autocomplete="off" placeholder="Land" value="${messageCommand.fysiskPostCommand.returadresse.land}"/>
                         </div>
                     </div>
-                    <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.landkode') ? 'has-error' : ''}">
+                    <div id="landkodeReturFelt" class="form-group ${errors.hasFieldErrors('fysiskPostCommand.returadresse.landkode') ? 'has-error' : ''}">
                         <form:label path="fysiskPostCommand.returadresse.landkode" cssClass="col-sm-2 control-label">Landkode</form:label>
                         <div class="col-sm-10">
                             <input name="fysiskPostCommand.returadresse.landkode" id="returLandkode" type="text" class="form-control" autocomplete="off" placeholder="To-bokstavs landkode ihht ISO 3166-1 alpha-2 standarden" value="${messageCommand.fysiskPostCommand.returadresse.landkode}"/>
                             <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO 3166-1 alpha-2 standarden</a>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
         <div class="form-group ${errors.hasFieldErrors('fysiskPostCommand.utskriftsleverandoer') ? 'has-error' : ''}">
@@ -256,7 +292,7 @@
             <div class="col-sm-10">
                 <c:choose>
                     <c:when test="${messageCommand.priority == 'PRIORITERT' }">
-                        <label class="radio-inline"><input type="radio" name="priority" id="priorityNormal" value="NORMAL" /> Normal</label>
+                        <label class="radio-inline"><input type="radio" name="priority" id="priorityNormal" value="NORMAL"/> Normal</label>
                         <label class="radio-inline"><input type="radio" name="priority" id="priorityPrioritized" value="PRIORITERT" checked="checked" /> Prioritert</label>
                     </c:when>
                     <c:otherwise>
@@ -267,7 +303,7 @@
             </div>
         </div>
         <div class="form-group ${errors.hasFieldErrors('languageCode') ? 'has-error' : ''}">
-            <form:label path="languageCode" cssClass="col-sm-2 control-label">Språk-kode<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
+        <form:label path="languageCode" cssClass="col-sm-2 control-label">Språk-kode<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
                 <input name="languageCode" id="languageCode" type="text" class="form-control" autocomplete="off" placeholder="Språk-kode" value="${messageCommand.languageCode}"/>
             </div>
@@ -282,6 +318,8 @@
 <br />
 <script src="//code.jquery.com/jquery-2.1.0.min.js"><!-- --></script>
 <spring:url value="/send_message_page.js" var="sendMessagePageJavascriptUrl"/>
+<spring:url value="/print_message_page.js" var="printMessagePageJavascriptUrl"/>
 <script src="${sendMessagePageJavascriptUrl}"><!-- --></script>
+<script src="${printMessagePageJavascriptUrl}"><!-- --></script>
 </body>
 </html>
