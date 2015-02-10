@@ -128,13 +128,11 @@ public class MessageController {
 	public String show_print_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
 		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.FYSISK);
 		model.addAttribute("messageCommand", messageCommand);
-		model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
-		model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
 		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
 
 		// TODO: handle copy message
-		
+
 		return "print_message_page";
 	}
 
@@ -192,8 +190,6 @@ public class MessageController {
 		messageValidator.validate(messageCommand, bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("messageCommand", messageCommand);
-			model.addAttribute("posttypeAText", Posttype.A_PRIORITERT.name());
-			model.addAttribute("posttypeBText", Posttype.B_OEKONOMI.name());
 			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 			model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
 			return "print_message_page";
