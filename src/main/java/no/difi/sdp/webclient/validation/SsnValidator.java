@@ -48,7 +48,7 @@ public class SsnValidator {
 
     public static boolean isValid(String ssn) {
         if (ssn == null) {
-            return false;
+            return true;
         }
         if (ssn.length() != SSN_FULL_LENGTH) {
             return false;

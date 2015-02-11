@@ -22,16 +22,16 @@
                         <form:label path="fysiskPostCommand.adressat.type" cssClass="col-sm-2 control-label">Type<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
                         <div class="col-sm-10">
                                 <c:choose>
-                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type == 'UTENLANDSK' }">
+                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type.name() == 'UTENLANDSK' }">
                                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" /> Norsk</label>
                                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
                                     </c:when>
-                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type == 'NORSK' }">
-                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" /> Norsk</label>
-                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                    <c:when test="${messageCommand.fysiskPostCommand.adressat.type.name() == 'NORSK' }">
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" checked="checked" /> Norsk</label>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
                                     </c:when>
                                     <c:otherwise>
-                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORMAL" /> Norsk</label>
+                                        <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeNorsk" value="NORSK" /> Norsk</label>
                                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.adressat.type" id="typeUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
                                     </c:otherwise>
                                 </c:choose>
@@ -125,7 +125,7 @@
             <form:label path="fysiskPostCommand.posttype" cssClass="col-sm-2 control-label">Posttype<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
                 <c:choose>
-                    <c:when test="${messageCommand.fysiskPostCommand.posttype == 'A_PRIORITERT' }">
+                    <c:when test="${messageCommand.fysiskPostCommand.posttype.name() == 'A_PRIORITERT' }">
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeA" value="A_PRIORITERT" checked="checked"/> A prioritet</label>
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.posttype" id="posttypeB" value="B_OEKONOMI"  />  B prioritet</label>
                     </c:when>
@@ -143,7 +143,7 @@
             <form:label path="fysiskPostCommand.utskriftsfarge" cssClass="col-sm-2 control-label">Utskriftsfarge<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
                 <c:choose>
-                    <c:when test="${messageCommand.fysiskPostCommand.utskriftsfarge == 'FARGE' }">
+                    <c:when test="${messageCommand.fysiskPostCommand.utskriftsfarge.name() == 'FARGE' }">
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.utskriftsfarge" id="utskriftsfargeSH" value="SORT_HVIT" /> Svart/hvit</label>
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.utskriftsfarge" id="utskriftsfargeFarge" value="FARGE"   checked="checked"/>  Farge</label>
                     </c:when>
@@ -159,7 +159,7 @@
             <form:label path="fysiskPostCommand.returhaandtering" cssClass="col-sm-2 control-label">Returhaandtering<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
             <div class="col-sm-10">
                 <c:choose>
-                    <c:when test="${messageCommand.fysiskPostCommand.utskriftsfarge == 'DIREKTE_RETUR' }">
+                    <c:when test="${messageCommand.fysiskPostCommand.utskriftsfarge.name() == 'DIREKTE_RETUR' }">
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandteringDirekte" value="DIREKTE_RETUR"  checked="checked"/> Direkte retur</label>
                         <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returhaandtering" id="returhaandteringMakulering" value="MAKULERING_MED_MELDING"   />  Makulering med melding</label>
                     </c:when>
@@ -177,16 +177,16 @@
                         <form:label path="fysiskPostCommand.returadresse.type" cssClass="col-sm-2 control-label">Type<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
                         <div class="col-sm-10">
                             <c:choose>
-                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type == 'UTENLANDSK' }">
+                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type.name() == 'UTENLANDSK' }">
                                     <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" /> Norsk</label>
                                     <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
                                 </c:when>
-                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type == 'NORSK' }">
-                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" /> Norsk</label>
-                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" checked="checked" /> Utenlandsk</label>
+                                <c:when test="${messageCommand.fysiskPostCommand.returadresse.type.name() == 'NORSK' }">
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" checked="checked" /> Norsk</label>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
                                 </c:when>
                                 <c:otherwise>
-                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORMAL" /> Norsk</label>
+                                    <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturNorsk" value="NORSK" /> Norsk</label>
                                     <label class="radio-inline"><input type="radio" name="fysiskPostCommand.returadresse.type" id="typeReturUtenlandsk" value="UTENLANDSK" /> Utenlandsk</label>
                                 </c:otherwise>
                             </c:choose>

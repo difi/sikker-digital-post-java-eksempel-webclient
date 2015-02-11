@@ -167,6 +167,7 @@ ${message.exception}
 				<dt>Språk-kode</dt>
 				<dd id="languageCode">${message.languageCode == null ? "[ikke tilgjengelig]" : message.languageCode}</dd>
 			</dl>
+            <c:if test="${messageCommand.digitalPost}">
 			<h2>Kontaktinformasjon</h2>
 			<dl class="dl-horizontal">
 				<dt>Hentet fra oppslagstjenesten for kontakt- og reservasjonsregisteret</dt>
@@ -196,6 +197,7 @@ ${message.exception}
 				<dt>E-postadresse</dt>
 				<dd id="email">${message.digitalPost.email == null ? "[ikke tilgjengelig]" : message.digitalPost.email}</dd>
 			</dl>
+            </c:if>
 			<h2>Meldinger</h2>
 			<h3>1. Hent personer fra oppslagstjenesten</h3>
 			<h4>1.1 Forespørsel</h4>

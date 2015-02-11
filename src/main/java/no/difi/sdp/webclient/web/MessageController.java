@@ -5,7 +5,6 @@ import no.difi.begrep.Status;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.*;
-import no.difi.sdp.webclient.domain.TekniskMottaker;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
 import org.apache.commons.codec.binary.Base64;
@@ -187,13 +186,13 @@ public class MessageController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/printmessages")
 	public String send_print_message(@Validated @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
-		messageValidator.validate(messageCommand, bindingResult);
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("messageCommand", messageCommand);
-			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
-			model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
-			return "print_message_page";
-		}
+	//	messageValidator.validate(messageCommand, bindingResult);
+		//if (bindingResult.hasErrors()) {
+	//		model.addAttribute("messageCommand", messageCommand);
+	//		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+	//		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
+	//		return "print_message_page";
+	//	}
 		Message message = new Message(messageCommand.isDigitalPost());
 //		message.setSsn(messageCommand.getSsn());
 
