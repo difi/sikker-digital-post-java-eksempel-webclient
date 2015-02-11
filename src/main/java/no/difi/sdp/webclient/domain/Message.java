@@ -361,4 +361,12 @@ public class Message {
     public void setFysiskPost(FysiskPost fysiskPost) {
 		this.fysiskPost = fysiskPost;
 	}
+
+    public String getMottaker(){
+        if(digital){
+            return getSsn();
+        }else{
+            return getFysiskPost().getAdressat().getNavn();
+        }
+    }
 }

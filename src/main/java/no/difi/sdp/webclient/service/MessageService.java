@@ -420,6 +420,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			message.setId((Long) rawMessage[0]);
 			message.setDate((Date) rawMessage[1]);
 			message.setSsn((String) rawMessage[2]);
+            message.setDigital((boolean) rawMessage[4]);
 			Document document = new Document();
 			document.setTitle((String) rawMessage[3]);
 			message.setDocument(document);

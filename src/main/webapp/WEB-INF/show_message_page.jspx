@@ -170,19 +170,19 @@ ${message.exception}
 			<h2>Kontaktinformasjon</h2>
 			<dl class="dl-horizontal">
 				<dt>Hentet fra oppslagstjenesten for kontakt- og reservasjonsregisteret</dt>
-				<dd id="retrieveContactDetails">${message.retrieveContactDetails ? "Ja" : "Nei"}</dd>
+				<dd id="retrieveContactDetails">${message.digitalPost.retrieveContactDetails ? "Ja" : "Nei"}</dd>
 				<dt>Status</dt>
-				<dd id="contactRegisterStatus">${message.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.contactRegisterStatus}</dd>
+				<dd id="contactRegisterStatus">${message.digitalPost.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.contactRegisterStatus}</dd>
 				<dt>Reservasjon</dt>
-				<dd id="reservationStatus">${message.reservationStatus == null ? "[ikke tilgjengelig]" : message.reservationStatus}</dd>
+				<dd id="reservationStatus">${message.digitalPost.reservationStatus == null ? "[ikke tilgjengelig]" : message.reservationStatus}</dd>
 				<dt>Postkasseadresse</dt>
-				<dd id="postboxAddress">${message.postboxAddress == null ? "[ikke tilgjengelig]" : message.postboxAddress}</dd>
+				<dd id="postboxAddress">${message.digitalPost.postboxAddress == null ? "[ikke tilgjengelig]" : message.postboxAddress}</dd>
 				<dt>Organisasjonsnummer</dt>
-				<dd id="postboxVendorOrgNumber">${message.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.postboxVendorOrgNumber}</dd>
+				<dd id="postboxVendorOrgNumber">${message.digitalPost.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.postboxVendorOrgNumber}</dd>
 				<dt>Postkassesertifikat</dt>
 				<dd id="postboxCertificate">
 					<c:choose>
-						<c:when test="${empty message.postboxCertificate}">
+						<c:when test="${empty message.digitalPost.postboxCertificate}">
 							[ikke tilgjengelig]
 						</c:when>
 						<c:otherwise>
@@ -192,9 +192,9 @@ ${message.exception}
 					</c:choose>
 				</dd>
 				<dt>Mobiltelefonnummer</dt>
-				<dd id="mobile">${message.mobile == null ? "[ikke tilgjengelig]" : message.mobile}</dd>
+				<dd id="mobile">${message.digitalPost.mobile == null ? "[ikke tilgjengelig]" : message.digitalPost.mobile}</dd>
 				<dt>E-postadresse</dt>
-				<dd id="email">${message.email == null ? "[ikke tilgjengelig]" : message.email}</dd>
+				<dd id="email">${message.digitalPost.email == null ? "[ikke tilgjengelig]" : message.digitalPost.email}</dd>
 			</dl>
 			<h2>Meldinger</h2>
 			<h3>1. Hent personer fra oppslagstjenesten</h3>

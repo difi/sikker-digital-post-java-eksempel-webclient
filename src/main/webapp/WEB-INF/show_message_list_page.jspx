@@ -21,7 +21,7 @@
 						<thead>
 							<tr>
 								<th>Tidspunkt for sending</th>
-								<th>Mottakers fødselsnummer</th>
+								<th>Mottaker</th>
 								<th>Tittel</th>
 								<th>Handlinger</th>
 							</tr>
@@ -32,7 +32,7 @@
 									<spring:url value="/client/messages/${message.id}" var="messageUrl" />
 									<spring:url value="/client/messages/${message.id}/delete" var="deleteMessageUrl" />
 									<td><a href="${messageUrl}">${message.date}</a></td>
-									<td><a href="${messageUrl}">${message.ssn}</a></td>
+                                    <td><a href="${messageUrl}">${message.mottaker}</a></td>
 									<td><a href="${messageUrl}">${message.document.title}</a></td>
 									<td>
 										<form method="GET" action="${sendMessageUrl}" style="float: left; margin-right: 0.5em;">
