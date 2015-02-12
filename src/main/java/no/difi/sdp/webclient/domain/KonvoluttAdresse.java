@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import java.util.List;
 
 @Embeddable
@@ -17,7 +18,7 @@ public class KonvoluttAdresse {
     @NotNull
     private String navn;
 
-    @ElementCollection
+    @ElementCollection(fetch= FetchType.EAGER)
     private List<String> adresselinjer;
 
     private String postnummer;

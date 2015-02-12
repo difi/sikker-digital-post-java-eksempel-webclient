@@ -4,6 +4,7 @@ import no.difi.begrep.Status;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
 import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
+import no.difi.sdp.client.domain.Forsendelse;
 import no.difi.sdp.client.domain.Noekkelpar;
 import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.TekniskAvsender;
@@ -134,7 +135,7 @@ public class MessageServiceTest {
 
         service.getReceipts(Prioritet.NORMAL);
         verify(messageRepository, times(1)).waitingClients();
-        verify(postklientService, never()).get(any());
+        verify(postklientService, never()).get(anyString());
     }
 
     @Test
@@ -154,16 +155,18 @@ public class MessageServiceTest {
         service.getReceipts(Prioritet.NORMAL);
 
         verify(messageRepository, times(1)).waitingClients();
-        verify(postklientService, times(2)).get(any());
+        verify(postklientService, times(2)).get(anyString());
     }
 
     @Test
     public void test_send_message_digital_do_not_use_oppslagstjeneste() {
 
+        final byte[] postboxCertificate = {(byte) 0xe7, 0x4f};
+
         when(configuration.getMessagePartitionChannel()).thenReturn("MessagePartitionChannel");
         when(configurationService.getConfiguration()).thenReturn(configuration);
-        when(cryptoUtil.loadX509Certificate(any())).thenReturn(x509Certificate);
-        when(postklientService.get(any())).thenReturn(sikkerDigitalPostKlient);
+        when(cryptoUtil.loadX509Certificate(postboxCertificate)).thenReturn(x509Certificate);
+        when(postklientService.get(anyString())).thenReturn(sikkerDigitalPostKlient);
         when(postKlientSoapRequestSentDate.getValue()).thenReturn(new Date());
         when(postKlientSoapResponseReceivedDate.getValue()).thenReturn(new Date());
         when(stringUtil.nullIfEmpty(anyString())).thenReturn("");
@@ -173,7 +176,8 @@ public class MessageServiceTest {
         digitalPost.setContactRegisterStatus(Status.AKTIV);
         digitalPost.setPostboxAddress("PostboxAdress");
         digitalPost.setPostboxVendorOrgNumber("PostboxVendorOrgNumber");
-        digitalPost.setPostboxCertificate(new byte[] {(byte) 0xe7, 0x4f});
+
+        digitalPost.setPostboxCertificate(postboxCertificate);
         digitalPost.setInsensitiveTitle("Insensitive Tittel");
         digitalPost.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         digitalPost.setRequiresMessageOpenedReceipt(false);
@@ -200,7 +204,7 @@ public class MessageServiceTest {
         verify(hentPersonerForespoersel, never()).getInformasjonsbehov();
         verify(hentPersonerForespoersel, never()).getPersonidentifikator();
         verify(messageRepository, times(2)).save(message);
-        verify(sikkerDigitalPostKlient).send(any());
+        verify(sikkerDigitalPostKlient).send(any(Forsendelse.class));
 
     }
 

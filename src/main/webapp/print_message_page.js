@@ -1,8 +1,9 @@
 (function ($) {
     $(document).ready(function() {
-        $("#adressat").hide();
-        $("#returAdresse").hide();
-
+        if($('#isCopy').val()=='') {
+            $("#adressat").hide();
+            $("#returAdresse").hide();
+        }
         $("#typeNorsk").click(function() {
             $("#adressat").show();
             visNorskFelt("");

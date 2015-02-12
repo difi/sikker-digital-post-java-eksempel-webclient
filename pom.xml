@@ -6,7 +6,7 @@
 	<name>Testavsender</name>
 	<description>Testklient for meldingsutsending gjennom sikker digital post</description>
 	<packaging>war</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
