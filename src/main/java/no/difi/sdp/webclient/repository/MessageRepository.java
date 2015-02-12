@@ -22,7 +22,7 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	@Query("select m.conversationId, m.ssn, m.digitalPost.postboxVendorOrgNumber, m.digitalPost.postboxAddress, m.status, m.date, m.requestSentDate, m.responseReceivedDate, m.completedDate, r.type, r.date, r.requestSentDate, r.responseReceivedDate, r.completedDate, r.ackRequestSentDate, r.ackResponseReceivedDate, r.postboxDate from Message m left join m.receipts r")
 	public List<Object[]> getReport();
 
-	@Query("select m.id as id, m.date as date, m.ssn, m.document.title, m.digital from Message m order by m.id desc")
+	@Query("select m.id as id, m.date as date, m.ssn, m.document.title, m.digital, m.fysiskPost.adressat.navn from Message m order by m.id desc")
 	public Page<Object[]> list(Pageable pageable);
 	
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m where m.status=?1 order by m.id desc")

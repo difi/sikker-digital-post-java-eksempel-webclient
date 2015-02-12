@@ -421,6 +421,13 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			message.setDate((Date) rawMessage[1]);
 			message.setSsn((String) rawMessage[2]);
             message.setDigital((boolean) rawMessage[4]);
+
+            no.difi.sdp.webclient.domain.FysiskPost fysiskPost= new no.difi.sdp.webclient.domain.FysiskPost();
+            no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
+            adressat.setNavn((String) rawMessage[5]);
+            fysiskPost.setAdressat(adressat);
+            message.setFysiskPost(fysiskPost);
+
 			Document document = new Document();
 			document.setTitle((String) rawMessage[3]);
 			message.setDocument(document);
