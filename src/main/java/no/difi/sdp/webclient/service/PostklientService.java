@@ -5,6 +5,7 @@ import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.asice.CreateASiCE;
 import no.difi.sdp.client.domain.Forsendelse;
 import no.difi.sdp.client.domain.Noekkelpar;
+import no.difi.sdp.client.domain.Sertifikat;
 import no.difi.sdp.client.domain.TekniskAvsender;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.domain.TekniskMottaker;
@@ -47,7 +48,7 @@ public class PostklientService {
 	
 	private Map<String, Noekkelpar> noekkelparMap = new HashMap<>(); // Cache
 
-	private Map<String, Noekkelpar> noekkelparMapTekniskMottaker = new HashMap<>(); // Cache
+	private Map<String, Sertifikat> sertifikatMapTekniskMottaker = new HashMap<>(); // Cache
 
 	private Pattern keyPairAliasOrgNumberPattern = Pattern.compile("^[0-9]{9}"); // Pattern for extracting orgNumber from keyPairAlias
 	
@@ -92,11 +93,11 @@ public class PostklientService {
 	 * @param keyPairAlias
 	 * @return
 	 */
-	private Noekkelpar getNoekkelparTekniskMottaker(String keyPairAlias) {
-		if (! noekkelparMapTekniskMottaker.containsKey(keyPairAlias)) {
-			noekkelparMapTekniskMottaker.put(keyPairAlias, createNoekkelparTekniskMottaker(keyPairAlias));
+	private Sertifikat getNoekkelparTekniskMottaker(String keyPairAlias) {
+		if (! sertifikatMapTekniskMottaker.containsKey(keyPairAlias)) {
+			sertifikatMapTekniskMottaker.put(keyPairAlias, createSertifikatTekniskMottaker(keyPairAlias));
 		}
-		return noekkelparMapTekniskMottaker.get(keyPairAlias);
+		return sertifikatMapTekniskMottaker.get(keyPairAlias);
 	}
 
 	private SikkerDigitalPostKlient createPostKlient(String keyPairAlias) {
@@ -113,7 +114,7 @@ public class PostklientService {
 
 
 	public TekniskMottaker createTekniskMottaker(String keyPairAlias) {
-		X509Certificate sertifikat = getNoekkelparTekniskMottaker(keyPairAlias).getSertifikat().getX509Certificate();
+		X509Certificate sertifikat = getNoekkelparTekniskMottaker(keyPairAlias).getX509Certificate();
 		String orgNumber = extractOrgNumbeFromKeyPairAlias(keyPairAlias);
 		return new TekniskMottaker(orgNumber, sertifikat);
 	}
@@ -123,8 +124,8 @@ public class PostklientService {
 		return Noekkelpar.fraKeyStore(keyStore, keyPairAlias, environment.getProperty("sdp.databehandler.keypair.password"));
 	}
 
-	private Noekkelpar createNoekkelparTekniskMottaker(String keyPairAlias) {
-		return Noekkelpar.fraKeyStore(keyStoreTekniskMottaker, keyPairAlias, environment.getProperty("sdp.tekniskmottaker.keypair.password"));
+	private Sertifikat createSertifikatTekniskMottaker(String keyPairAlias) {
+		return Sertifikat.fraKeyStore(keyStoreTekniskMottaker, keyPairAlias);
 	}
 	
 	private String extractOrgNumbeFromKeyPairAlias(String keyPairAlias) {
@@ -143,7 +144,7 @@ public class PostklientService {
 	}
 
 	public List<String> getKeyStoreTekniskMottakerAliases() {
-		return cryptoUtil.getKeypairAliases(keyStoreTekniskMottaker);
+		return cryptoUtil.getCertificateAliases(keyStoreTekniskMottaker);
 	}
 
 }
