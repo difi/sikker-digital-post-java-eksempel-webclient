@@ -113,10 +113,10 @@ public class PostklientService {
     }
 
 
-	public TekniskMottaker createTekniskMottaker(String keyPairAlias) {
-		X509Certificate sertifikat = getNoekkelparTekniskMottaker(keyPairAlias).getX509Certificate();
-		String orgNumber = extractOrgNumbeFromKeyPairAlias(keyPairAlias);
-		return new TekniskMottaker(orgNumber, sertifikat);
+	public TekniskMottaker createTekniskMottaker(String certificateAlias) {
+		X509Certificate sertifikat = getNoekkelparTekniskMottaker(certificateAlias).getX509Certificate();
+		String orgNumber = extractOrgNumbeFromKeyPairAlias(certificateAlias);
+		return new TekniskMottaker(orgNumber, sertifikat, certificateAlias);
 	}
 
 

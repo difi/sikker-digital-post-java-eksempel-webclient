@@ -7,18 +7,17 @@ import java.security.cert.X509Certificate;
 @Embeddable
 public class TekniskMottaker {
 
-    public TekniskMottaker() {
-
-    }
-
     private String organisasjonsnummer;
 
     @Lob
     private X509Certificate x509Certificate;
 
-    public TekniskMottaker(String organisasjonsnummer, X509Certificate sertifikat) {
+    private String certificateAlias;
+
+    public TekniskMottaker(String organisasjonsnummer, X509Certificate sertifikat, String certificateAlias) {
         this.organisasjonsnummer = organisasjonsnummer;
         this.x509Certificate = sertifikat;
+        this.certificateAlias = certificateAlias;
     }
 
     public String getOrganisasjonsnummer() {
@@ -27,5 +26,13 @@ public class TekniskMottaker {
 
     public X509Certificate getSertifikat() {
         return x509Certificate;
+    }
+
+    public String getCertificateAlias() {
+        return certificateAlias;
+    }
+
+    public void setCertificateAlias(String certificateAlias) {
+        this.certificateAlias = certificateAlias;
     }
 }

@@ -39,16 +39,16 @@ import java.util.Map.Entry;
 public class MessageController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageController.class);
-	
+
 	private static final String FORM_ATTACHMENT_NAME_PREFIX = "attachmentName";
 	private static final String FORM_ATTACHMENT_TITLE_PREFIX = "attachmentTitle";
-	
+
 	@Autowired
 	private Environment environment;
-	
+
 	@Autowired
 	private MessageService messageService;
-	
+
 	@Autowired
 	@Qualifier("messageCommandValidator")
 	private Validator messageValidator;
@@ -56,19 +56,19 @@ public class MessageController {
 	@Autowired
 	@Qualifier("mvcValidator")
 	private Validator validator;
-	
+
 	@Autowired
 	private MultipartResolver multipartResolver;
-	
+
 	@Autowired
 	private PostklientService postklientService;
-	
+
 	@InitBinder
 	protected void initBinder(WebDataBinder webDataBinder) {
 		webDataBinder.setValidator(validator);
 		webDataBinder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/", produces = "text/html")
 	public String show_send_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
 		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.DIGITAL);
@@ -126,13 +126,67 @@ public class MessageController {
 	@RequestMapping(method = RequestMethod.GET, value = "/utskrift", produces = "text/html")
 	public String show_print_message_page(Model model, @RequestParam(required = false) Long copy) throws NotFoundException {
 		MessageCommand messageCommand = new MessageCommand(MessageCommand.Type.FYSISK);
+
+		if (copy == null) {
+			messageCommand.setLanguageCode("NO");
+			messageCommand.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
+			messageCommand.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
+		}  else {
+			Message message = messageService.getMessage(copy);
+			if (message == null) {
+				throw new NotFoundException();
+			} else {
+				messageCommand.setKeyPairAlias(message.getKeyPairAlias());
+				messageCommand.setLanguageCode(message.getLanguageCode());
+				messageCommand.setPriority(message.getPriority());
+				messageCommand.setFysiskPostCommand(setFysiskPostCommandValues(message.getFysiskPost()));
+				messageCommand.setSenderId(message.getSenderId());
+				messageCommand.setSenderOrgNumber(message.getSenderOrgNumber());
+				messageCommand.setSsn(message.getSsn());
+				messageCommand.setTitle(message.getDocument().getTitle());
+			}
+		}
 		model.addAttribute("messageCommand", messageCommand);
 		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
 		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
-
-		// TODO: handle copy message
-
 		return "print_message_page";
+	}
+
+	private FysiskPostCommand setFysiskPostCommandValues(FysiskPost fysiskPost) {
+		FysiskPostCommand fysiskPostCommand = new FysiskPostCommand();
+		fysiskPostCommand.setAdressat(getAdresse(fysiskPost.getAdressat()));
+		fysiskPostCommand.setReturadresse(getAdresse(fysiskPost.getReturadresse()));
+		fysiskPostCommand.setReturhaandtering(fysiskPost.getReturhaandtering());
+		fysiskPostCommand.setPosttype(fysiskPost.getPosttype());
+		fysiskPostCommand.setUtskriftsfarge(fysiskPost.getUtskriftsfarge());
+		fysiskPostCommand.setUtskriftsleverandoer(fysiskPost.getUtskriftsleverandoer().getCertificateAlias());
+		return fysiskPostCommand;
+	}
+
+	private KonvoluttAdresse getAdresse(no.difi.sdp.webclient.domain.KonvoluttAdresse adressat) {
+		KonvoluttAdresse adresse = new KonvoluttAdresse();
+		adresse.setType(adressat.getType()==no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK ? KonvoluttAdresse.Type.NORSK : KonvoluttAdresse.Type.UTENLANDSK);
+		adresse.setNavn(adressat.getNavn());
+		if(adressat.getAdresselinjer().size() == 4) {
+			adresse.setAdresselinje1(adressat.getAdresselinjer().get(0));
+			adresse.setAdresselinje2(adressat.getAdresselinjer().get(1));
+			adresse.setAdresselinje3(adressat.getAdresselinjer().get(2));
+			adresse.setAdresselinje4(adressat.getAdresselinjer().get(3));
+		}else if(adressat.getAdresselinjer().size() == 3){
+			adresse.setAdresselinje1(adressat.getAdresselinjer().get(0));
+			adresse.setAdresselinje2(adressat.getAdresselinjer().get(1));
+			adresse.setAdresselinje3(adressat.getAdresselinjer().get(2));
+		}else if(adressat.getAdresselinjer().size() == 2){
+			adresse.setAdresselinje1(adressat.getAdresselinjer().get(0));
+			adresse.setAdresselinje2(adressat.getAdresselinjer().get(1));
+		}else if(adressat.getAdresselinjer().size() == 1){
+			adresse.setAdresselinje1(adressat.getAdresselinjer().get(0));
+		}
+		adresse.setPostnummer(adressat.getPostnummer());
+		adresse.setPoststed(adressat.getPoststed());
+		adresse.setLand(adressat.getLand());
+		adresse.setLandkode(adressat.getLandkode());
+		return adresse;
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/messages")
@@ -259,7 +313,7 @@ public class MessageController {
 	/**
 	 * Resolves the attachment title for a given MultipartFile.
 	 * See send_message_page.js for frontend implementation.
-	 * 
+	 *
 	 * @param multipartFile
 	 * @param request
 	 * @return Attachment title
@@ -310,7 +364,7 @@ public class MessageController {
 		model.addAttribute("message", message);
 		return "show_message_page";
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/documents/{id}")
 	public void download_message_document(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
 		Document document = messageService.getDocument(id);
@@ -322,7 +376,7 @@ public class MessageController {
 		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(document.getContent()));
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/asic")
 	public void download_message_asic(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
 		Message message = messageService.getMessage(id);
@@ -334,7 +388,7 @@ public class MessageController {
 		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getAsic()));
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/postboxcertificate")
 	public void download_message_postboxcertificate(@PathVariable Long id, HttpServletResponse response) throws NotFoundException, IOException {
 		Message message = messageService.getMessage(id);
@@ -346,19 +400,19 @@ public class MessageController {
 		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(message.getDigitalPost().getPostboxCertificate()));
 		IOUtils.copy(inputStream, response.getOutputStream());
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = "/messages/{id}/delete")
 	public String delete_message(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 		messageService.deleteMessage(id);
 		return "redirect:/client/messages";
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = "messages/delete")
 	public String delete_all_messages(RedirectAttributes redirectAttributes) {
 		messageService.deleteAllMessages();
 		return "redirect:/client/messages";
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/messages")
 	public String show_message_list_page(Model model, @RequestParam(required = false) MessageStatus status, @RequestParam(defaultValue = "0") int pageNumber) {
 		Page<Message> messagePage;
@@ -395,7 +449,7 @@ public class MessageController {
     	EBOKS,
     	DIGIPOST
     }
-    
+
     @RequestMapping(method = RequestMethod.GET, value = "/performance")
     @ResponseStatus(value = HttpStatus.OK)
     public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
@@ -461,14 +515,14 @@ public class MessageController {
         }
         messageService.sendMessage(message);
     }
-	
+
     @RequestMapping(method = RequestMethod.GET, value = "/report")
     public String showReportPage(Model model) {
     	List<Object[]> countByStatus = messageService.getCountByStatus();
     	model.addAttribute("countByStatus", countByStatus);
     	return "show_report_page";
     }
-    
+
     @RequestMapping(method = RequestMethod.GET, value = "/report/download")
     @ResponseBody
     public String downloadReport(HttpServletResponse response) {
@@ -514,47 +568,47 @@ public class MessageController {
 		}
     	return writer.toString();
     }
-    
+
     private void writeReportColumn(StringWriter writer, Enum<?> data, boolean lastColumn) {
     	writer.write(data == null ? "" : data.toString());
     	writer.write(lastColumn ? "\n" : "\t");
     }
-    
+
     private void writeReportColumn(StringWriter writer, String data, boolean lastColumn) {
     	writer.write(data == null ? "" : data);
     	writer.write(lastColumn ? "\n" : "\t");
     }
-    
+
     private void writeReportColumn(StringWriter writer, Date data, boolean lastColumn) {
     	writer.write(data == null ? "" : String.valueOf(data.getTime()));
     	writer.write(lastColumn ? "\n" : "\t");
     }
-    
+
     @ModelAttribute("oppslagstjenestenUrl")
 	private String oppslagstjenestenUrl() {
 		return environment.getProperty("oppslagstjenesten.url");
 	}
-	
+
 	@ModelAttribute("meldingsformidlerUrl")
 	private String meldingsformidlerUrl() {
 		return environment.getProperty("sdp.meldingsformidler.url");
 	}
-	
+
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler(NotFoundException.class)
 	public void handle_404_not_found(NotFoundException e) {
 		// do nothing
 	}
-	
+
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(Exception.class)
 	public void handle_500_internal_error(Exception e) {
 		LOGGER.error("Unexpected error", e);
 	}
-	
+
 	private class NotFoundException extends Exception {
 
 		private static final long serialVersionUID = 1L;
-	
+
 	}
 }
