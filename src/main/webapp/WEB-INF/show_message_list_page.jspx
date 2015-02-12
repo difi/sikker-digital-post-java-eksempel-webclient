@@ -34,8 +34,16 @@
 									<td><a href="${messageUrl}">${message.date}</a></td>
                                     <td><a href="${messageUrl}">${message.mottaker}</a></td>
 									<td><a href="${messageUrl}">${message.document.title}</a></td>
+									<c:choose>
+										<c:when test="${message.digital}">
+											<spring:url value="/client/" var="copyUrl" />
+										</c:when>
+										<c:otherwise>
+											<spring:url value="/client/utskrift" var="copyUrl" />
+										</c:otherwise>
+									</c:choose>
 									<td>
-										<form method="GET" action="${sendMessageUrl}" style="float: left; margin-right: 0.5em;">
+										<form method="GET" action="${copyUrl}" style="float: left; margin-right: 0.5em;">
 											<input type="hidden" name="copy" value="${message.id}" />
 											<button type="submit" class="btn btn-primary btn-xs">Kopier</button>
 										</form>
