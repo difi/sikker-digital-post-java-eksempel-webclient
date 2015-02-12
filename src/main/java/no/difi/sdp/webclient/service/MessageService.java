@@ -374,18 +374,23 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         } else if(!message.isDigital()) {
             forsendelse = buildFysiskForsendelse(message);
         }
-        try {
-        enrichMessage(message, forsendelse);
-        messageRepository.save(message);
-        SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
-        postklient.send(forsendelse);
-        message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
-        message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
-        message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
+		try {
+			enrichMessage(message, forsendelse);
+			messageRepository.save(message);
+			SikkerDigitalPostKlient postklient = postklientService.get(message.getKeyPairAlias());
+			postklient.send(forsendelse);
+			message.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+			message.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
+			message.setStatus(MessageStatus.WAITING_FOR_RECEIPT);
 
-        } catch (Exception e) {
-            throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
-        }
+		} catch (Exception e) {
+			if(message.isDigital()){
+				throw new MessageServiceException(MessageStatus.FAILED_SENDING_DIGITAL_POST, e);
+			}else{
+				throw new MessageServiceException(MessageStatus.FAILED_SENDING_FYSISK_POST, e);
+			}
+
+		}
     }
 
 

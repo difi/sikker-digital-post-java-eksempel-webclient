@@ -60,5 +60,22 @@ public class CryptoUtil {
 		}
 		return aliases;
 	}
+
+	public List<String> getCertificateAliases(KeyStore keyStore) {
+		List<String> aliases = new ArrayList<>();
+
+		try {
+			Enumeration<String> enumeration = keyStore.aliases();
+			while (enumeration.hasMoreElements()) {
+				String alias = enumeration.nextElement();
+				if (keyStore.isCertificateEntry(alias)) {
+					aliases.add(alias);
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return aliases;
+	}
 	
 }
