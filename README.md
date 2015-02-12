@@ -10,8 +10,8 @@
 
 ## Forutsetninger
 
-- Må bygges med Apache Maven med Java development kit (JDK) 1.7 eller nyere
-- Må kjøres i Java runtime environment (JRE) 1.7 eller nyere
+- Må bygges med Apache Maven med Java development kit (JDK) 1.8 eller nyere
+- Må kjøres i Java runtime environment (JRE) 1.8 eller nyere
 - Java cryptography extension (JCE) unlimited strength må være installert i JRE- se http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 ## Kjøring / installasjon
