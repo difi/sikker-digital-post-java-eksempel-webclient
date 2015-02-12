@@ -159,7 +159,7 @@ public class MessageController {
 		fysiskPostCommand.setReturhaandtering(fysiskPost.getReturhaandtering());
 		fysiskPostCommand.setPosttype(fysiskPost.getPosttype());
 		fysiskPostCommand.setUtskriftsfarge(fysiskPost.getUtskriftsfarge());
-		fysiskPostCommand.setUtskriftsleverandoer(fysiskPost.getUtskriftsleverandoer().getCertificateAlias());
+		fysiskPostCommand.setUtskriftsleverandoer(fysiskPost.getTekniskMottakerSertifikatAlias());
 		return fysiskPostCommand;
 	}
 
@@ -254,7 +254,7 @@ public class MessageController {
 		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = convertAdresse(fysiskPostCommand.getAdressat());
 		no.difi.sdp.webclient.domain.KonvoluttAdresse returAdresse = convertAdresse(fysiskPostCommand.getReturadresse());
 		FysiskPost fysiskPost = new FysiskPost(fysiskPostCommand.getPosttype(), fysiskPostCommand.getUtskriftsfarge(), fysiskPostCommand.getReturhaandtering(), adressat, returAdresse);
-		fysiskPost.setUtskriftsleverandoer(postklientService.createTekniskMottaker(fysiskPostCommand.getUtskriftsleverandoer()));
+        fysiskPost.setTekniskMottakerSertifikatAlias(fysiskPostCommand.getUtskriftsleverandoer());
 		message.setFysiskPost(fysiskPost);
 		setCommonMessageAttributes(messageCommand, request, message);
 		messageService.sendMessage(message);

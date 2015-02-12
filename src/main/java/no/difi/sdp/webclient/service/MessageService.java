@@ -291,8 +291,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Returhaandtering returhaandtering = Returhaandtering.valueOf(fysiskPost.getReturhaandtering().toString());
         Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
         Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
-        Sertifikat sertifikat = Sertifikat.fraCertificate(fysiskPost.getUtskriftsleverandoer().getSertifikat());
-        TekniskMottaker tekniskMottaker = new TekniskMottaker(fysiskPost.getUtskriftsleverandoer().getOrganisasjonsnummer(), sertifikat );
+        TekniskMottaker tekniskMottaker = postklientService.createTekniskMottaker(fysiskPost.getTekniskMottakerSertifikatAlias());
 
         FysiskPost fysiskpost = FysiskPost.builder()
                 .adresse(buildAdressatAdresse(message))

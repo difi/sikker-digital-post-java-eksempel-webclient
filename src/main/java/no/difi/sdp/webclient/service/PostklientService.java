@@ -3,18 +3,13 @@ package no.difi.sdp.webclient.service;
 import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.asice.CreateASiCE;
-import no.difi.sdp.client.domain.Forsendelse;
-import no.difi.sdp.client.domain.Noekkelpar;
-import no.difi.sdp.client.domain.Sertifikat;
-import no.difi.sdp.client.domain.TekniskAvsender;
+import no.difi.sdp.client.domain.*;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
-import no.difi.sdp.webclient.domain.TekniskMottaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,11 +107,10 @@ public class PostklientService {
         return tekniskAvsender;
     }
 
-
 	public TekniskMottaker createTekniskMottaker(String certificateAlias) {
-		X509Certificate sertifikat = getNoekkelparTekniskMottaker(certificateAlias).getX509Certificate();
+		Sertifikat sertifikat = getNoekkelparTekniskMottaker(certificateAlias);
 		String orgNumber = extractOrgNumbeFromKeyPairAlias(certificateAlias);
-		return new TekniskMottaker(orgNumber, sertifikat, certificateAlias);
+		return new TekniskMottaker(orgNumber, sertifikat);
 	}
 
 

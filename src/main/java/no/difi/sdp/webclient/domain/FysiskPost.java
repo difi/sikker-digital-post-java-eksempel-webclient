@@ -36,8 +36,7 @@ public class FysiskPost {
     private KonvoluttAdresse returadresse;
 
     @NotNull
-    @Embedded
-    private TekniskMottaker utskriftsleverandoer;
+    private String tekniskMottakerSertifikatAlias;
 
     public FysiskPost(){
 
@@ -91,12 +90,12 @@ public class FysiskPost {
         this.returadresse = returadresse;
     }
 
-    public TekniskMottaker getUtskriftsleverandoer() {
-        return utskriftsleverandoer;
+    public String getTekniskMottakerSertifikatAlias() {
+        return tekniskMottakerSertifikatAlias;
     }
 
-    public void setUtskriftsleverandoer(TekniskMottaker utskriftsleverandoer) {
-        this.utskriftsleverandoer = utskriftsleverandoer;
+    public void setTekniskMottakerSertifikatAlias(String tekniskMottakerSertifikatAlias) {
+        this.tekniskMottakerSertifikatAlias = tekniskMottakerSertifikatAlias;
     }
 }
 
