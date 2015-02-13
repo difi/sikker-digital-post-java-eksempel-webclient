@@ -537,7 +537,10 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 		} else if (forretningsKvittering instanceof AapningsKvittering) {
 			receipt.setType("Åpningskvittering");
 			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
-		} else if (forretningsKvittering instanceof LeveringsKvittering) {
+		} else if (forretningsKvittering instanceof MottaksKvittering) {
+            receipt.setType("Mottakskvittering");
+            message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+        }else if (forretningsKvittering instanceof LeveringsKvittering) {
 			receipt.setType("Leveringskvittering");
 			if (message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
 				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
