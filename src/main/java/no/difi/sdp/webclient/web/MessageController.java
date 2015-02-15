@@ -240,13 +240,14 @@ public class MessageController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/printmessages")
 	public String send_print_message(@Validated @ModelAttribute("messageCommand") MessageCommand messageCommand, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) throws IOException {
-	//	messageValidator.validate(messageCommand, bindingResult);
-		//if (bindingResult.hasErrors()) {
-	//		model.addAttribute("messageCommand", messageCommand);
-	//		model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
-	//		model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
-	//		return "print_message_page";
-	//	}
+		messageValidator.validate(messageCommand, bindingResult);
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("messageCommand", messageCommand);
+			model.addAttribute("keyPairAliases", postklientService.getKeypairAliases());
+			model.addAttribute("keyPairTekniskMottakerAliases", postklientService.getKeyStoreTekniskMottakerAliases());
+            model.addAttribute("errors", bindingResult);
+			return "print_message_page";
+		}
 		Message message = new Message(messageCommand.isDigitalPost());
 //		message.setSsn(messageCommand.getSsn());
 
@@ -285,7 +286,7 @@ public class MessageController {
 		adressat.setAdresselinjer(adresse);
 		adressat.setNavn(adressatInput.getNavn());
 		adressat.setPostnummer(adressatInput.getPostnummer());
-		adressat.setPoststed(adressatInput.getPostnummer());
+		adressat.setPoststed(adressatInput.getPoststed());
 		adressat.setLand(adressatInput.getLand());
 		adressat.setLandkode(adressatInput.getLandkode());
 		return adressat;

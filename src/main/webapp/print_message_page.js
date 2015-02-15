@@ -1,30 +1,53 @@
+
 (function ($) {
+    var adressatId = '#adressat';
+    var returadresseId = '#returAdresse';
     $(document).ready(function() {
-        if($('#isCopy').val()=='') {
-            $("#adressat").hide();
-            $("#returAdresse").hide();
-        }
+
+        handleAdressatType($);
+        handleReturadresseType($);
+
         $("#typeNorsk").click(function() {
-            $("#adressat").show();
+            $(adressatId).show();
             visNorskFelt("");
         });
 
         $("#typeUtenlandsk").click(function() {
-            $("#adressat").show();
+            $(adressatId).show();
             visUtenlandskFelt("");
         });
 
         $("#typeReturNorsk").click(function() {
-            $("#returAdresse").show();
+            $(returadresseId).show();
             visNorskFelt("Retur");
         });
 
         $("#typeReturUtenlandsk").click(function() {
-            $("#returAdresse").show();
+            $(returadresseId).show();
             visUtenlandskFelt("Retur");
         });
 
     });
+
+    function handleAdressatType($) {
+        if ($('#typeNorsk').is(':checked')) {
+            visNorskFelt("");
+        } else if ($('#typeUtenlandsk').is(':checked')) {
+            visUtenlandskFelt("");
+        } else {
+            $(adressatId).hide();
+        }
+    }
+
+    function handleReturadresseType($) {
+        if ($('#typeReturNorsk').is(':checked')) {
+            visNorskFelt("Retur");
+        } else if ($('#typeReturUtenlandsk').is(':checked')) {
+            visUtenlandskFelt("Retur");
+        } else {
+            $(returadresseId).hide();
+        }
+    }
 
     function visNorskFelt(retur) {
         $("#land" + retur + "Felt").hide();

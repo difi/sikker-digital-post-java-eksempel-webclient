@@ -32,10 +32,11 @@ public class FysiskPostCommandValidator implements Validator {
     public void validate(Object o, Errors errors) {
         FysiskPostCommand fysiskPostCommand = (FysiskPostCommand)o;
 
+        adresseValidator.setAdresseType("adressat");
         adresseValidator.validate(fysiskPostCommand.getAdressat(), errors);
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "posttype", "posttype.required");
-        //basicValidator.validate(fysiskPostCommand.getPosttype(), errors);
+        adresseValidator.setAdresseType("returadresse");
         adresseValidator.validate(fysiskPostCommand.getReturadresse(), errors);
+        basicValidator.validate(fysiskPostCommand.getPosttype(), errors);
         basicValidator.validate(fysiskPostCommand.getReturhaandtering(), errors);
         basicValidator.validate(fysiskPostCommand.getUtskriftsfarge(), errors);
         basicValidator.validate(fysiskPostCommand.getUtskriftsleverandoer(), errors);

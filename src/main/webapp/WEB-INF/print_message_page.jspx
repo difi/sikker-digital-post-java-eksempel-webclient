@@ -15,7 +15,6 @@
 
     <form:form method="POST" action="printmessages" commandName="messageCommand" enctype="multipart/form-data" cssClass="form-horizontal" role="form">
         <input name="type" id="type" type="hidden" value="${messageCommand.type}"/>
-        <input type="hidden" id="isCopy" value="${param.copy}"/>
         <div class="panel panel-default">
             <div class="panel-heading">Adressat</div>
                 <div class="panel-body">
