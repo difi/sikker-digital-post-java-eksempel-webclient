@@ -74,10 +74,41 @@ ${message.exception}
 			</c:if>
 			<h2>Data oppgitt til webclient</h2>
 			<dl class="dl-horizontal">
+                <c:if test="${not message.digital}">
+                    <dt>Adressat</dt>
+                    <dd><table class="table table-bordered">
+
+                        <tr>
+                            <td>Type:</td><td>${message.fysiskPost.adressat.type}</td>
+                        </tr>
+                        <tr>
+                            <td>Navn:</td><td>${message.fysiskPost.adressat.navn}</td>
+                        </tr>
+                        <tr>
+                            <td>Adresselinjer:</td><td>${message.fysiskPost.adressat.adresselinjer}</td>
+                        </tr>
+                        <tr>
+                            <td>Postnummer:</td><td>${message.fysiskPost.adressat.postnummer}</td>
+                        </tr>
+                        <tr>
+                            <td>Poststed:</td><td>${message.fysiskPost.adressat.poststed}</td>
+                        </tr>
+                        <tr>
+                            <td>Land:</td><td>${message.fysiskPost.adressat.land}</td>
+                        </tr>
+                        <tr>
+                            <td>Landkode:</td><td>${message.fysiskPost.adressat.landkode}</td>
+                        </tr>
+                    </table>
+                    </dd>
+
+                </c:if>
+                <c:if test="${message.digital}">
 				<dt>Fødselsnummer</dt>
 				<dd id="ssn">${message.ssn}</dd>
 				<dt>Ikke-sensitiv tittel</dt>
 				<dd id="insensitiveTitle">${message.digitalPost.insensitiveTitle}</dd>
+                </c:if>
 				<dt>Dokument</dt>
 				<dd>
 					<table class="table table-striped table-bordered">
@@ -148,69 +179,111 @@ ${message.exception}
 						</tbody>
 					</table>
 				</dd>
-				<dt>Sikkerhetsnivå</dt>
-				<dd id="securityLevel">${message.digitalPost.securityLevel}</dd>
-				<dt>Epost-varsel til mottaker</dt>
-				<dd id="emailNotification">${message.digitalPost.emailNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotification}</dd>
-				<dt>Epost-varslingsintervall</dt>
-				<dd id="emailNotificationSchedule">${message.digitalPost.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotificationSchedule}</dd>
-				<dt>SMS-varsel til mottaker</dt>
-				<dd id="mobileNotification">${message.digitalPost.mobileNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotification}</dd>
-				<dt>SMS-varslingsintervall</dt>
-				<dd id="mobileNotificationSchedule">${message.digitalPost.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotificationSchedule}</dd>
-				<dt>Motta åpningskvittering</dt>
-				<dd id="requiresMessageOpenedReceipt">${message.digitalPost.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
-				<dt>Virkningsdato</dt>
-				<dd id="delayedAvailabilityDate">${message.digitalPost.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.digitalPost.delayedAvailabilityDate}</dd>
-				<dt>Prioritet</dt>
+                <c:if test="${not message.digital}">
+                    <dt>Returadresse</dt>
+                    <dd><table class="table table-bordered">
+
+                        <tr>
+                            <td>Type:</td><td>${message.fysiskPost.returadresse.type}</td>
+                        </tr>
+                        <tr>
+                            <td>Navn:</td><td>${message.fysiskPost.returadresse.navn}</td>
+                        </tr>
+                        <tr>
+                            <td>Adresselinjer:</td><td>${message.fysiskPost.returadresse.adresselinjer}</td>
+                        </tr>
+                        <tr>
+                            <td>Postnummer:</td><td>${message.fysiskPost.returadresse.postnummer}</td>
+                        </tr>
+                        <tr>
+                            <td>Poststed:</td><td>${message.fysiskPost.returadresse.poststed}</td>
+                        </tr>
+                        <tr>
+                            <td>Land:</td><td>${message.fysiskPost.returadresse.land}</td>
+                        </tr>
+                        <tr>
+                            <td>Landkode:</td><td>${message.fysiskPost.returadresse.landkode}</td>
+                        </tr>
+                    </table>
+                    </dd>
+
+                </c:if>
+                <c:if test="${message.digital}">
+                    <dt>Sikkerhetsnivå</dt>
+                    <dd id="securityLevel">${message.digitalPost.securityLevel}</dd>
+                    <dt>Epost-varsel til mottaker</dt>
+                    <dd id="emailNotification">${message.digitalPost.emailNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotification}</dd>
+                    <dt>Epost-varslingsintervall</dt>
+                    <dd id="emailNotificationSchedule">${message.digitalPost.emailNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.emailNotificationSchedule}</dd>
+                    <dt>SMS-varsel til mottaker</dt>
+                    <dd id="mobileNotification">${message.digitalPost.mobileNotification == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotification}</dd>
+                    <dt>SMS-varslingsintervall</dt>
+                    <dd id="mobileNotificationSchedule">${message.digitalPost.mobileNotificationSchedule == null ? "[ikke tilgjengelig]" : message.digitalPost.mobileNotificationSchedule}</dd>
+                    <dt>Motta åpningskvittering</dt>
+                    <dd id="requiresMessageOpenedReceipt">${message.digitalPost.requiresMessageOpenedReceipt ? "Ja" : "Nei"}</dd>
+                    <dt>Virkningsdato</dt>
+                    <dd id="delayedAvailabilityDate">${message.digitalPost.delayedAvailabilityDate == null ? "[ikke tilgjengelig]" : message.digitalPost.delayedAvailabilityDate}</dd>
+                </c:if>
+                <c:if test="${not message.digital}">
+                    <dt>Posttype</dt>
+                    <dd id="posttype">${message.fysiskPost.posttype}</dd>
+                    <dt>Utskriftsfarge</dt>
+                    <dd id="utskriftsfarge">${message.fysiskPost.utskriftsfarge}</dd>
+                    <dt>Returhaandtering</dt>
+                    <dd id="returhaandtering">${message.fysiskPost.returhaandtering}</dd>
+
+                </c:if>
+                <dt>Prioritet</dt>
 				<dd id="priority">${message.priority == null ? "[ikke tilgjengelig]" : message.priority}</dd>
 				<dt>Språk-kode</dt>
 				<dd id="languageCode">${message.languageCode == null ? "[ikke tilgjengelig]" : message.languageCode}</dd>
 			</dl>
-            <c:if test="${messageCommand.digitalPost}">
-			<h2>Kontaktinformasjon</h2>
-			<dl class="dl-horizontal">
-				<dt>Hentet fra oppslagstjenesten for kontakt- og reservasjonsregisteret</dt>
-				<dd id="retrieveContactDetails">${message.digitalPost.retrieveContactDetails ? "Ja" : "Nei"}</dd>
-				<dt>Status</dt>
-				<dd id="contactRegisterStatus">${message.digitalPost.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.contactRegisterStatus}</dd>
-				<dt>Reservasjon</dt>
-				<dd id="reservationStatus">${message.digitalPost.reservationStatus == null ? "[ikke tilgjengelig]" : message.reservationStatus}</dd>
-				<dt>Postkasseadresse</dt>
-				<dd id="postboxAddress">${message.digitalPost.postboxAddress == null ? "[ikke tilgjengelig]" : message.postboxAddress}</dd>
-				<dt>Organisasjonsnummer</dt>
-				<dd id="postboxVendorOrgNumber">${message.digitalPost.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.postboxVendorOrgNumber}</dd>
-				<dt>Postkassesertifikat</dt>
-				<dd id="postboxCertificate">
-					<c:choose>
-						<c:when test="${empty message.digitalPost.postboxCertificate}">
-							[ikke tilgjengelig]
-						</c:when>
-						<c:otherwise>
-							<spring:url value="/client/messages/${message.id}/postboxcertificate" var="downloadMessagePostboxCertificateUrl" />
-							<a href="${downloadMessagePostboxCertificateUrl}">Last ned postbokssertifikat (CER)</a>
-						</c:otherwise>
-					</c:choose>
-				</dd>
-				<dt>Mobiltelefonnummer</dt>
-				<dd id="mobile">${message.digitalPost.mobile == null ? "[ikke tilgjengelig]" : message.digitalPost.mobile}</dd>
-				<dt>E-postadresse</dt>
-				<dd id="email">${message.digitalPost.email == null ? "[ikke tilgjengelig]" : message.digitalPost.email}</dd>
-			</dl>
+            <c:if test="${message.digital}">
+                <h2>Kontaktinformasjon</h2>
+                <dl class="dl-horizontal">
+                    <dt>Hentet fra oppslagstjenesten for kontakt- og reservasjonsregisteret</dt>
+                    <dd id="retrieveContactDetails">${message.digitalPost.retrieveContactDetails ? "Ja" : "Nei"}</dd>
+                    <dt>Status</dt>
+                    <dd id="contactRegisterStatus">${message.digitalPost.contactRegisterStatus == null ? "[ikke tilgjengelig]" : message.digitalPost.contactRegisterStatus}</dd>
+                    <dt>Reservasjon</dt>
+                    <dd id="reservationStatus">${message.digitalPost.reservationStatus == null ? "[ikke tilgjengelig]" : message.digitalPost.reservationStatus}</dd>
+                    <dt>Postkasseadresse</dt>
+                    <dd id="postboxAddress">${message.digitalPost.postboxAddress == null ? "[ikke tilgjengelig]" : message.digitalPost.postboxAddress}</dd>
+                    <dt>Organisasjonsnummer</dt>
+                    <dd id="postboxVendorOrgNumber">${message.digitalPost.postboxVendorOrgNumber == null ? "[ikke tilgjengelig]" : message.digitalPost.postboxVendorOrgNumber}</dd>
+                    <dt>Postkassesertifikat</dt>
+                    <dd id="postboxCertificate">
+                        <c:choose>
+                            <c:when test="${empty message.digitalPost.postboxCertificate}">
+                                [ikke tilgjengelig]
+                            </c:when>
+                            <c:otherwise>
+                                <spring:url value="/client/messages/${message.id}/postboxcertificate" var="downloadMessagePostboxCertificateUrl" />
+                                <a href="${downloadMessagePostboxCertificateUrl}">Last ned postbokssertifikat (CER)</a>
+                            </c:otherwise>
+                        </c:choose>
+                    </dd>
+                    <dt>Mobiltelefonnummer</dt>
+                    <dd id="mobile">${message.digitalPost.mobile == null ? "[ikke tilgjengelig]" : message.digitalPost.mobile}</dd>
+                    <dt>E-postadresse</dt>
+                    <dd id="email">${message.digitalPost.email == null ? "[ikke tilgjengelig]" : message.digitalPost.email}</dd>
+                </dl>
             </c:if>
 			<h2>Meldinger</h2>
-			<h3>1. Hent personer fra oppslagstjenesten</h3>
-			<h4>1.1 Forespørsel</h4>
-			<h5>SOAP med WSS-header over HTTP</h5>
-			<textarea id="xmlRetrievePersonsRequest" class="form-control" rows="10">${message.xmlRetrievePersonsRequest == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequest}</textarea>
-			<h5>Forretningsmelding: HentPersonerForespoersel</h5>
-			<textarea id="xmlRetrievePersonsRequestPayload" class="form-control" rows="10">${message.xmlRetrievePersonsRequestPayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequestPayload}</textarea>
-			<h4>1.2 Svar</h4>
-			<h5>SOAP med WSS-header over HTTP</h5>
-			<textarea id="xmlRetrievePersonsResponse" class="form-control" rows="10">${message.xmlRetrievePersonsResponse == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponse}</textarea>
-			<h5>Forretningsmelding: HentPersonerRespons</h5>
-			<textarea id="xmlRetrievePersonsResponsePayload" class="form-control" rows="10">${message.xmlRetrievePersonsResponsePayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponsePayload}</textarea>
-			<h3>2. Send melding til meldingsformidler</h3>
+            <c:if test="${message.digital}">
+                <h3>1. Hent personer fra oppslagstjenesten</h3>
+                <h4>1.1 Forespørsel</h4>
+                <h5>SOAP med WSS-header over HTTP</h5>
+                <textarea id="xmlRetrievePersonsRequest" class="form-control" rows="10">${message.xmlRetrievePersonsRequest == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequest}</textarea>
+                <h5>Forretningsmelding: HentPersonerForespoersel</h5>
+                <textarea id="xmlRetrievePersonsRequestPayload" class="form-control" rows="10">${message.xmlRetrievePersonsRequestPayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsRequestPayload}</textarea>
+                <h4>1.2 Svar</h4>
+                <h5>SOAP med WSS-header over HTTP</h5>
+                <textarea id="xmlRetrievePersonsResponse" class="form-control" rows="10">${message.xmlRetrievePersonsResponse == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponse}</textarea>
+                <h5>Forretningsmelding: HentPersonerRespons</h5>
+                <textarea id="xmlRetrievePersonsResponsePayload" class="form-control" rows="10">${message.xmlRetrievePersonsResponsePayload == null ? "[ikke tilgjengelig]" : message.xmlRetrievePersonsResponsePayload}</textarea>
+            </c:if>
+            <h3>2. Send melding til meldingsformidler</h3>
 			<h4>2.1 Forespørsel</h4>
 			<h5>SOAP med WSS- og EBMS-header over HTTP</h5>
 			<textarea id="xmlSendMessageRequest" class="form-control" rows="10">${message.xmlSendMessageRequest == null ? "[ikke tilgjengelig]" : message.xmlSendMessageRequest}</textarea>
