@@ -276,21 +276,24 @@ public class MessageController {
 
 	private no.difi.sdp.webclient.domain.KonvoluttAdresse convertAdresse(KonvoluttAdresse adressatInput) {
 
-		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
-		adressat.setType(adressatInput.getType()== KonvoluttAdresse.Type.NORSK ? no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK : no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK);
-		List<String> adresse = new ArrayList<>(4);
-		adresse.add(adressatInput.getAdresselinje1());
-		adresse.add(adressatInput.getAdresselinje2());
-		adresse.add(adressatInput.getAdresselinje3());
-		adresse.add(adressatInput.getAdresselinje4());
-		adressat.setAdresselinjer(adresse);
-		adressat.setNavn(adressatInput.getNavn());
-		adressat.setPostnummer(adressatInput.getPostnummer());
-		adressat.setPoststed(adressatInput.getPoststed());
-		adressat.setLand(adressatInput.getLand());
-		adressat.setLandkode(adressatInput.getLandkode());
-		return adressat;
-	}
+        no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
+    adressat.setType(adressatInput.getType() == KonvoluttAdresse.Type.NORSK ? no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK : no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK);
+    List<String> adresse = new ArrayList<>(4);
+    adresse.add(adressatInput.getAdresselinje1());
+    adresse.add(adressatInput.getAdresselinje2());
+    adresse.add(adressatInput.getAdresselinje3());
+    adresse.add(adressatInput.getAdresselinje4());
+    adressat.setAdresselinjer(adresse);
+    adressat.setNavn(adressatInput.getNavn());
+    if (adressat.getType() == no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK) {
+        adressat.setPostnummer(adressatInput.getPostnummer());
+        adressat.setPoststed(adressatInput.getPoststed());
+    } else{
+        adressat.setLand(adressatInput.getLand());
+        adressat.setLandkode(adressatInput.getLandkode());
+    }
+    return adressat;
+}
 
 	private Document getDocument(MessageCommand messageCommand) throws IOException {
 		Document document = new Document();
@@ -375,7 +378,7 @@ public class MessageController {
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + document.getFilename() + "\"");
 		response.setContentType(document.getMimetype());
 		InputStream inputStream = new BufferedInputStream(new ByteArrayInputStream(document.getContent()));
-		IOUtils.copy(inputStream, response.getOutputStream());
+        IOUtils.copy(inputStream, response.getOutputStream());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/messages/{id}/asic")
