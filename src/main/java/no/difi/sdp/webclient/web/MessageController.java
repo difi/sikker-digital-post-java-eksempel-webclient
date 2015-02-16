@@ -534,7 +534,9 @@ public class MessageController {
 		response.setContentType("text/csv");
 		StringWriter writer = new StringWriter();
 		writeReportColumn(writer, "id", false);
+		writeReportColumn(writer, "digitalpost", false);
 		writeReportColumn(writer, "ssn", false);
+		writeReportColumn(writer, "adressatNavn", false);
 		writeReportColumn(writer, "postboxVendorOrgNumber", false);
 		writeReportColumn(writer, "postboxAddress", false);
 		writeReportColumn(writer, "status", false);
@@ -553,24 +555,31 @@ public class MessageController {
 		List<Object[]> messages = messageService.getReport();
 		for (Object[] message : messages) {
 			writeReportColumn(writer, (String) message[0], false);
-			writeReportColumn(writer, (String) message[1], false);
+			writeReportColumn(writer, (Boolean) message[1], false);
 			writeReportColumn(writer, (String) message[2], false);
 			writeReportColumn(writer, (String) message[3], false);
-			writeReportColumn(writer, (MessageStatus) message[4], false);
-			writeReportColumn(writer, (Date) message[5], false);
-			writeReportColumn(writer, (Date) message[6], false);
+			writeReportColumn(writer, (String) message[4], false);
+			writeReportColumn(writer, (String) message[5], false);
+			writeReportColumn(writer, (MessageStatus) message[6], false);
 			writeReportColumn(writer, (Date) message[7], false);
 			writeReportColumn(writer, (Date) message[8], false);
-			writeReportColumn(writer, (String) message[9], false);
+			writeReportColumn(writer, (Date) message[9], false);
 			writeReportColumn(writer, (Date) message[10], false);
-			writeReportColumn(writer, (Date) message[11], false);
+			writeReportColumn(writer, (String) message[11], false);
 			writeReportColumn(writer, (Date) message[12], false);
 			writeReportColumn(writer, (Date) message[13], false);
 			writeReportColumn(writer, (Date) message[14], false);
 			writeReportColumn(writer, (Date) message[15], false);
-			writeReportColumn(writer, (Date) message[16], true);
+			writeReportColumn(writer, (Date) message[16], false);
+			writeReportColumn(writer, (Date) message[17], false);
+			writeReportColumn(writer, (Date) message[18], true);
 		}
     	return writer.toString();
+    }
+
+    private void writeReportColumn(StringWriter writer, Boolean data, boolean lastColumn) {
+        writer.write(data == null ? "" : data.toString());
+        writer.write(lastColumn ? "\n" : "\t");
     }
 
     private void writeReportColumn(StringWriter writer, Enum<?> data, boolean lastColumn) {
