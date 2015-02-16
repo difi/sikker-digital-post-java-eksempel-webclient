@@ -499,7 +499,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 		if (forretningsKvittering == null) {
 			// No available receipts
     		LOGGER.info("No receipts were available at server");
-			return false;
+            return false;
 		}
 		LOGGER.info("Recieved receipt with conversation id " + forretningsKvittering.getKonversasjonsId());
 		List<Message> messages = messageRepository.findByConversationId(forretningsKvittering.getKonversasjonsId());
@@ -539,10 +539,10 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
 		} else if (forretningsKvittering instanceof MottaksKvittering) {
             receipt.setType("Mottakskvittering");
-            message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+            message.setStatus(MessageStatus.WAITING_FOR_DELIVERED_RECEIPT);
         }else if (forretningsKvittering instanceof LeveringsKvittering) {
 			receipt.setType("Leveringskvittering");
-			if (message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
+			if (message.isDigital() && message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
 				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
 			} else {
 				message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
