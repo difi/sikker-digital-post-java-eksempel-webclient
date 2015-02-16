@@ -25,7 +25,7 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 	@Query("select m.id as id, m.date as date, m.ssn, m.document.title, m.digital, m.fysiskPost.adressat.navn from Message m order by m.id desc")
 	public Page<Object[]> list(Pageable pageable);
 	
-	@Query("select m.id as id, m.date as date, m.ssn, m.document.title from Message m where m.status=?1 order by m.id desc")
+	@Query("select m.id as id, m.date as date, m.ssn, m.document.title, m.digital, m.fysiskPost.adressat.navn from Message m where m.status=?1 order by m.id desc")
 	public Page<Object[]> list(MessageStatus messageStatus, Pageable pageable);
 
 	@Query("select distinct m.keyPairAlias from Message m where m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_RECEIPT or m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_OPENED_RECEIPT or m.status=no.difi.sdp.webclient.domain.MessageStatus.WAITING_FOR_DELIVERED_RECEIPT")

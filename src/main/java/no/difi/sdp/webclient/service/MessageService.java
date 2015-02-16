@@ -303,7 +303,10 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
         Dokumentpakke dokumentPakke = buildDokumentpakke(message);
 
-        return Forsendelse.fysisk(behandlingsansvarlig,fysiskpost,dokumentPakke).build();
+        return Forsendelse
+                .fysisk(behandlingsansvarlig, fysiskpost, dokumentPakke)
+                .mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
+                .build();
     }
 
     public void sendMessage(Message message)  {
