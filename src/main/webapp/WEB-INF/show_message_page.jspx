@@ -75,32 +75,33 @@ ${message.exception}
 			<h2>Data oppgitt til webclient</h2>
 			<dl class="dl-horizontal">
                 <c:if test="${not message.digital}">
+                    <br/>
                     <dt>Adressat</dt>
-                    <dd><table class="table table-bordered">
+                    <dd class="container">
+                        <div class="row">
+                            <div class="col-md-2"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.type}</div>
+                        </div>
+                        <div class="row">
+                            <div  class="col-md-2"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.navn}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.adresselinjer}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.postnummer}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.poststed}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.land}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.landkode}</div>
+                        </div>
 
-                        <tr>
-                            <td>Type:</td><td>${message.fysiskPost.adressat.type}</td>
-                        </tr>
-                        <tr>
-                            <td>Navn:</td><td>${message.fysiskPost.adressat.navn}</td>
-                        </tr>
-                        <tr>
-                            <td>Adresselinjer:</td><td>${message.fysiskPost.adressat.adresselinjer}</td>
-                        </tr>
-                        <tr>
-                            <td>Postnummer:</td><td>${message.fysiskPost.adressat.postnummer}</td>
-                        </tr>
-                        <tr>
-                            <td>Poststed:</td><td>${message.fysiskPost.adressat.poststed}</td>
-                        </tr>
-                        <tr>
-                            <td>Land:</td><td>${message.fysiskPost.adressat.land}</td>
-                        </tr>
-                        <tr>
-                            <td>Landkode:</td><td>${message.fysiskPost.adressat.landkode}</td>
-                        </tr>
-                    </table>
                     </dd>
+                    <br/>
 
                 </c:if>
                 <c:if test="${message.digital}">
@@ -180,33 +181,31 @@ ${message.exception}
 					</table>
 				</dd>
                 <c:if test="${not message.digital}">
+                    <br/>
                     <dt>Returadresse</dt>
-                    <dd><table class="table table-bordered">
-
-                        <tr>
-                            <td>Type:</td><td>${message.fysiskPost.returadresse.type}</td>
-                        </tr>
-                        <tr>
-                            <td>Navn:</td><td>${message.fysiskPost.returadresse.navn}</td>
-                        </tr>
-                        <tr>
-                            <td>Adresselinjer:</td><td>${message.fysiskPost.returadresse.adresselinjer}</td>
-                        </tr>
-                        <tr>
-                            <td>Postnummer:</td><td>${message.fysiskPost.returadresse.postnummer}</td>
-                        </tr>
-                        <tr>
-                            <td>Poststed:</td><td>${message.fysiskPost.returadresse.poststed}</td>
-                        </tr>
-                        <tr>
-                            <td>Land:</td><td>${message.fysiskPost.returadresse.land}</td>
-                        </tr>
-                        <tr>
-                            <td>Landkode:</td><td>${message.fysiskPost.returadresse.landkode}</td>
-                        </tr>
-                    </table>
+                    <dd><div class="row">
+                        <div class="col-md-2"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.type}</div>
+                    </div>
+                        <div class="row">
+                            <div  class="col-md-2"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.navn}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.adresselinjer}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.postnummer}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.poststed}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.land}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.landkode}</div>
+                        </div>
                     </dd>
-
+                    <br/>
                 </c:if>
                 <c:if test="${message.digital}">
                     <dt>Sikkerhetsnivå</dt>

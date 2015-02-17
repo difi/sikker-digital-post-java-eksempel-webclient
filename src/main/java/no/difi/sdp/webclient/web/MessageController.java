@@ -250,7 +250,7 @@ public class MessageController {
 		}
 		Message message = new Message(messageCommand.isDigitalPost());
 //		message.setSsn(messageCommand.getSsn());
-
+        message.setSaveBinaryContent(true);
 		final FysiskPostCommand fysiskPostCommand = messageCommand.getFysiskPostCommand();
 		no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = convertAdresse(fysiskPostCommand.getAdressat());
 		no.difi.sdp.webclient.domain.KonvoluttAdresse returAdresse = convertAdresse(fysiskPostCommand.getReturadresse());
