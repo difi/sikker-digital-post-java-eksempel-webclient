@@ -77,27 +77,27 @@ ${message.exception}
                 <c:if test="${not message.digital}">
                     <br/>
                     <dt>Adressat</dt>
-                    <dd class="container">
+                    <dd style="border: 1px solid #ddd;padding-left: 10px;">
                         <div class="row">
-                            <div class="col-md-2"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.type}</div>
+                            <div class="col-md-2 text-right"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.type}</div>
                         </div>
                         <div class="row">
-                            <div  class="col-md-2"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.navn}</div>
+                            <div  class="col-md-2 text-right"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.navn}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.adresselinjer}</div>
+                            <div class="col-md-2 text-right"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.adresselinjer}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.postnummer}</div>
+                            <div class="col-md-2 text-right"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.postnummer}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.poststed}</div>
+                            <div class="col-md-2 text-right"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.poststed}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.land}</div>
+                            <div class="col-md-2 text-right"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.land}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.landkode}</div>
+                            <div class="col-md-2 text-right"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.adressat.landkode}</div>
                         </div>
 
                     </dd>
@@ -183,26 +183,27 @@ ${message.exception}
                 <c:if test="${not message.digital}">
                     <br/>
                     <dt>Returadresse</dt>
-                    <dd><div class="row">
-                        <div class="col-md-2"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.type}</div>
+                    <dd style="border: 1px solid #ddd;padding-left: 10px;">
+                    <div class="row">
+                        <div class="col-md-2 text-right"><strong>Type:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.type}</div>
                     </div>
                         <div class="row">
-                            <div  class="col-md-2"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.navn}</div>
+                            <div  class="col-md-2 text-right"><strong>Navn:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.navn}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.adresselinjer}</div>
+                            <div class="col-md-2 text-right"><strong>Adresselinjer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.adresselinjer}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.postnummer}</div>
+                            <div class="col-md-2 text-right"><strong>Postnummer:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.postnummer}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.poststed}</div>
+                            <div class="col-md-2 text-right"><strong>Poststed:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.poststed}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.land}</div>
+                            <div class="col-md-2 text-right"><strong>Land:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.land}</div>
                         </div>
                         <div class="row">
-                            <div class="col-md-2"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.landkode}</div>
+                            <div class="col-md-2 text-right"><strong>Landkode:</strong></div><div class="col-md-10">${message.fysiskPost.returadresse.landkode}</div>
                         </div>
                     </dd>
                     <br/>
