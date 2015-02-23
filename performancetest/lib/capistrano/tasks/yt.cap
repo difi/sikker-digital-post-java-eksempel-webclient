@@ -13,7 +13,7 @@ namespace :yt do
   jmeter_test_filename = "test-digipost-only.jmx"
   jmeter_digipost_test_filename = "digipost_yt_testbrukere.csv"
   jmeter_eboks_test_filename = "eboks_yt_testbrukere.csv"
-  testavsender_war_filename = "webclient-0.0.1-SNAPSHOT.war"
+  testavsender_war_filename = "webclient-0.0.2-SNAPSHOT.war"
   testavsender_config_filename = "configuration.properties"
   tomcat_config_filename="tomcat7.conf"
   tomcat_server_xml_filename="server.xml"
