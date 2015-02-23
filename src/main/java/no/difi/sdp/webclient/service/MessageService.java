@@ -7,18 +7,7 @@ import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.Informasjonsbehov;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.domain.*;
-import no.difi.sdp.client.domain.TekniskMottaker;
-import no.difi.sdp.client.domain.digital_post.DigitalPost;
-import no.difi.sdp.client.domain.digital_post.EpostVarsel;
-import no.difi.sdp.client.domain.digital_post.SmsVarsel;
-import no.difi.sdp.client.domain.fysisk_post.*;
-import no.difi.sdp.client.domain.fysisk_post.FysiskPost;
-import no.difi.sdp.client.domain.fysisk_post.KonvoluttAdresse;
-import no.difi.sdp.client.domain.fysisk_post.Posttype;
-import no.difi.sdp.client.domain.fysisk_post.Returhaandtering;
-import no.difi.sdp.client.domain.fysisk_post.Utskriftsfarge;
 import no.difi.sdp.client.domain.kvittering.*;
-import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.*;
@@ -34,9 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +43,9 @@ public class MessageService {
 
 	@Autowired
 	private Oppslagstjeneste1405 oppslagstjeneste;
+
+    @Autowired
+    BuilderService builderService;
 
 	@Autowired
 	private StringUtil stringUtil;
@@ -88,10 +78,7 @@ public class MessageService {
 	private Holder<StringWriter> postKlientSoapResponsePayload; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 
 	@Autowired
-	private Holder<Date> postKlientSoapResponseReceivedDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
-
-	@Autowired
-	private CryptoUtil cryptoUtil;
+    private Holder<Date> postKlientSoapResponseReceivedDate; // Set by SdpClientConfiguration.postKlientSoapInterceptor
 
 	@Autowired
 	private ConfigurationService configurationService;
@@ -143,171 +130,6 @@ public class MessageService {
     	}
     }
 
-    private EpostVarsel buildEpostVarsel(Message message) {
-    	if (message.getDigitalPost().getEmailNotification() == null || message.getDigitalPost().getEmail() == null) {
-    		return null;
-    	}
-        EpostVarsel.Builder epostVarselBuilder = EpostVarsel.builder(message.getDigitalPost().getEmail(), message.getDigitalPost().getEmailNotification());
-        if (message.getDigitalPost().getEmailNotificationSchedule() != null) {
-        	epostVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getEmailNotificationSchedule()));
-        }
-        return epostVarselBuilder.build();
-    }
-
-    private SmsVarsel buildSmsVarsel(Message message) {
-    	if (message.getDigitalPost().getMobileNotification() == null || message.getDigitalPost().getMobile() == null) {
-    		return null;
-    	}
-    	SmsVarsel.Builder smsVarselBuilder = SmsVarsel.builder(message.getDigitalPost().getMobile(), message.getDigitalPost().getMobileNotification());
-    	if (message.getDigitalPost().getMobileNotificationSchedule() != null) {
-    		smsVarselBuilder.varselEtterDager(StringUtil.toIntList(message.getDigitalPost().getMobileNotificationSchedule()));
-    	}
-        return smsVarselBuilder.build();
-    }
-
-    private Sertifikat buildSertifikat(Message message) {
-    	X509Certificate x509Certificate = cryptoUtil.loadX509Certificate(message.getDigitalPost().getPostboxCertificate());
-    	return Sertifikat.fraCertificate(x509Certificate);
-    }
-
-    private Mottaker buildMottaker(Message message) {
-    	Sertifikat sertifikat = buildSertifikat(message);
-    	return Mottaker
-    			.builder(message.getSsn(), message.getDigitalPost().getPostboxAddress(), sertifikat, message.getDigitalPost().getPostboxVendorOrgNumber())
-    			.build();
-    }
-
-    private Dokument buildDokument(Document document) {
-    	ByteArrayInputStream documentContent = new ByteArrayInputStream(document.getContent());
-    	return Dokument
-        		.builder(document.getTitle(), document.getFilename(), documentContent)
-        		.mimeType(document.getMimetype())
-        		.build();
-    }
-
-    private List<Dokument> buildVedlegg(Message message) {
-    	List<Dokument> attachments = new ArrayList<Dokument>();
-    	for (Document document : message.getAttachments()) {
-    		attachments.add(buildDokument(document));
-    	}
-    	return attachments;
-    }
-
-    private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
-    	Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
-    			.builder(message.getSenderOrgNumber())
-    			.avsenderIdentifikator(message.getSenderId())
-    			.fakturaReferanse(message.getInvoiceReference())
-    			.build();
-    	return behandlingsansvarlig;
-	}
-
-    private Dokumentpakke buildDokumentpakke(Message message) {
-    	Dokumentpakke.Builder builder = Dokumentpakke.builder(buildDokument(message.getDocument()));
-    	if (message.getAttachments().size() == 0) {
-    		return builder.build();
-    	}
-    	builder.vedlegg(buildVedlegg(message));
-    	return builder.build();
-    }
-
-    private Forsendelse buildDigitalForsendelse(Message message) {
-    	Mottaker mottaker  = buildMottaker(message);
-        DigitalPost digitalPost = DigitalPost
-        		.builder(mottaker, message.getDigitalPost().getInsensitiveTitle())
-        		.sikkerhetsnivaa(message.getDigitalPost().getSecurityLevel())
-        		.aapningskvittering(message.getDigitalPost().getRequiresMessageOpenedReceipt())
-        		.epostVarsel(buildEpostVarsel(message))
-        		.smsVarsel(buildSmsVarsel(message))
-        		.virkningsdato(message.getDigitalPost().getDelayedAvailabilityDate())
-        		.build();
-        Dokumentpakke dokumentPakke = buildDokumentpakke(message);
-        Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
-        return Forsendelse
-        		.digital(behandlingsansvarlig, digitalPost, dokumentPakke)
-        		.prioritet(message.getPriority())
-        		.spraakkode(message.getLanguageCode())
-				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
-        		.build();
-    }
-
-    private KonvoluttAdresse buildAdressatAdresse(Message message){
-        no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = message.getFysiskPost().getAdressat();
-        KonvoluttAdresse konvoluttAdresse = null;
-
-        if(adressat.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK){
-
-
-            konvoluttAdresse = KonvoluttAdresse.build(adressat.getNavn())
-                    .iNorge(adressat.getAdresselinjer().get(0),
-                            adressat.getAdresselinjer().get(1),
-                            adressat.getAdresselinjer().get(2),
-                            adressat.getPostnummer(),
-                            adressat.getPoststed())
-                    .build();
-    }else if (adressat.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK){
-        konvoluttAdresse = KonvoluttAdresse.build(adressat.getNavn())
-                .iUtlandet(adressat.getAdresselinjer().get(0),
-                        adressat.getAdresselinjer().get(1),
-                        adressat.getAdresselinjer().get(2),
-                        adressat.getAdresselinjer().get(3),
-                        Landkoder.landkode(adressat.getLandkode()))
-                .build();
-    }
-
-        return konvoluttAdresse;
-    }
-
-private KonvoluttAdresse buildReturAdresse(Message message){
-    no.difi.sdp.webclient.domain.KonvoluttAdresse retur = message.getFysiskPost().getReturadresse();
-    KonvoluttAdresse returAdresse = null;
-
-    if(retur.getType() == no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK){
-
-        returAdresse = returAdresse.build(retur.getNavn())
-                .iNorge(retur.getAdresselinjer().get(0),
-                        retur.getAdresselinjer().get(1),
-                        retur.getAdresselinjer().get(2),
-                        retur.getPostnummer(),
-                        retur.getPoststed())
-                .build();
-
-    } else if (retur.getType() ==  no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.UTENLANDSK){
-        returAdresse = returAdresse.build(retur.getNavn())
-                .iUtlandet(retur.getAdresselinjer().get(0),
-                        retur.getAdresselinjer().get(1),
-                        retur.getAdresselinjer().get(2),
-                        retur.getAdresselinjer().get(3),
-                        Landkoder.landkode(retur.getLandkode()))
-                .build();
-    }
-    return returAdresse;
-}
-
-    private Forsendelse buildFysiskForsendelse(Message message) {
-
-        no.difi.sdp.webclient.domain.FysiskPost fysiskPost = message.getFysiskPost();
-
-        Returhaandtering returhaandtering = Returhaandtering.valueOf(fysiskPost.getReturhaandtering().toString());
-        Posttype posttype = Posttype.valueOf(message.getFysiskPost().getPosttype().toString());
-        Utskriftsfarge utskriftsfarge = Utskriftsfarge.valueOf(fysiskPost.getUtskriftsfarge().toString());
-        TekniskMottaker tekniskMottaker = postklientService.createTekniskMottaker(fysiskPost.getTekniskMottakerSertifikatAlias());
-
-        FysiskPost fysiskpost = FysiskPost.builder()
-                .adresse(buildAdressatAdresse(message))
-                .retur(returhaandtering, buildReturAdresse(message))
-                .sendesMed(posttype)
-                .utskrift(utskriftsfarge, tekniskMottaker)
-                .build();
-
-        Behandlingsansvarlig behandlingsansvarlig =  buildBehandlingsansvarlig(message);
-        Dokumentpakke dokumentPakke = buildDokumentpakke(message);
-
-        return Forsendelse
-                .fysisk(behandlingsansvarlig, fysiskpost, dokumentPakke)
-                .mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
-                .build();
-    }
 
     public void sendMessage(Message message)  {
     	message.setDate(new Date());
@@ -321,19 +143,27 @@ private KonvoluttAdresse buildReturAdresse(Message message){
     		message.setStatus(e.getStatus());
     		message.setException(stringUtil.toString(e));
     	}
-    	message.setXmlRetrievePersonsRequest(stringUtil.nullIfEmpty(xmlRetrievePersonsRequest));
-    	message.setXmlRetrievePersonsRequestPayload(stringUtil.nullIfEmpty(xmlRetrievePersonsRequestPayload));
-    	message.setXmlRetrievePersonsResponse(stringUtil.nullIfEmpty(xmlRetrievePersonsResponse));
-    	message.setXmlRetrievePersonsResponsePayload(stringUtil.nullIfEmpty(xmlRetrievePersonsResponsePayload));
-    	message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest));
-    	message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload));
-    	message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse));
+        addOppslagstjenestenSendData(message);
+        addSikkerDigitalPostSendData(message);
     	if (! message.getSaveBinaryContent()) {
     		removeBinaryContent(message);
     	}
     	message.setCompletedDate(new Date());
     	messageRepository.save(message);
 	}
+
+    private void addSikkerDigitalPostSendData(Message message) {
+        message.setXmlSendMessageRequest(stringUtil.nullIfEmpty(postKlientSoapRequest));
+        message.setXmlSendMessageRequestPayload(stringUtil.nullIfEmpty(postKlientSoapRequestPayload));
+        message.setXmlSendMessageResponse(stringUtil.nullIfEmpty(postKlientSoapResponse));
+    }
+
+    private void addOppslagstjenestenSendData(Message message) {
+        message.setXmlRetrievePersonsRequest(stringUtil.nullIfEmpty(xmlRetrievePersonsRequest));
+        message.setXmlRetrievePersonsRequestPayload(stringUtil.nullIfEmpty(xmlRetrievePersonsRequestPayload));
+        message.setXmlRetrievePersonsResponse(stringUtil.nullIfEmpty(xmlRetrievePersonsResponse));
+        message.setXmlRetrievePersonsResponsePayload(stringUtil.nullIfEmpty(xmlRetrievePersonsResponsePayload));
+    }
 
     private void removeBinaryContent(Message message) {
     	message.setAsic(null);
@@ -371,10 +201,10 @@ private KonvoluttAdresse buildReturAdresse(Message message){
         //	throw new MessageServiceException(MessageStatus.FAILED_QUALIFYING_FOR_DIGITAL_POST, "Kunne ikke sende digital post. Bruker har reservasjon i kontaktregisteret.");
         //}
 
-        	forsendelse = buildDigitalForsendelse(message);
+        	forsendelse = builderService.buildDigitalForsendelse(message, getMessagePartitionChannel());
 
         } else if(!message.isDigital()) {
-            forsendelse = buildFysiskForsendelse(message);
+            forsendelse = builderService.buildFysiskForsendelse(message, getMessagePartitionChannel());
         }
 		try {
 			enrichMessage(message, forsendelse);
@@ -422,28 +252,33 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 	private Page<Message> toMessagePage(Page<Object[]> rawMessagePage, PageRequest pageRequest) {
 		List<Message> messages = new ArrayList<Message>();
 		for (Object[] rawMessage : rawMessagePage.getContent()) {
-			// Refer to messageRepository.list() for field order
-			Message message = new Message();
-			message.setId((Long) rawMessage[0]);
-			message.setDate((Date) rawMessage[1]);
-			message.setSsn((String) rawMessage[2]);
-            message.setDigital((boolean) rawMessage[4]);
-
-            no.difi.sdp.webclient.domain.FysiskPost fysiskPost= new no.difi.sdp.webclient.domain.FysiskPost();
-            no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
-            adressat.setNavn((String) rawMessage[5]);
-            fysiskPost.setAdressat(adressat);
-            message.setFysiskPost(fysiskPost);
-
-			Document document = new Document();
-			document.setTitle((String) rawMessage[3]);
-			message.setDocument(document);
+            Message message = convertToMessage(rawMessage);
 			messages.add(message);
 		}
 		return new PageImpl<Message>(messages, pageRequest, rawMessagePage.getTotalElements());
 	}
 
-	public Message getMessage(Long id) {
+    private Message convertToMessage(Object[] rawMessage) {
+        // Refer to messageRepository.list() for field order
+        Message message = new Message();
+        message.setId((Long) rawMessage[0]);
+        message.setDate((Date) rawMessage[1]);
+        message.setSsn((String) rawMessage[2]);
+        message.setDigital((boolean) rawMessage[4]);
+
+        no.difi.sdp.webclient.domain.FysiskPost fysiskPost= new no.difi.sdp.webclient.domain.FysiskPost();
+        no.difi.sdp.webclient.domain.KonvoluttAdresse adressat = new no.difi.sdp.webclient.domain.KonvoluttAdresse();
+        adressat.setNavn((String) rawMessage[5]);
+        fysiskPost.setAdressat(adressat);
+        message.setFysiskPost(fysiskPost);
+
+        Document document = new Document();
+        document.setTitle((String) rawMessage[3]);
+        message.setDocument(document);
+        return message;
+    }
+
+    public Message getMessage(Long id) {
 		return messageRepository.findOne(id);
 	}
 
@@ -497,7 +332,7 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 		Date date = new Date();
 		ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel
 				.builder(prioritet)
-				.mpcId(configurationService.getConfiguration().getMessagePartitionChannel())
+				.mpcId(getMessagePartitionChannel())
 				.build());
 		if (forretningsKvittering == null) {
 			// No available receipts
@@ -515,50 +350,12 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 			}
 			return true;
 		}
-		String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
-		String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse);
-		String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
-    	Message message = messages.get(0);
-		Receipt receipt = new Receipt();
-		message.getReceipts().add(receipt);
-		receipt.setMessage(message);
-		receipt.setDate(date);
-		receipt.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
-		receipt.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
-		receipt.setCompletedDate(new Date());
-		receipt.setPostboxDate(forretningsKvittering.getTidspunkt());
-		receipt.setXmlRequest(xmlRequestString);
-		receipt.setXmlResponse(xmlResponseString);
-		receipt.setXmlResponsePayload(xmlResponsePayloadString);
-		if (forretningsKvittering instanceof Feil) {
-			Feil feil = (Feil) forretningsKvittering;
-			LOGGER.error("Recieved error type " + feil.getFeiltype().toString() + " with details: " + feil.getDetaljer());
-			receipt.setType("Feil");
-			receipt.setErrorDetails(feil.getDetaljer());
-			receipt.setErrorType(feil.getFeiltype());
-			message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
-		} else if (forretningsKvittering instanceof AapningsKvittering) {
-			receipt.setType("Åpningskvittering");
-			message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
-		} else if (forretningsKvittering instanceof MottaksKvittering) {
-            receipt.setType("Mottakskvittering");
-            message.setStatus(MessageStatus.WAITING_FOR_DELIVERED_RECEIPT);
-        }else if (forretningsKvittering instanceof LeveringsKvittering) {
-			receipt.setType("Leveringskvittering");
-			if (message.isDigital() && message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
-				message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
-			} else {
-				message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
-			}
-		} else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
-			VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
-			receipt.setType("Varsling feilet");
-			receipt.setNotificationErrorChannel(varslingFeiletKvittering.getVarslingskanal());
-			receipt.setNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
-		} else {
-			LOGGER.error("Recieved unknown receipt type " + forretningsKvittering.getClass());
-		}
-		try {
+		Message message = messages.get(0);
+
+        Receipt receipt = createReceipt(date, forretningsKvittering, message);
+        message.getReceipts().add(receipt);
+        handleKvittering(forretningsKvittering, message, receipt);
+        try {
 			postklient.bekreft(forretningsKvittering);
 		} catch (Exception e) {
 			LOGGER.error("Failed acknowledging retrieved receipt", e);
@@ -571,7 +368,60 @@ private KonvoluttAdresse buildReturAdresse(Message message){
 		return true;
 	}
 
-	public void deleteMessage(Long id) {
+    private String getMessagePartitionChannel() {
+        return configurationService.getConfiguration().getMessagePartitionChannel();
+    }
+
+    private Receipt createReceipt(Date date, ForretningsKvittering forretningsKvittering, Message message) {
+        String xmlRequestString = stringUtil.nullIfEmpty(postKlientSoapRequest);
+        String xmlResponseString = stringUtil.nullIfEmpty(postKlientSoapResponse);
+        String xmlResponsePayloadString = stringUtil.nullIfEmpty(postKlientSoapResponsePayload);
+
+        Receipt receipt = new Receipt();
+        receipt.setMessage(message);
+        receipt.setDate(date);
+        receipt.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
+        receipt.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
+        receipt.setCompletedDate(new Date());
+        receipt.setPostboxDate(forretningsKvittering.getTidspunkt());
+        receipt.setXmlRequest(xmlRequestString);
+        receipt.setXmlResponse(xmlResponseString);
+        receipt.setXmlResponsePayload(xmlResponsePayloadString);
+        return receipt;
+    }
+
+    private void handleKvittering(ForretningsKvittering forretningsKvittering, Message message, Receipt receipt) {
+        if (forretningsKvittering instanceof Feil) {
+            Feil feil = (Feil) forretningsKvittering;
+            LOGGER.error("Recieved error type " + feil.getFeiltype().toString() + " with details: " + feil.getDetaljer());
+            receipt.setType("Feil");
+            receipt.setErrorDetails(feil.getDetaljer());
+            receipt.setErrorType(feil.getFeiltype());
+            message.setStatus(MessageStatus.FAILED_SENDING_DIGITAL_POST);
+        } else if (forretningsKvittering instanceof AapningsKvittering) {
+            receipt.setType("Åpningskvittering");
+            message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+        } else if (forretningsKvittering instanceof MottaksKvittering) {
+            receipt.setType("Mottakskvittering");
+            message.setStatus(MessageStatus.WAITING_FOR_DELIVERED_RECEIPT);
+        }else if (forretningsKvittering instanceof LeveringsKvittering) {
+            receipt.setType("Leveringskvittering");
+            if (message.isDigital() && message.getDigitalPost().getRequiresMessageOpenedReceipt()) {
+                message.setStatus(MessageStatus.WAITING_FOR_OPENED_RECEIPT);
+            } else {
+                message.setStatus(MessageStatus.SUCCESSFULLY_SENT_MESSAGE);
+            }
+        } else if (forretningsKvittering instanceof VarslingFeiletKvittering) {
+            VarslingFeiletKvittering varslingFeiletKvittering = (VarslingFeiletKvittering) forretningsKvittering;
+            receipt.setType("Varsling feilet");
+            receipt.setNotificationErrorChannel(varslingFeiletKvittering.getVarslingskanal());
+            receipt.setNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
+        } else {
+            LOGGER.error("Recieved unknown receipt type " + forretningsKvittering.getClass());
+        }
+    }
+
+    public void deleteMessage(Long id) {
 		messageRepository.delete(id);
 	}
 

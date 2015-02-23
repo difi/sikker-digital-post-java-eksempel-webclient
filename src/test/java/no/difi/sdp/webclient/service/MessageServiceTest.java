@@ -12,21 +12,15 @@ import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
-import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
-import no.difi.sdp.webclient.domain.Configuration;
-import no.difi.sdp.webclient.domain.DigitalPost;
-import no.difi.sdp.webclient.domain.Document;
-import no.difi.sdp.webclient.domain.Message;
+import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.repository.DocumentRepository;
 import no.difi.sdp.webclient.repository.MessageRepository;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -38,12 +32,18 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {SdpClientConfiguration.class})
 @WebAppConfiguration
-public class MessageServiceTest {
+public class MessageServiceTest extends BaseTest{
 
     @InjectMocks
     private MessageService service;
@@ -59,6 +59,9 @@ public class MessageServiceTest {
 
     @Mock
     private KlientKonfigurasjon klientKonfigurasjon;
+
+    @Mock
+    private BuilderService builderService;
 
     @Mock
     private Noekkelpar noekkelpar;
@@ -82,9 +85,6 @@ public class MessageServiceTest {
     private HentPersonerForespoersel hentPersonerForespoersel;
 
     @Mock
-    private CryptoUtil cryptoUtil;
-
-    @Mock
     private X509Certificate x509Certificate;
 
     @Mock
@@ -98,11 +98,6 @@ public class MessageServiceTest {
 
     @Mock
     private DocumentRepository documentRepository;
-
-    @Before
-    public void runBeforeEachTest(){
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void test_delete_message() {
@@ -162,15 +157,64 @@ public class MessageServiceTest {
     public void test_send_message_digital_do_not_use_oppslagstjeneste() {
 
         final byte[] postboxCertificate = {(byte) 0xe7, 0x4f};
+        final String messagePartitionChannel = "MessagePartitionChannel";
+        Message message = createDigitalMessage(postboxCertificate);
 
-        when(configuration.getMessagePartitionChannel()).thenReturn("MessagePartitionChannel");
+        when(configuration.getMessagePartitionChannel()).thenReturn(messagePartitionChannel);
         when(configurationService.getConfiguration()).thenReturn(configuration);
-        when(cryptoUtil.loadX509Certificate(postboxCertificate)).thenReturn(x509Certificate);
+
         when(postklientService.get(anyString())).thenReturn(sikkerDigitalPostKlient);
         when(postKlientSoapRequestSentDate.getValue()).thenReturn(new Date());
         when(postKlientSoapResponseReceivedDate.getValue()).thenReturn(new Date());
         when(stringUtil.nullIfEmpty(anyString())).thenReturn("");
 
+        when(builderService.buildDigitalForsendelse(any(Message.class), eq(messagePartitionChannel))).thenReturn(Forsendelse
+                .digital(null, null, null)
+                .prioritet(message.getPriority())
+                .spraakkode(message.getLanguageCode())
+                .mpcId(messagePartitionChannel)
+                .build());
+
+        service.sendMessage(message);
+        verify(builderService).buildDigitalForsendelse(message, messagePartitionChannel);
+        verify(hentPersonerForespoersel, never()).getInformasjonsbehov();
+        verify(hentPersonerForespoersel, never()).getPersonidentifikator();
+        verify(messageRepository, times(2)).save(message);
+        verify(sikkerDigitalPostKlient).send(any(Forsendelse.class));
+    }
+
+    @Test
+    public void test_send_fysisk_message() {
+
+        final byte[] postboxCertificate = {(byte) 0xe7, 0x4f};
+        final String messagePartitionChannel = "MessagePartitionChannel";
+        Message message = createFysiskMessage(postboxCertificate);
+
+        when(configuration.getMessagePartitionChannel()).thenReturn(messagePartitionChannel);
+        when(configurationService.getConfiguration()).thenReturn(configuration);
+
+        when(postklientService.get(anyString())).thenReturn(sikkerDigitalPostKlient);
+        when(postKlientSoapRequestSentDate.getValue()).thenReturn(new Date());
+        when(postKlientSoapResponseReceivedDate.getValue()).thenReturn(new Date());
+        when(stringUtil.nullIfEmpty(anyString())).thenReturn("");
+
+        when(builderService.buildFysiskForsendelse(any(Message.class), eq(messagePartitionChannel))).thenReturn(Forsendelse
+                .fysisk(null, null, null)
+                .prioritet(message.getPriority())
+                .spraakkode(message.getLanguageCode())
+                .mpcId(messagePartitionChannel)
+                .build());
+
+        service.sendMessage(message);
+
+        verify(builderService).buildFysiskForsendelse(message, messagePartitionChannel);
+        verify(hentPersonerForespoersel, never()).getInformasjonsbehov();
+        verify(hentPersonerForespoersel, never()).getPersonidentifikator();
+        verify(messageRepository, times(2)).save(message);
+        verify(sikkerDigitalPostKlient).send(any(Forsendelse.class));
+    }
+
+    private Message createDigitalMessage(byte[] postboxCertificate) {
         DigitalPost digitalPost = new DigitalPost("tittel");
         digitalPost.setRetrieveContactDetails(false);
         digitalPost.setContactRegisterStatus(Status.AKTIV);
@@ -183,29 +227,35 @@ public class MessageServiceTest {
         digitalPost.setRequiresMessageOpenedReceipt(false);
         digitalPost.setDelayedAvailabilityDate(new Date());
 
-        Document document = new Document();
-        document.setContent(new byte[]{0x2d, 0x2d});
-        document.setFilename("Document filename");
-        document.setId(new Long(123));
+
 
         Message message = new Message(digitalPost);
+        setCommonMessageAttributes(message);
+        return message;
+    }
+
+    private void setCommonMessageAttributes(Message message) {
         message.setSenderOrgNumber("SenderOrgNummer");
         message.setSenderId("SenderId");
         message.setInvoiceReference("InvoiceReference");
         message.setPriority(Prioritet.NORMAL);
         message.setLanguageCode("Language");
+        Document document = new Document();
+        document.setContent(new byte[]{0x2d, 0x2d});
+        document.setFilename("Document filename");
+        document.setId(new Long(123));
         message.setDocument(document);
         Set<Document> documentSet = new HashSet<>();
 
         message.setAttachments(documentSet);
+    }
 
-        service.sendMessage(message);
+    private Message createFysiskMessage(byte[] postboxCertificate) {
+        FysiskPost fysiskPost = new FysiskPost();
 
-        verify(hentPersonerForespoersel, never()).getInformasjonsbehov();
-        verify(hentPersonerForespoersel, never()).getPersonidentifikator();
-        verify(messageRepository, times(2)).save(message);
-        verify(sikkerDigitalPostKlient).send(any(Forsendelse.class));
-
+        Message message = new Message(fysiskPost);
+        setCommonMessageAttributes(message);
+        return message;
     }
 
     @Autowired

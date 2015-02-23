@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 /**
@@ -35,10 +36,8 @@ public class MessageCommandValidator implements Validator {
             fysiskPostValidator.validate(message.getFysiskPostCommand(), errors);
 
         } else if (message.isDigitalPost()) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "ssn", "ssn", "SSN er tomt");
             basicValidator.validate(message.getDigitalPostCommand(), errors);
-            //ValidationUtils.rejectIfEmptyOrWhitespace(errors, "id", "id.required");
-            //errors.rejectValue("id", "negativeValue", new Object[]{"'id'"}, "id can't be negative");
-            // TODO: randi implementer logikk for adresse etc.
         }
 
     }
