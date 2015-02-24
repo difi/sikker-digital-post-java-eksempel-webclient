@@ -5,6 +5,7 @@
 - Muliggjør funksjonell testing av meldingsformidler og postbokser via et web-grensesnitt
 - Muliggjør ytelsestesting av meldingsformidler og postbokser via et web-grensesnitt
 - Viser hvordan postavsendere kan ta i bruk sikker digital post og kan være et utgangspunkt for postavsenderes egne integrasjoner
+- Muliggjør funksjonell testing av sending av fysisk post via meldingsformidler
 - Inkluderer out-of-the-box integrasjon
 - Kan prøves på http://avsender-sdp.difi.no/
 
