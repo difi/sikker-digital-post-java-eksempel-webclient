@@ -1,7 +1,7 @@
 package no.difi.sdp.webclient.web;
 
 import no.difi.sdp.webclient.domain.Message;
-import no.difi.sdp.webclient.service.BaseTest;
+import no.difi.sdp.webclient.BaseTest;
 import no.difi.sdp.webclient.service.MessageService;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;

@@ -1,4 +1,4 @@
-package no.difi.sdp.webclient.service;
+package no.difi.sdp.webclient;
 
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;

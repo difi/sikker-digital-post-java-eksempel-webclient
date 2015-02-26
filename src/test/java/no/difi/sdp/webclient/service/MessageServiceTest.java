@@ -11,6 +11,7 @@ import no.difi.sdp.client.domain.TekniskAvsender;
 import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
+import no.difi.sdp.webclient.BaseTest;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {SdpClientConfiguration.class})
 @WebAppConfiguration
-public class MessageServiceTest extends BaseTest{
+public class MessageServiceTest extends BaseTest {
 
     @InjectMocks
     private MessageService service;
