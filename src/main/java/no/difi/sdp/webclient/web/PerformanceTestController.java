@@ -27,7 +27,6 @@ import java.util.Set;
 
 /**
  * Controller for ytelsetest av digital melding til digipost eller eBoks.
- *
  */
 @Controller
 public class PerformanceTestController {
@@ -44,13 +43,31 @@ public class PerformanceTestController {
     public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
         Message message = new Message(true);
         message.setSsn(ssn);
-        DigitalPost digitalPost = new DigitalPost("Brev til " + ssn + " " + new Date());
-        message.setDigitalPost(digitalPost);
         message.setPriority(Prioritet.NORMAL);
-        digitalPost.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
         message.setLanguageCode("NO");
         message.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
         message.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
+
+        String pdfInputFileName = getPdfNameAndAddAttachementsToMessage(size, message);
+        InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(pdfInputFileName);
+        message.setDocument(createDocument(ssn, pdfInputStream));
+
+        DigitalPost digitalPost = new DigitalPost("Brev til " + ssn + " " + new Date());
+        digitalPost.setSecurityLevel(Sikkerhetsnivaa.NIVAA_3);
+        digitalPost.setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
+        message.setSaveBinaryContent(false);
+        if (!digitalPost.getRetrieveContactDetails()) {
+            // Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
+            digitalPost.setContactRegisterStatus(Status.AKTIV);
+            digitalPost.setReservationStatus(Reservasjon.NEI);
+            digitalPost.setPostboxAddress(postboxAddress);
+            setPostboxVendor(digitalPost, postboxVendor);
+        }
+        message.setDigitalPost(digitalPost);
+        messageService.sendMessage(message);
+    }
+
+    private String getPdfNameAndAddAttachementsToMessage(PerformanceTestSize size, Message message) throws IOException {
         Set<Document> attachments = new HashSet<Document>();
         String pdfInputFileName;
         switch (size) {
@@ -66,6 +83,7 @@ public class PerformanceTestController {
                 break;
             case SIZE_8MB:
                 pdfInputFileName = "SDP-StortDokument-4MB.pdf";
+
                 attachments.add(getDocumentByFilename(message, "SDP-Vedlegg1-2MB.pdf"));
                 attachments.add(getDocumentByFilename(message, "SDP-Vedlegg2-2MB.pdf"));
                 break;
@@ -73,36 +91,32 @@ public class PerformanceTestController {
                 throw new RuntimeException("Size not supported: " + size.toString());
         }
         message.setAttachments(attachments);
+        return pdfInputFileName;
+    }
 
-        InputStream pdfInputStream = this.getClass().getClassLoader().getResourceAsStream(pdfInputFileName);
+    private void setPostboxVendor(DigitalPost digitalPost, PostboxVendor postboxVendor) {
+        switch (postboxVendor) {
+            case DIGIPOST:
+                digitalPost.setPostboxVendorOrgNumber(environment.getProperty("performancetest.digipost.orgnr"));
+                digitalPost.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.digipost.postbox.certificate")));
+                break;
+            case EBOKS:
+                digitalPost.setPostboxVendorOrgNumber(environment.getProperty("performancetest.eboks.orgnr"));
+                digitalPost.setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.eboks.postbox.certificate")));
+                break;
+            default:
+                throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
+        }
+    }
+
+    private Document createDocument(String ssn, InputStream pdfInputStream) throws IOException {
         byte[] pdf = IOUtils.toByteArray(pdfInputStream);
         Document document = new Document();
         document.setFilename("testfil.pdf");
         document.setContent(pdf);
         document.setMimetype("application/pdf");
         document.setTitle("Brev til " + ssn + " " + new Date());
-        message.setDocument(document);
-        message.getDigitalPost().setRetrieveContactDetails(postboxAddress == null || postboxVendor == null);
-        message.setSaveBinaryContent(false);
-        if (!message.getDigitalPost().getRetrieveContactDetails()) {
-            // Uses the provided contact details (skips retrieval of contact details from oppslagstjenesten)
-            message.getDigitalPost().setContactRegisterStatus(Status.AKTIV);
-            message.getDigitalPost().setReservationStatus(Reservasjon.NEI);
-            message.getDigitalPost().setPostboxAddress(postboxAddress);
-            switch (postboxVendor) {
-                case DIGIPOST:
-                    message.getDigitalPost().setPostboxVendorOrgNumber(environment.getProperty("performancetest.digipost.orgnr"));
-                    message.getDigitalPost().setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.digipost.postbox.certificate")));
-                    break;
-                case EBOKS:
-                    message.getDigitalPost().setPostboxVendorOrgNumber(environment.getProperty("performancetest.eboks.orgnr"));
-                    message.getDigitalPost().setPostboxCertificate(Base64.decodeBase64(environment.getProperty("performancetest.eboks.postbox.certificate")));
-                    break;
-                default:
-                    throw new RuntimeException("Postbox vendor not supported: " + postboxVendor.toString());
-            }
-        }
-        messageService.sendMessage(message);
+        return document;
     }
 
 
@@ -119,14 +133,14 @@ public class PerformanceTestController {
     }
 
 
-    private enum PerformanceTestSize {
+    public enum PerformanceTestSize {
         SIZE_10KB,
         SIZE_80KB,
         SIZE_800KB,
         SIZE_8MB
     }
 
-    private enum PostboxVendor {
+    public enum PostboxVendor {
         EBOKS,
         DIGIPOST
     }
