@@ -30,7 +30,7 @@ Postavsender tilbyr nedlasting av en rapport som viser alle sendte meldinger ink
 
 ## Jmeter-skript for ytelsestestscenario
 
-Jmeter er et verktøy for ytelsestesting. Les om Apache Jmeter på http://jmeter.apache.org/
+Jmeter er et verktøy for ytelsestesting. Les om Apache Jmeter på http://jmeter.apache.org/. For å presentere resultata av test bedre blir det brukt en plugin til JMeter <a href="http://jmeter-plugins.org/wiki/StandardSet/">JMeterPlugins-Standard-1.2.0</a> som kan lastes ned her http://jmeter-plugins.org/downloads/all/.
 
 Meldinger blir sendt fordelt på et stort antall testbrukere hos eBoks og Digipost.
 
