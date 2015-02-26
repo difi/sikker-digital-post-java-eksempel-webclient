@@ -23,7 +23,17 @@
 					<artifactId>log4j-over-slf4j</artifactId>
 					<groupId>org.slf4j</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>saaj-impl</artifactId>
+					<groupId>com.sun.xml.messaging.saaj</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.messaging.saaj</groupId>
+			<artifactId>saaj-impl</artifactId>
+			<version>1.3.26-SNAPSHOT</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -258,11 +268,13 @@
 
     <repositories>
     	<repository>
+    		<!--  org.springframework / spring-test-mvc / 1.0.0.M2 -->
     		<id>repo.springsource.org</id>
     		<name>repo.springsource.org</name>
     		<url>http://repo.springsource.org/libs-milestone/</url>
     	</repository>
 		<repository>
+			<!-- no.difi.sdp / sikker-digital-post-java-klient -->
 			<id>sonatype-nexus-public</id>
 			<url>https://oss.sonatype.org/content/groups/public</url>
 			<releases>
@@ -271,6 +283,22 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<!-- com.sun.xml.messaging.saaj / saaj-impl / 1.3.26-SNAPSHOT -->
+			<id>java.net-snapshots</id>
+    		<url>https://maven.java.net/content/repositories/snapshots/</url>
+    		<snapshots>
+    			<enabled>true</enabled>
+    		</snapshots>
+		</repository>
+		<repository>
+			<!-- org.jvnet.staxex / stax-ex / 1.7.7-->
+			<id>java.net-staging</id>
+    		<url>https://maven.java.net/content/repositories/staging/</url>
+    		<snapshots>
+    			<enabled>true</enabled>
+    		</snapshots>
 		</repository>
     </repositories>
 </project>

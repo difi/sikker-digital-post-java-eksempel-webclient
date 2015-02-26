@@ -56,7 +56,7 @@ public class PostklientService {
 		if (! postklientMap.containsKey(keyPairAlias)) {
 			postklientMap.put(keyPairAlias, createPostKlient(keyPairAlias));
 		}
-		return postklientMap.get(keyPairAlias);	
+		return postklientMap.get(keyPairAlias);
 	}
 
 	/**
