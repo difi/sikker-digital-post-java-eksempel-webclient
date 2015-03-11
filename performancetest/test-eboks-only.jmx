@@ -60,7 +60,7 @@
         <stringProp name="variableNames">ssnforeboks,postboxforeboks</stringProp>
       </CSVDataSet>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Testscenario fase 1 - lett last" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Testscenario fase 1 - lett last" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Løkke kontroller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -68,10 +68,10 @@
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">200</stringProp>
         <stringProp name="ThreadGroup.ramp_time">60</stringProp>
-        <longProp name="ThreadGroup.start_time">1407848409000</longProp>
-        <longProp name="ThreadGroup.end_time">1407848409000</longProp>
+        <longProp name="ThreadGroup.start_time">1426143600000</longProp>
+        <longProp name="ThreadGroup.end_time">1426147200000</longProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">3660</stringProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay">0</stringProp>
         <stringProp name="TestPlan.comments">Test av [70% 10kb], [20% 80kb], [10% 800kb]</stringProp>
       </ThreadGroup>
@@ -80,18 +80,18 @@
           <intProp name="calcMode">1</intProp>
           <doubleProp>
             <name>throughput</name>
-            <value>1650.0</value>
+            <value>412.5</value>
             <savedValue>0.0</savedValue>
           </doubleProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="100% Digipost" enabled="true">
+        <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="0% Digipost" enabled="true">
           <intProp name="ThroughputController.style">1</intProp>
           <boolProp name="ThroughputController.perThread">false</boolProp>
           <stringProp name="ThroughputController.maxThroughput">78%</stringProp>
           <FloatProperty>
             <name>ThroughputController.percentThroughput</name>
-            <value>100.0</value>
+            <value>0.0</value>
             <savedValue>0.0</savedValue>
           </FloatProperty>
         </ThroughputController>
@@ -431,13 +431,13 @@
             </hashTree>
           </hashTree>
         </hashTree>
-        <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="0% E-boks" enabled="true">
+        <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="100% E-boks" enabled="true">
           <intProp name="ThroughputController.style">1</intProp>
           <boolProp name="ThroughputController.perThread">false</boolProp>
           <stringProp name="ThroughputController.maxThroughput">22%</stringProp>
           <FloatProperty>
             <name>ThroughputController.percentThroughput</name>
-            <value>0.0</value>
+            <value>100.0</value>
             <savedValue>0.0</savedValue>
           </FloatProperty>
         </ThroughputController>
@@ -778,7 +778,7 @@
           </hashTree>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Testscenario fase 2 - tung last" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Testscenario fase 2 - tung last" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Løkke kontroller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
