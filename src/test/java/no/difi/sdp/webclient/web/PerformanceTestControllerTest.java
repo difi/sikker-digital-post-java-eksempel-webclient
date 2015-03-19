@@ -35,19 +35,19 @@ public class PerformanceTestControllerTest extends BaseTest {
     public void test_performance_test_send_message() throws IOException {
         final String ssn = "ssn";
         final String postboksAdresse = "postboksAdresse";
-        controller.performanceTestSendMessage(ssn, PerformanceTestController.PerformanceTestSize.SIZE_10KB, postboksAdresse, PerformanceTestController.PostboxVendor.DIGIPOST);
+        controller.performanceTestSendMessage(ssn, PerformanceTestController.PerformanceTestSize.SIZE_10KB, postboksAdresse, PerformanceTestController.PostboxVendor.DIGIPOST, null);
         verify(service).sendMessage(argThat(new IsDigitalMessage(ssn,postboksAdresse)));
     }
 
     @Test
     public void test_performance_test_send_message_without_postbox() throws IOException {
-        controller.performanceTestSendMessage("ssn", PerformanceTestController.PerformanceTestSize.SIZE_10KB, "postboksAdresse", null);
+        controller.performanceTestSendMessage("ssn", PerformanceTestController.PerformanceTestSize.SIZE_10KB, "postboksAdresse", null, null);
         verify(service).sendMessage(any(Message.class));
     }
 
     @Test
     public void test_performance_test_send_message_without_postbox_and_address() throws IOException {
-        controller.performanceTestSendMessage("ssn", PerformanceTestController.PerformanceTestSize.SIZE_10KB, null, null);
+        controller.performanceTestSendMessage("ssn", PerformanceTestController.PerformanceTestSize.SIZE_10KB, null, null, null);
         verify(service).sendMessage(any(Message.class));
     }
 

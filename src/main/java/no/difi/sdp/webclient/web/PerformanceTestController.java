@@ -40,11 +40,17 @@ public class PerformanceTestController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/performance")
     @ResponseStatus(value = HttpStatus.OK)
-    public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor) throws IOException {
+    public void performanceTestSendMessage(@RequestParam String ssn, @RequestParam PerformanceTestSize size, @RequestParam(required = false) String postboxAddress, @RequestParam(required = false) PostboxVendor postboxVendor, @RequestParam(required = false) Prioritet prioritet) throws IOException {
         Message message = new Message(true);
         message.setSsn(ssn);
-        message.setPriority(Prioritet.NORMAL);
+        if(prioritet==null) {
+            message.setPriority(Prioritet.NORMAL);
+        }else{
+            message.setPriority(prioritet);
+        }
         message.setLanguageCode("NO");
+
+
         message.setSenderOrgNumber(environment.getProperty("sdp.behandlingsansvarlig.organisasjonsnummer"));
         message.setKeyPairAlias(environment.getProperty("sdp.databehandler.keypair.alias"));
 
