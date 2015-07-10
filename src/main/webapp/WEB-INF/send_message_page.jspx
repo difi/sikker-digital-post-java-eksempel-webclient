@@ -44,7 +44,7 @@
 						<input name="attachments" id="attachments" type="file" multiple="multiple" />
 						<span class="help-block">Du kan legge ved flere filer</span>
 						<div class="panel panel-default" id="attachmentTitles">
-							<div class="panel-heading">Vedleggstitler</div>
+							<div class="panel-heading">Vedleggstitler og mimetyper</div>
 							<div class="panel-body"><!-- --></div>
 						</div>
 					</div>
