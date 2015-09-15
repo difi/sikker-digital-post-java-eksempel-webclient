@@ -2,12 +2,9 @@ package no.difi.sdp.webclient.web;
 
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
-import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.*;
 import no.difi.sdp.webclient.service.MessageService;
 import no.difi.sdp.webclient.service.PostklientService;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +39,7 @@ public class MessageController {
 
 	private static final String FORM_ATTACHMENT_NAME_PREFIX = "attachmentName";
 	private static final String FORM_ATTACHMENT_TITLE_PREFIX = "attachmentTitle";
+	private static final String FORM_ATTACHMENT_MIMETYPE_PREFIX = "attachmentMimetype";
 
 	@Autowired
 	private Environment environment;
@@ -165,7 +163,7 @@ public class MessageController {
 
 	private KonvoluttAdresse getAdresse(no.difi.sdp.webclient.domain.KonvoluttAdresse adressat) {
 		KonvoluttAdresse adresse = new KonvoluttAdresse();
-		adresse.setType(adressat.getType()==no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK ? KonvoluttAdresse.Type.NORSK : KonvoluttAdresse.Type.UTENLANDSK);
+		adresse.setType(adressat.getType() == no.difi.sdp.webclient.domain.KonvoluttAdresse.Type.NORSK ? KonvoluttAdresse.Type.NORSK : KonvoluttAdresse.Type.UTENLANDSK);
 		adresse.setNavn(adressat.getNavn());
 		if(adressat.getAdresselinjer().size() == 4) {
 			adresse.setAdresselinje1(adressat.getAdresselinjer().get(0));
@@ -225,11 +223,12 @@ public class MessageController {
 		if (messageCommand.getAttachments() != null) {
 			for (MultipartFile multipartFile : messageCommand.getAttachments()) {
 				if (! multipartFile.isEmpty()) {
+                    String attachmentNumber = resolveAttachmentNumber(request, multipartFile.getOriginalFilename());
 					Document attachment = new Document();
-					attachment.setTitle(resolveAttachmentTitle(multipartFile, request));
+					attachment.setTitle(resolveAttachmentTitle(request, multipartFile.getOriginalFilename(), attachmentNumber));
 					attachment.setContent(multipartFile.getBytes());
 					attachment.setFilename(multipartFile.getOriginalFilename());
-					attachment.setMimetype(multipartFile.getContentType());
+					attachment.setMimetype(resolveAttachmentMimetype(request, multipartFile.getContentType(), attachmentNumber));
 					attachment.setMessage(message);
 					attachments.add(attachment);
 				}
@@ -315,33 +314,59 @@ public class MessageController {
 	}
 
 	/**
-	 * Resolves the attachment title for a given MultipartFile.
-	 * See send_message_page.js for frontend implementation.
 	 *
-	 * @param multipartFile
+	 *
 	 * @param request
-	 * @return Attachment title
+	 * @param originalFilename
+     * @return Attachment number
 	 */
-	private String resolveAttachmentTitle(MultipartFile multipartFile, HttpServletRequest request) {
-		String attachmentTitle = null;
-		for (Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
-			if (parameter.getKey().startsWith(FORM_ATTACHMENT_NAME_PREFIX)) {
-				// We matched an attachmentName#-parameter
-				if (multipartFile.getOriginalFilename().equals(parameter.getValue()[0])) {
-					// The attachmentName#-parameter matched the attachment we are resolving a title for
-					// The attachmentNumber of the attachmentName#-parameter allows us to resolve the attachmentTitle#-parameter
-					String attachmentNumber = parameter.getKey().replace(FORM_ATTACHMENT_NAME_PREFIX, "");
-					String attachmentTitleParameter = FORM_ATTACHMENT_TITLE_PREFIX + attachmentNumber;
-					attachmentTitle = request.getParameter(attachmentTitleParameter);
-					if (attachmentTitle != null && attachmentTitle.length() > 0) {
-						// The attachment title was provided
-						return attachmentTitle;
-					}
-				}
-			}
-		}
-		// No attachment title was provided, falls back to using the original filename as attachment title
-		return multipartFile.getOriginalFilename();
+	private String resolveAttachmentNumber(final HttpServletRequest request, final String originalFilename) {
+        for (Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
+            String key = parameter.getKey();
+            if (foundNameParameterForThisFilename(parameter, key, originalFilename)) {
+                return key.replace(FORM_ATTACHMENT_NAME_PREFIX, "");
+            }
+        }
+        return null;
+    }
+
+    private boolean foundNameParameterForThisFilename(Entry<String, String[]> parameter, String key, String originalFilename) {
+        boolean isNameParameter = key.startsWith(FORM_ATTACHMENT_NAME_PREFIX);
+        boolean filenameIsEqualToNameParameterValue = originalFilename.equals(parameter.getValue()[0]);
+        return isNameParameter && filenameIsEqualToNameParameterValue;
+    }
+
+    /**
+     * Resolves the attachment title for a given MultipartFile.
+     * See common_message.js for frontend implementation.
+     *
+     * @param request
+     * @param originalFilename
+     * @param attachmentNumber
+     * @return
+     */
+    private String resolveAttachmentTitle(HttpServletRequest request, final String originalFilename, final String attachmentNumber) {
+        String attachmentTitleParameter = FORM_ATTACHMENT_TITLE_PREFIX + attachmentNumber;
+        String attachmentTitle = request.getParameter(attachmentTitleParameter);
+        if (notEmpty(attachmentTitle)) {
+            return attachmentTitle;
+        }
+        // No attachment title was provided, falls back to using the original filename as attachment title
+        return originalFilename;
+    }
+
+    private boolean notEmpty(String value) {
+        return value != null && value.length() > 0;
+    }
+
+
+    private String resolveAttachmentMimetype(HttpServletRequest request, final String originalContentType, final String attachmentNumber) {
+        String attachmentMimetypeParameter = FORM_ATTACHMENT_MIMETYPE_PREFIX + attachmentNumber;
+        String attachmentMimetype = request.getParameter(attachmentMimetypeParameter);
+        if(notEmpty(attachmentMimetype)){
+            return attachmentMimetype;
+        }
+		return originalContentType;
 	}
 
 	private void validateUserSpecifiedContactDetails(MessageCommand messageCommand, BindingResult bindingResult) {

@@ -416,6 +416,9 @@ public class MessageService {
             receipt.setType("Varsling feilet");
             receipt.setNotificationErrorChannel(varslingFeiletKvittering.getVarslingskanal());
             receipt.setNotificationErrorDescription(varslingFeiletKvittering.getBeskrivelse());
+        } else if(forretningsKvittering instanceof ReturpostKvittering){
+            receipt.setType("Returpostkvittering");
+            message.setStatus(MessageStatus.DELIVER_MESSAGE_FAILED);
         } else {
             LOGGER.error("Recieved unknown receipt type " + forretningsKvittering.getClass());
         }
