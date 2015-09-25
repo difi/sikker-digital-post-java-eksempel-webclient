@@ -6,8 +6,8 @@ set :stage, :production
 # server in each group is considered to be the first
 # unless any hosts have the primary property set.
 
-role :client, %w{ec2-54-74-100-73.eu-west-1.compute.amazonaws.com}
-role :controller, %w{ec2-54-220-4-82.eu-west-1.compute.amazonaws.com}
+role :client, %w{ec2-54-75-10-129.eu-west-1.compute.amazonaws.com ec2-54-246-19-180.eu-west-1.compute.amazonaws.com}
+role :controller, %w{ec2-54-217-129-197.eu-west-1.compute.amazonaws.com}
 
 set :ssh_options, {
     user: "ec2-user",
