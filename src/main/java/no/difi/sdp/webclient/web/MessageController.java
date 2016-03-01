@@ -263,7 +263,7 @@ public class MessageController {
 	}
 
 	private void setCommonMessageAttributes(MessageCommand messageCommand, HttpServletRequest request, Message message) throws IOException {
-		message.setDocument(getDocument(messageCommand));
+		message.setDocument(getDocument(messageCommand, request.getParameter("documentMimetype")));
 		message.setAttachments(getAttachments(messageCommand, request, message));
 		message.setSenderOrgNumber(messageCommand.getSenderOrgNumber());
 		message.setSenderId(messageCommand.getSenderId());
@@ -294,12 +294,17 @@ public class MessageController {
     return adressat;
 }
 
-	private Document getDocument(MessageCommand messageCommand) throws IOException {
+	private Document getDocument(MessageCommand messageCommand, String documentMimetype) throws IOException {
 		Document document = new Document();
 		document.setTitle(messageCommand.getTitle());
 		document.setContent(messageCommand.getDocument().getBytes());
 		document.setFilename(messageCommand.getDocument().getOriginalFilename());
 		document.setMimetype(messageCommand.getDocument().getContentType());
+		if(notEmpty(documentMimetype)) {
+			document.setMimetype(documentMimetype);
+		}else{
+			document.setMimetype(messageCommand.getDocument().getContentType());
+		}
 		return document;
 	}
 
