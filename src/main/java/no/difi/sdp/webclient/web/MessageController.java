@@ -299,7 +299,6 @@ public class MessageController {
 		document.setTitle(messageCommand.getTitle());
 		document.setContent(messageCommand.getDocument().getBytes());
 		document.setFilename(messageCommand.getDocument().getOriginalFilename());
-		document.setMimetype(messageCommand.getDocument().getContentType());
 		if(notEmpty(documentMimetype)) {
 			document.setMimetype(documentMimetype);
 		}else{
