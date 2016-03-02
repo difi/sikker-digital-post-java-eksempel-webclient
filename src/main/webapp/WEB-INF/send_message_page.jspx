@@ -271,7 +271,7 @@
 		</div>
 		<br />
 		<script src="//code.jquery.com/jquery-2.1.0.min.js"><!-- --></script>
-		<spring:url value="/common_message.js" var="commonMessageJavascriptUrl"/>
+		<spring:url value="/common_message.js?version=2" var="commonMessageJavascriptUrl"/>
 		<spring:url value="/send_message_page.js" var="sendMessagePageJavascriptUrl"/>
 		<script src="${commonMessageJavascriptUrl}"><!-- --></script>
 		<script src="${sendMessagePageJavascriptUrl}"><!-- --></script>
