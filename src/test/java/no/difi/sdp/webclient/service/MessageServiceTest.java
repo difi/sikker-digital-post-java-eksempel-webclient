@@ -1,7 +1,7 @@
 package no.difi.sdp.webclient.service;
 
 import no.difi.begrep.Status;
-import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
+import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerForespoersel;
 import no.difi.sdp.client.KlientKonfigurasjon;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
 import no.difi.sdp.client.domain.Forsendelse;

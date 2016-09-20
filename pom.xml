@@ -6,7 +6,7 @@
 	<name>Testavsender</name>
 	<description>Testklient for meldingsutsending gjennom sikker digital post</description>
 	<packaging>war</packaging>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -228,7 +228,12 @@
 							<sourceRoot>${basedir}/target/generated-sources</sourceRoot>
 							<wsdlOptions>
 								<wsdlOption>
-									<wsdl>http://begrep.difi.no/Oppslagstjenesten/xsd/oppslagstjeneste-ws-14-05.wsdl</wsdl>
+									<wsdl>http://begrep.difi.no/Oppslagstjenesten/xsd/oppslagstjeneste-ws-16-02.wsdl</wsdl>
+									<extraargs>
+										<!-- Needed for include the header object as a valid parameter to the methods -->
+										<extraarg>-exsh</extraarg>
+										<extraarg>true</extraarg>
+									</extraargs>
 								</wsdlOption>
 							</wsdlOptions>
 							<fork>once</fork>
