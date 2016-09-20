@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes=SdpClientConfiguration.class)
+@ContextConfiguration(classes = SdpClientConfiguration.class)
 public class OppslagstjenestenProviderTestIntegration {
 
     @Mock
@@ -38,7 +38,16 @@ public class OppslagstjenestenProviderTestIntegration {
 
 
     @Before
-    public void setupEnvironmentVariables(){
+    public void setup() {
+        setEnvironmentVariables();
+
+        request = new StringWriter();
+        oppslagstjenestenProvider.setXmlRetrievePersonsRequest(request);
+        response = new StringWriter();
+        oppslagstjenestenProvider.setXmlRetrievePersonsResponse(response);
+    }
+
+    private void setEnvironmentVariables() {
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.dec_key_alias")).thenReturn("client-alias");
         when(environment.getProperty("oppslagstjenesten.wss4joutinterceptor.sig_key_alias")).thenReturn("client-alias");
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.dec_key_password")).thenReturn("changeit");
@@ -48,26 +57,27 @@ public class OppslagstjenestenProviderTestIntegration {
         when(environment.getProperty("oppslagstjenesten.wss4joutinterceptor.sig_prop_file")).thenReturn("oppslagstjenesten/client_sec.properties");
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.sig_prop_file")).thenReturn("oppslagstjenesten/server_sec.properties");
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.dec_prop_file")).thenReturn("oppslagstjenesten/client_sec.properties");
-
-        request = new StringWriter();
-        oppslagstjenestenProvider.setXmlRetrievePersonsRequest(request);
-        response = new StringWriter();
-        oppslagstjenestenProvider.setXmlRetrievePersonsResponse(response);
     }
 
     @Test
-    public void hentPersonFromOppslagstjenestenV5(){
+    public void hentPersonFromOppslagstjenestenV5() {
         HentPersonerForespoersel personas = new HentPersonerForespoersel();
         personas.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
         String SSN = "06046000216";
         personas.getPersonidentifikator().add(SSN);
         HentPersonerRespons hentPersonerRespons = oppslagstjenestenProvider.oppslagstjeneste().hentPersoner(personas, null);
+
         assertNotNull(hentPersonerRespons);
         assertNotNull(hentPersonerRespons.getPerson());
-        assertTrue(hentPersonerRespons.getPerson().size()>0);
+        assertTrue(hentPersonerRespons.getPerson().size() > 0);
         assertEquals(SSN, hentPersonerRespons.getPerson().get(0).getPersonidentifikator());
-        assertNotNull(request.toString());
-        assertNotNull(response.toString());
+        verifyMessageStartsWith(request.toString(), "Outbound Message");
+        verifyMessageStartsWith(response.toString(), "Inbound Message");
+    }
+
+    private void verifyMessageStartsWith(String message, String messageStart) {
+        assertNotNull(message);
+        assertTrue(message.startsWith(messageStart));
     }
 
 }
