@@ -7,6 +7,18 @@ $(document).ready(function() {
     $("#attachments").change(function() {
         refreshAttachmentsTitleDialog();
     });
+
+    $('#document').change(function(){
+        if(this.files.length){
+            $('#documentMimetype').val(this.files[0].type);
+            $('#documentMimetypePanel').show()
+        }else{
+            $('#documentMimetype').val('');
+            $('#documentMimetypePanel').hide()
+        }
+
+    });
+
     refreshAttachmentsTitleDialog();
 });
 

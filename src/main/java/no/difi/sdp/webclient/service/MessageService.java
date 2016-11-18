@@ -1,16 +1,19 @@
 package no.difi.sdp.webclient.service;
 
 import no.difi.begrep.*;
-import no.difi.kontaktinfo.wsdl.oppslagstjeneste_14_05.Oppslagstjeneste1405;
-import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerForespoersel;
-import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.HentPersonerRespons;
-import no.difi.kontaktinfo.xsd.oppslagstjeneste._14_05.Informasjonsbehov;
+import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerForespoersel;
+import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerRespons;
+import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.Informasjonsbehov;
 import no.difi.sdp.client.SikkerDigitalPostKlient;
-import no.difi.sdp.client.domain.*;
+import no.difi.sdp.client.domain.Forsendelse;
+import no.difi.sdp.client.domain.Prioritet;
 import no.difi.sdp.client.domain.kvittering.*;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
-import no.difi.sdp.webclient.domain.*;
+import no.difi.sdp.webclient.domain.Document;
+import no.difi.sdp.webclient.domain.Message;
+import no.difi.sdp.webclient.domain.MessageStatus;
+import no.difi.sdp.webclient.domain.Receipt;
 import no.difi.sdp.webclient.repository.DocumentRepository;
 import no.difi.sdp.webclient.repository.MessageRepository;
 import org.slf4j.Logger;
@@ -42,7 +45,7 @@ public class MessageService {
 	private DocumentRepository documentRepository;
 
 	@Autowired
-	private Oppslagstjeneste1405 oppslagstjeneste;
+	private OppslagstjenestenProvider oppslagstjenestenProvider;
 
     @Autowired
     BuilderService builderService;
@@ -174,9 +177,9 @@ public class MessageService {
     }
 
     private void retrieveContactDetailsFromOppslagstjeneste(Message message) throws MessageServiceException {
+		HentPersonerForespoersel hentPersonerForespoersel = buildHentPersonerForespoersel(message.getSsn());
     	try {
-            HentPersonerForespoersel hentPersonerForespoersel = buildHentPersonerForespoersel(message.getSsn());
-            HentPersonerRespons hentPersonerRespons = oppslagstjeneste.hentPersoner(hentPersonerForespoersel);
+            HentPersonerRespons hentPersonerRespons = oppslagstjenestenProvider.oppslagstjeneste().hentPersoner(hentPersonerForespoersel, null);
             extractOppslagstjenesteMessages(hentPersonerForespoersel, hentPersonerRespons);
             enrichMessage(message, hentPersonerRespons);
         } catch (Exception e) {
