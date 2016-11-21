@@ -36,7 +36,11 @@
 					<form:label path="document" cssClass="col-sm-2 control-label">Hoveddokument<br /><small class="text-muted"><em>påkrevd</em></small></form:label>
 					<div class="col-sm-10">
 						<input name="document" id="document" type="file" />
-					</div> 
+						<div class="panel panel-default" id="documentMimetypePanel" style="display: none;">
+							<div class="panel-heading">Mimetype</div>
+							<div class="panel-body"><input id="documentMimetype" name="documentMimetype" class="form-control" type="text" autocomplete="off" title="Mimetype"/></div>
+						</div>
+					</div>
 				</div>
 				<div class="form-group ${errors.hasFieldErrors('attachments') ? 'has-error' : ''}">
 					<form:label path="attachments" cssClass="col-sm-2 control-label">Vedlegg</form:label>
@@ -267,7 +271,7 @@
 		</div>
 		<br />
 		<script src="//code.jquery.com/jquery-2.1.0.min.js"><!-- --></script>
-		<spring:url value="/common_message.js" var="commonMessageJavascriptUrl"/>
+		<spring:url value="/common_message.js?version=2" var="commonMessageJavascriptUrl"/>
 		<spring:url value="/send_message_page.js" var="sendMessagePageJavascriptUrl"/>
 		<script src="${commonMessageJavascriptUrl}"><!-- --></script>
 		<script src="${sendMessagePageJavascriptUrl}"><!-- --></script>
