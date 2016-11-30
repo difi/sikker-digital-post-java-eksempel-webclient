@@ -81,6 +81,9 @@ public class PerformanceTestController {
             case SIZE_10KB:
                 pdfInputFileName = "SDP-Litedok_NAV-10kB.pdf";
                 break;
+            case SIZE_50KB:
+                pdfInputFileName = "SDP-50kB.pdf";
+                break;
             case SIZE_80KB:
                 pdfInputFileName = "SDP-MiddelsLiteDok_kreftreg-80kB.pdf";
                 break;
@@ -141,6 +144,7 @@ public class PerformanceTestController {
 
     public enum PerformanceTestSize {
         SIZE_10KB,
+        SIZE_50KB,
         SIZE_80KB,
         SIZE_800KB,
         SIZE_8MB
