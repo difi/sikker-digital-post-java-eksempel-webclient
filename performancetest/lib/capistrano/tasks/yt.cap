@@ -72,8 +72,8 @@ namespace :yt do
 	  # Installs jmeter
 	  sudo :rm, "-rf" , release_path
       sudo :mkdir, "-p", release_path
-	  sudo "wget -nc http://archive.apache.org/dist/jmeter/binaries/apache-jmeter-2.11.zip"
-	  sudo "unzip -o apache-jmeter-2.11.zip -d #{release_path}"
+	  sudo "wget -nc http://archive.apache.org/dist/jmeter/binaries/apache-jmeter-2.13.zip"
+	  sudo "unzip -o apache-jmeter-2.13.zip -d #{release_path}"
       sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
 	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
 	  sudo "wget -nc http://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-1.2.0.zip"
