@@ -791,7 +791,7 @@
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay">0</stringProp>
-        <stringProp name="TestPlan.comments">Test av [70% 10kb], [20% 80kb], [10% 800kb]</stringProp>
+        <stringProp name="TestPlan.comments">Test av [100% 50kb]</stringProp>
       </ThreadGroup>
       <hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
