@@ -59,7 +59,6 @@ public class BuilderService {
                 .utskrift(utskriftsfarge, tekniskMottaker)
                 .build();
 
-//        Behandlingsansvarlig behandlingsansvarlig = buildBehandlingsansvarlig(message);
         Avsender behandlingsansvarlig = buildBehandlingsansvarlig(message);
         Dokumentpakke dokumentPakke = buildDokumentpakke(message);
 

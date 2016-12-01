@@ -14,22 +14,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.security.KeyStore;
 import java.util.UUID;
 
 public class IntegrationTest {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
-	
-	@Test
-	@Ignore // This test should only be run explicitly
-	public void send_message_and_poll_for_receipts_for_60_seconds() throws InterruptedException {
-		// Minimal example for sending post and recieving receipt using a actual integration with a test environment for meldingsformidler
-    	CryptoUtil cryptoUtil = new CryptoUtil();
-    	KeyStore keyStore = cryptoUtil.loadKeystore("JKS", "avsender.jks", "changeit");
-    	Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, "991825827-difi", "changeit");
-    	LOGGER.info("Avsender X509 certificate subject DN " + noekkelpar.getVirksomhetssertifikat().getX509Certificate().getSubjectDN());
-    	LOGGER.info("Avsender X509 certificate issuer DN " + noekkelpar.getVirksomhetssertifikat().getX509Certificate().getIssuerDN());
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
+
+    @Test
+    @Ignore // This test should only be run explicitly
+    public void send_message_and_poll_for_receipts_for_60_seconds() throws InterruptedException, URISyntaxException {
+        // Minimal example for sending post and recieving receipt using a actual integration with a test environment for meldingsformidler
+        CryptoUtil cryptoUtil = new CryptoUtil();
+        KeyStore keyStore = cryptoUtil.loadKeystore("JKS", "avsender.jks", "changeit");
+        Noekkelpar noekkelpar = Noekkelpar.fraKeyStore(keyStore, "991825827-difi", "changeit");
+        LOGGER.info("Avsender X509 certificate subject DN " + noekkelpar.getVirksomhetssertifikat().getX509Certificate().getSubjectDN());
+        LOGGER.info("Avsender X509 certificate issuer DN " + noekkelpar.getVirksomhetssertifikat().getX509Certificate().getIssuerDN());
         DatabehandlerOrganisasjonsnummer databehandlerOrgnr = AktoerOrganisasjonsnummer.of("991825827").forfremTilDatabehandler();
         Databehandler avsender = Databehandler.builder(databehandlerOrgnr, noekkelpar).build();
         KlientKonfigurasjon klientKonfigurasjon = KlientKonfigurasjon.builder("https://qaoffentlig.meldingsformidler.digipost.no/api/").build();
@@ -40,7 +41,8 @@ public class IntegrationTest {
         LOGGER.info("Mottaker X509 certificate issuer DN " + mottakerSertifikat.getX509Certificate().getIssuerDN());
         Mottaker mottaker = Mottaker.builder("04036125433", "ove.jonsen#6K5A", mottakerSertifikat, Organisasjonsnummer.of("984661185")).build();
         DigitalPost digitalPost = DigitalPost.builder(mottaker, "ikkeSensitivTittel").build();
-        Dokument hoveddokument = Dokument.builder("Document title", new File("src/test/resources/1-Test-PDF.pdf")).mimeType("application/pdf").build();
+        final File testFile = new File(getClass().getResource("/1-Test-PDF.pdf").toURI());
+        Dokument hoveddokument = Dokument.builder("Document title", testFile).mimeType("application/pdf").build();
         Dokumentpakke dokumentpakke = Dokumentpakke.builder(hoveddokument).build();
         AvsenderOrganisasjonsnummer avsenderOrgnr = AktoerOrganisasjonsnummer.of("984661185").forfremTilAvsender();
         Avsender behandlingsansvarlig = Avsender.builder(avsenderOrgnr).build();
@@ -49,17 +51,17 @@ public class IntegrationTest {
         postklient.send(forsendelse);
         LOGGER.info("Post sent, waiting for 10 seconds before attemting to retrieve receipt.");
         for (int i = 0; i < 6; i++) {
-        	Thread.sleep(1000 * 10);
-        	ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.NORMAL).mpcId(mpc).build());
-        	if (forretningsKvittering == null) {
-        		LOGGER.info("No receipt available, waiting for 10 seconds before attemting to retrieve receipt.");
-        	} else {
-        		LOGGER.info("Receipt retrieved. Post delivered: " + forretningsKvittering.getReferanseTilMeldingSomKvitteres());
-        		return;
-        	}
-        	
+            Thread.sleep(1000 * 10);
+            ForretningsKvittering forretningsKvittering = postklient.hentKvittering(KvitteringForespoersel.builder(Prioritet.NORMAL).mpcId(mpc).build());
+            if (forretningsKvittering == null) {
+                LOGGER.info("No receipt available, waiting for 10 seconds before attemting to retrieve receipt.");
+            } else {
+                LOGGER.info("Receipt retrieved. Post delivered: " + forretningsKvittering.getReferanseTilMeldingSomKvitteres());
+                return;
+            }
+
         }
         LOGGER.info("Tried to retrieve receipt for 60 seconds. No receipt retrieved. Gives up.");
-	}
-    
+    }
+
 }
