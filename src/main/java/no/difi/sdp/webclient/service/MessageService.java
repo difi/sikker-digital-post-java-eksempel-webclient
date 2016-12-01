@@ -4,10 +4,11 @@ import no.difi.begrep.*;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerForespoersel;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.Informasjonsbehov;
-import no.difi.sdp.client.SikkerDigitalPostKlient;
-import no.difi.sdp.client.domain.Forsendelse;
-import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.kvittering.*;
+
+import no.difi.sdp.client2.SikkerDigitalPostKlient;
+import no.difi.sdp.client2.domain.Forsendelse;
+import no.difi.sdp.client2.domain.Prioritet;
+import no.difi.sdp.client2.domain.kvittering.*;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.Document;
@@ -386,7 +387,7 @@ public class MessageService {
         receipt.setRequestSentDate(postKlientSoapRequestSentDate.getValue());
         receipt.setResponseReceivedDate(postKlientSoapResponseReceivedDate.getValue());
         receipt.setCompletedDate(new Date());
-        receipt.setPostboxDate(forretningsKvittering.getTidspunkt());
+        receipt.setPostboxDate( Date.from(forretningsKvittering.getTidspunkt()));
         receipt.setXmlRequest(xmlRequestString);
         receipt.setXmlResponse(xmlResponseString);
         receipt.setXmlResponsePayload(xmlResponsePayloadString);

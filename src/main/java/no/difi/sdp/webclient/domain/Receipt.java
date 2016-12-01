@@ -1,5 +1,8 @@
 package no.difi.sdp.webclient.domain;
 
+import no.difi.sdp.client2.domain.kvittering.Feil;
+import no.difi.sdp.client2.domain.kvittering.VarslingFeiletKvittering;
+
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -12,8 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import no.difi.sdp.client.domain.kvittering.Feil.Feiltype;
-import no.difi.sdp.client.domain.kvittering.VarslingFeiletKvittering.Varslingskanal;
 
 @Entity
 public class Receipt {
@@ -49,13 +50,13 @@ public class Receipt {
 	private String type;
 	
 	@Enumerated(EnumType.STRING)
-	private Feiltype errorType;
+	private Feil.Feiltype errorType;
 	
 	@Lob
 	private String errorDetails;
 	
 	@Enumerated(EnumType.STRING)
-	private Varslingskanal notificationErrorChannel;
+	private VarslingFeiletKvittering.Varslingskanal notificationErrorChannel;
 	
 	@Lob
 	private String notificationErrorDescription;
@@ -173,11 +174,11 @@ public class Receipt {
 		this.xmlResponsePayload = xmlResponsePayload;
 	}
 
-	public Feiltype getErrorType() {
+	public Feil.Feiltype getErrorType() {
 		return errorType;
 	}
 
-	public void setErrorType(Feiltype errorType) {
+	public void setErrorType(Feil.Feiltype errorType) {
 		this.errorType = errorType;
 	}
 
@@ -189,11 +190,11 @@ public class Receipt {
 		this.errorDetails = errorDetails;
 	}
 
-	public Varslingskanal getNotificationErrorChannel() {
+	public VarslingFeiletKvittering.Varslingskanal getNotificationErrorChannel() {
 		return notificationErrorChannel;
 	}
 
-	public void setNotificationErrorChannel(Varslingskanal notificationErrorChannel) {
+	public void setNotificationErrorChannel(VarslingFeiletKvittering.Varslingskanal notificationErrorChannel) {
 		this.notificationErrorChannel = notificationErrorChannel;
 	}
 

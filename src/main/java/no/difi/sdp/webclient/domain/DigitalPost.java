@@ -2,7 +2,7 @@ package no.difi.sdp.webclient.domain;
 
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.client2.domain.digital_post.Sikkerhetsnivaa;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

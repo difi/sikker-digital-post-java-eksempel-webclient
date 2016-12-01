@@ -1,6 +1,6 @@
 package no.difi.sdp.webclient.web;
 
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.client2.domain.digital_post.Sikkerhetsnivaa;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 

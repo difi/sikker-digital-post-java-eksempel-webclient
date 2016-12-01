@@ -2,15 +2,15 @@ package no.difi.sdp.webclient.service;
 
 import no.difi.begrep.Status;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerForespoersel;
-import no.difi.sdp.client.KlientKonfigurasjon;
-import no.difi.sdp.client.SikkerDigitalPostKlient;
-import no.difi.sdp.client.domain.Forsendelse;
-import no.difi.sdp.client.domain.Noekkelpar;
-import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.TekniskAvsender;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
-import no.difi.sdp.client.domain.kvittering.ForretningsKvittering;
-import no.difi.sdp.client.domain.kvittering.KvitteringForespoersel;
+import no.difi.sdp.client2.KlientKonfigurasjon;
+import no.difi.sdp.client2.SikkerDigitalPostKlient;
+import no.difi.sdp.client2.domain.Databehandler;
+import no.difi.sdp.client2.domain.Forsendelse;
+import no.difi.sdp.client2.domain.Noekkelpar;
+import no.difi.sdp.client2.domain.Prioritet;
+import no.difi.sdp.client2.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.client2.domain.kvittering.ForretningsKvittering;
+import no.difi.sdp.client2.domain.kvittering.KvitteringForespoersel;
 import no.difi.sdp.webclient.BaseTest;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
 import no.difi.sdp.webclient.configuration.util.Holder;
@@ -68,7 +68,7 @@ public class MessageServiceTest extends BaseTest {
     private Noekkelpar noekkelpar;
 
     @Mock
-    private TekniskAvsender tekniskAvsender;
+    private Databehandler tekniskAvsender;
 
     @Mock
     private ConfigurationService configurationService;

@@ -2,8 +2,8 @@ package no.difi.sdp.webclient.web;
 
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
-import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.digital_post.Sikkerhetsnivaa;
+import no.difi.sdp.client2.domain.Prioritet;
+import no.difi.sdp.client2.domain.digital_post.Sikkerhetsnivaa;
 import no.difi.sdp.webclient.domain.DigitalPost;
 import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;

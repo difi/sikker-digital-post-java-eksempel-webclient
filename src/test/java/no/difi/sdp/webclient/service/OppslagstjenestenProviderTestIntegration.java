@@ -1,9 +1,11 @@
 package no.difi.sdp.webclient.service;
 
+import no.difi.begrep.Person;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerForespoersel;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.HentPersonerRespons;
 import no.difi.kontaktinfo.xsd.oppslagstjeneste._16_02.Informasjonsbehov;
 import no.difi.sdp.webclient.configuration.SdpClientConfiguration;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.StringWriter;
+import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -53,6 +56,7 @@ public class OppslagstjenestenProviderTestIntegration {
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.dec_key_password")).thenReturn("changeit");
         when(environment.getProperty("oppslagstjenesten.wss4joutinterceptor.sig_key_password")).thenReturn("changeit");
 
+//        when(environment.getProperty("oppslagstjenesten.url")).thenReturn("https://kontaktinfo-ws-ver1.difi.no/kontaktinfo-external/ws-v5");
         when(environment.getProperty("oppslagstjenesten.url")).thenReturn("https://kontaktinfo-ws-test1.difi.eon.no/kontaktinfo-external/ws-v5");
         when(environment.getProperty("oppslagstjenesten.wss4joutinterceptor.sig_prop_file")).thenReturn("oppslagstjenesten/client_sec.properties");
         when(environment.getProperty("oppslagstjenesten.wss4jininterceptor.sig_prop_file")).thenReturn("oppslagstjenesten/server_sec.properties");
@@ -63,14 +67,17 @@ public class OppslagstjenestenProviderTestIntegration {
     public void hentPersonFromOppslagstjenestenV5() {
         HentPersonerForespoersel personas = new HentPersonerForespoersel();
         personas.getInformasjonsbehov().add(Informasjonsbehov.KONTAKTINFO);
-        String SSN = "06046000216";
+//        String SSN = "06046000216";
+        String SSN = "06045000883";
         personas.getPersonidentifikator().add(SSN);
         HentPersonerRespons hentPersonerRespons = oppslagstjenestenProvider.oppslagstjeneste().hentPersoner(personas, null);
 
         assertNotNull(hentPersonerRespons);
-        assertNotNull(hentPersonerRespons.getPerson());
-        assertTrue(hentPersonerRespons.getPerson().size() > 0);
-        assertEquals(SSN, hentPersonerRespons.getPerson().get(0).getPersonidentifikator());
+        List<Person> personList = hentPersonerRespons.getPerson();
+        assertNotNull(personList);
+        assertTrue(personList.size() > 0);
+        assertEquals(SSN, personList.get(0).getPersonidentifikator());
+        Assert.assertNotNull(personList.get(0).getKontaktinformasjon());
         verifyMessageStartsWith(request.toString(), "Outbound Message");
         verifyMessageStartsWith(response.toString(), "Inbound Message");
     }

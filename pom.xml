@@ -10,19 +10,23 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cxf.version>3.0.0</cxf.version>
+		<cxf.version>3.1.5</cxf.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>no.difi.sdp</groupId>
-			<artifactId>sikker-digital-post-java-klient</artifactId>
-			<version>1.2.1</version>
+			<artifactId>sikker-digital-post-klient-java</artifactId>
+			<version>4.1.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>log4j-over-slf4j</artifactId>
 					<groupId>org.slf4j</groupId>
 				</exclusion>
+                    <exclusion>
+                        <groupId>org.apache.wss4j</groupId>
+                        <artifactId>wss4j-ws-security-dom</artifactId>
+                    </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -150,6 +154,12 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-ws-security</artifactId>
 			<version>${cxf.version}</version>
+            <exclusions>
+                <exclusion>
+                        <groupId>org.apache.wss4j</groupId>
+                        <artifactId>wss4j-ws-security-dom</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -187,6 +197,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.32</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.wss4j</groupId>
+			<artifactId>wss4j-ws-security-dom</artifactId>
+			<version>2.1.4</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -195,8 +210,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>

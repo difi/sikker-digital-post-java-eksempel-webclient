@@ -1,11 +1,12 @@
 package no.difi.sdp.webclient.service;
 
-import no.difi.sdp.client.domain.Forsendelse;
-import no.difi.sdp.client.domain.Prioritet;
-import no.difi.sdp.client.domain.TekniskMottaker;
+import no.difi.sdp.client2.domain.Forsendelse;
+import no.difi.sdp.client2.domain.Prioritet;
+import no.difi.sdp.client2.domain.TekniskMottaker;
 import no.difi.sdp.webclient.BaseTest;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.domain.*;
+import no.digipost.api.representations.Organisasjonsnummer;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -41,7 +42,9 @@ public class BuilderServiceTest extends BaseTest {
     public void test_build_fysisk_forsendelse() {
         final String mcpId = "mcpId";
         final String alias = "alias";
-        when(postklientService.createTekniskMottaker(alias)).thenReturn(new TekniskMottaker("orgNr", null));
+        final String orgnrDifiLeikanger = "987464291";
+        final Organisasjonsnummer orgNr = Organisasjonsnummer.of(orgnrDifiLeikanger);
+        when(postklientService.createTekniskMottaker(alias)).thenReturn(new TekniskMottaker(orgNr, null));
         final Forsendelse forsendelse = builderService.buildFysiskForsendelse(createFysiskMessage(alias), mcpId);
         assertNotNull(forsendelse);
         verifyFysiskPost(forsendelse);
@@ -59,16 +62,16 @@ public class BuilderServiceTest extends BaseTest {
     }
 
     private void verifyFysiskPost(Forsendelse forsendelse) {
-        final no.difi.sdp.client.domain.fysisk_post.FysiskPost fysiskPost = forsendelse.getFysiskPost();
+        final no.difi.sdp.client2.domain.fysisk_post.FysiskPost fysiskPost = forsendelse.getFysiskPost();
         assertNotNull(fysiskPost);
         assertNotNull(fysiskPost.getAdresse());
         assertNotNull(fysiskPost.getAdresse().getAdresselinjer());
         assertNotNull(fysiskPost.getAdresse().getNavn());
-        assertEquals(no.difi.sdp.client.domain.fysisk_post.KonvoluttAdresse.Type.NORSK, fysiskPost.getAdresse().getType());
+        assertEquals(no.difi.sdp.client2.domain.fysisk_post.KonvoluttAdresse.Type.NORSK, fysiskPost.getAdresse().getType());
         assertNotNull(fysiskPost.getReturadresse());
         assertNotNull(fysiskPost.getReturadresse().getAdresselinjer());
         assertNotNull(fysiskPost.getReturadresse().getNavn());
-        assertEquals(no.difi.sdp.client.domain.fysisk_post.KonvoluttAdresse.Type.NORSK, fysiskPost.getReturadresse().getType());
+        assertEquals(no.difi.sdp.client2.domain.fysisk_post.KonvoluttAdresse.Type.NORSK, fysiskPost.getReturadresse().getType());
         assertNotNull(fysiskPost.getPosttype());
         assertNotNull(fysiskPost.getReturhaandtering());
         assertNotNull(fysiskPost.getUtskriftsfarge());
@@ -77,7 +80,7 @@ public class BuilderServiceTest extends BaseTest {
 
     private void verifyCommonFields(String mcpId, Forsendelse forsendelse) {
         assertNotNull(forsendelse.getDokumentpakke());
-        assertNotNull(forsendelse.getBehandlingsansvarlig());
+        assertNotNull(forsendelse.getAvsender());
         assertNotNull(forsendelse.getPrioritet());
         assertNotNull(forsendelse.getSpraakkode());
         assertNotNull(forsendelse.getMpcId());
@@ -144,14 +147,18 @@ public class BuilderServiceTest extends BaseTest {
 
     private void createCommonMessageAttributes(Message message) {
         message.setDocument(createDocument());
-        message.setAttachments(new HashSet<Document>());
+        message.setAttachments(new HashSet<>());
         message.setPriority(Prioritet.NORMAL);
         message.setLanguageCode("NO");
+        String orgNrDigipost = "984661185";
+        message.setSenderOrgNumber(orgNrDigipost);
     }
 
     private DigitalPost createDigitalPost(byte[] postkasseSertifikat) {
         final DigitalPost digitalPost = new DigitalPost();
         digitalPost.setPostboxCertificate(postkasseSertifikat);
+        String orgNrDigipost = "984661185";
+        digitalPost.setPostboxVendorOrgNumber(orgNrDigipost);
         return digitalPost;
     }
 

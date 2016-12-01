@@ -1,6 +1,6 @@
 package no.difi.sdp.webclient.domain;
 
-import no.difi.sdp.client.domain.Prioritet;
+import no.difi.sdp.client2.domain.Prioritet;
 import no.difi.sdp.webclient.validation.Ssn;
 
 import javax.persistence.*;

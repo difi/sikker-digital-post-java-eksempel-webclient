@@ -1,14 +1,16 @@
 package no.difi.sdp.webclient.service;
 
-import no.difi.sdp.client.domain.*;
-import no.difi.sdp.client.domain.digital_post.DigitalPost;
-import no.difi.sdp.client.domain.digital_post.EpostVarsel;
-import no.difi.sdp.client.domain.digital_post.SmsVarsel;
-import no.difi.sdp.client.domain.fysisk_post.*;
+
+import no.difi.sdp.client2.domain.*;
+import no.difi.sdp.client2.domain.digital_post.DigitalPost;
+import no.difi.sdp.client2.domain.digital_post.EpostVarsel;
+import no.difi.sdp.client2.domain.digital_post.SmsVarsel;
+import no.difi.sdp.client2.domain.fysisk_post.*;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
 import no.difi.sdp.webclient.domain.Document;
 import no.difi.sdp.webclient.domain.Message;
+import no.digipost.api.representations.Organisasjonsnummer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +59,8 @@ public class BuilderService {
                 .utskrift(utskriftsfarge, tekniskMottaker)
                 .build();
 
-        Behandlingsansvarlig behandlingsansvarlig = buildBehandlingsansvarlig(message);
+//        Behandlingsansvarlig behandlingsansvarlig = buildBehandlingsansvarlig(message);
+        Avsender behandlingsansvarlig = buildBehandlingsansvarlig(message);
         Dokumentpakke dokumentPakke = buildDokumentpakke(message);
 
         return Forsendelse
@@ -89,7 +92,7 @@ public class BuilderService {
                 .virkningsdato(message.getDigitalPost().getDelayedAvailabilityDate())
                 .build();
         Dokumentpakke dokumentPakke = buildDokumentpakke(message);
-        Behandlingsansvarlig behandlingsansvarlig = buildBehandlingsansvarlig(message);
+        Avsender behandlingsansvarlig = buildBehandlingsansvarlig(message);
         return Forsendelse
                 .digital(behandlingsansvarlig, digitalPost, dokumentPakke)
                 .prioritet(message.getPriority())
@@ -98,9 +101,12 @@ public class BuilderService {
                 .build();
     }
 
-    private Behandlingsansvarlig buildBehandlingsansvarlig(Message message) {
-        Behandlingsansvarlig behandlingsansvarlig = Behandlingsansvarlig
-                .builder(message.getSenderOrgNumber())
+    private Avsender buildBehandlingsansvarlig(Message message) {
+
+        AvsenderOrganisasjonsnummer avsenderOrgnr =
+                AktoerOrganisasjonsnummer.of(message.getSenderOrgNumber()).forfremTilAvsender();
+        Avsender behandlingsansvarlig = Avsender
+                .builder(avsenderOrgnr)
                 .avsenderIdentifikator(message.getSenderId())
                 .fakturaReferanse(message.getInvoiceReference())
                 .build();
@@ -163,7 +169,7 @@ public class BuilderService {
     private Mottaker buildMottaker(Message message) {
         Sertifikat sertifikat = buildSertifikat(message);
         return Mottaker
-                .builder(message.getSsn(), message.getDigitalPost().getPostboxAddress(), sertifikat, message.getDigitalPost().getPostboxVendorOrgNumber())
+                .builder(message.getSsn(), message.getDigitalPost().getPostboxAddress(), sertifikat, Organisasjonsnummer.of(message.getDigitalPost().getPostboxVendorOrgNumber()))
                 .build();
     }
 

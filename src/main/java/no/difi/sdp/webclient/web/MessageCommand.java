@@ -2,7 +2,7 @@ package no.difi.sdp.webclient.web;
 
 import no.difi.begrep.Reservasjon;
 import no.difi.begrep.Status;
-import no.difi.sdp.client.domain.Prioritet;
+import no.difi.sdp.client2.domain.Prioritet;
 import no.difi.sdp.webclient.validation.Document;
 import no.difi.sdp.webclient.validation.Ssn;
 import org.springframework.stereotype.Component;

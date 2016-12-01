@@ -1,7 +1,7 @@
 package no.difi.sdp.webclient.configuration;
 
-import no.difi.sdp.client.KlientKonfigurasjon;
-import no.difi.sdp.client.asice.CreateASiCE;
+import no.difi.sdp.client2.KlientKonfigurasjon;
+import no.difi.sdp.client2.asice.CreateASiCE;
 import no.difi.sdp.webclient.configuration.util.CryptoUtil;
 import no.difi.sdp.webclient.configuration.util.Holder;
 import no.difi.sdp.webclient.configuration.util.StringUtil;
@@ -236,8 +236,9 @@ public class SdpClientConfiguration extends WebMvcConfigurerAdapter implements A
 
     @Bean
     public KlientKonfigurasjon klientKonfigurasjon() {
-        return KlientKonfigurasjon.builder()
-                .meldingsformidlerRoot(environment.getProperty("sdp.meldingsformidler.url"))
+
+        return KlientKonfigurasjon
+                .builder(environment.getProperty("sdp.meldingsformidler.url"))
                 .soapInterceptors(postKlientSoapInterceptor())
                 .maxConnectionPoolSize(environment.getProperty("sdp.connectionpool.size", Integer.class))
                 .connectionRequestTimeout(environment.getProperty("sdp.connectionpool.connectionRequestTimeoutMs", Integer.class), TimeUnit.MILLISECONDS)
