@@ -96,6 +96,9 @@ public class PerformanceTestController {
                 attachments.add(getDocumentByFilename(message, "SDP-Vedlegg1-2MB.pdf"));
                 attachments.add(getDocumentByFilename(message, "SDP-Vedlegg2-2MB.pdf"));
                 break;
+            case SIZE_29MB:
+                pdfInputFileName = "SDP-29MB.pdf";
+                break;
             default:
                 throw new RuntimeException("Size not supported: " + size.toString());
         }
@@ -147,7 +150,8 @@ public class PerformanceTestController {
         SIZE_50KB,
         SIZE_80KB,
         SIZE_800KB,
-        SIZE_8MB
+        SIZE_8MB,
+        SIZE_29MB
     }
 
     public enum PostboxVendor {
