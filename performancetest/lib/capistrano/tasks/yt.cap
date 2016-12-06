@@ -8,12 +8,12 @@ end
 
 namespace :yt do
 
-  jmeter_directory = "apache-jmeter-2.11"
+  jmeter_directory = "apache-jmeter-2.13"
   jmeter_test_zip_filename = "jmeter-test.zip"
-  jmeter_test_filename = "test-eboks-only.jmx"
+  jmeter_test_filename = "test-digipost-eboks.jmx"
   jmeter_digipost_test_filename = "digipost_yt_testbrukere.csv"
   jmeter_eboks_test_filename = "eboks_yt_testbrukere.csv"
-  testavsender_war_filename = "webclient-0.0.2-SNAPSHOT.war"
+  testavsender_war_filename = "webclient-0.0.5-SNAPSHOT.war"
   testavsender_config_filename = "configuration.properties"
   tomcat_config_filename="tomcat7.conf"
   tomcat_server_xml_filename="server.xml"
@@ -72,8 +72,8 @@ namespace :yt do
 	  # Installs jmeter
 	  sudo :rm, "-rf" , release_path
       sudo :mkdir, "-p", release_path
-	  sudo "wget -nc http://apache.vianett.no//jmeter/binaries/apache-jmeter-2.11.zip"
-	  sudo "unzip -o apache-jmeter-2.11.zip -d #{release_path}"
+	  sudo "wget -nc http://archive.apache.org/dist/jmeter/binaries/apache-jmeter-2.13.zip"
+	  sudo "unzip -o apache-jmeter-2.13.zip -d #{release_path}"
       sudo "unzip -o #{fetch(:tmp_path)}/#{jmeter_test_zip_filename} -d #{release_path}/#{jmeter_directory}"
 	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{jmeter_startupscript_filename} #{release_path}/#{jmeter_directory}/bin/jmeter"
 	  sudo "wget -nc http://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-1.2.0.zip"
