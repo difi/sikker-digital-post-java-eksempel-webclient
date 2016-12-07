@@ -1,5 +1,7 @@
 # Testavsender
 
+[![Build Status](https://travis-ci.org/difi/sikker-digital-post-java-eksempel-webclient.svg?branch=master)](https://travis-ci.org/difi/sikker-digital-post-java-eksempel-webclient)
+
 > En testklient for meldingsutsending gjennom sikker digital post.
 
 - Muliggjør funksjonell testing av meldingsformidler og postbokser via et web-grensesnitt
