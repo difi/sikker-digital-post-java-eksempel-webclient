@@ -105,11 +105,11 @@ namespace :yt do
     task :stop do
       on roles(:client) do |h|
         # Ensures all jmeter processes are stopped (should probably run in a loop until no jmeter instances found in process list to be really sure that all processes are stopped)
-		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
-		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
-		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
-		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
-		sudo "kill -9 `ps -A | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -ax | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -ax | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -ax | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -ax | grep jmeter | xargs -n1 | head -1` ; true"
+		sudo "kill -9 `ps -ax | grep jmeter | xargs -n1 | head -1` ; true"
       end
     end
 
