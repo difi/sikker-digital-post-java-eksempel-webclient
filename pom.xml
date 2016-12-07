@@ -27,19 +27,19 @@
                     <groupId>org.apache.wss4j</groupId>
                     <artifactId>wss4j-ws-security-dom</artifactId>
                 </exclusion>
-                <!--<exclusion>-->
-                <!--<artifactId>saaj-impl</artifactId>-->
-                <!--<groupId>com.sun.xml.messaging.saaj</groupId>-->
-                <!--</exclusion>-->
+                <exclusion>
+                    <artifactId>saaj-impl</artifactId>
+                    <groupId>com.sun.xml.messaging.saaj</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
-        <!-- Berre for aa optimalisere ytelse ved ytelsetestar. -->
-        <!--<dependency>-->
-        <!--<groupId>com.sun.xml.messaging.saaj</groupId>-->
-        <!--<artifactId>saaj-impl</artifactId>-->
-        <!--<version>1.3.26-SNAPSHOT</version>-->
-        <!--<scope>runtime</scope>-->
-        <!--</dependency>-->
+        <!-- Berre for aa optimalisere ytelse ved ytelsetestar, anbefalling fra Digipost. -->
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <version>1.3.26-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -296,7 +296,7 @@
             <url>http://repo.springsource.org/libs-milestone/</url>
         </repository>
         <repository>
-            <!-- no.difi.sdp / sikker-digital-post-java-klient -->
+            <!-- no.difi.sdp / sikker-digital-post-klient-java -->
             <id>sonatype-nexus-public</id>
             <url>https://oss.sonatype.org/content/groups/public</url>
             <releases>
@@ -306,21 +306,21 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!--<repository>-->
-            <!--&lt;!&ndash; com.sun.xml.messaging.saaj / saaj-impl / 1.3.26-SNAPSHOT &ndash;&gt;-->
-            <!--<id>java.net-snapshots</id>-->
-            <!--<url>https://maven.java.net/content/repositories/snapshots/</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--&lt;!&ndash; org.jvnet.staxex / stax-ex / 1.7.7&ndash;&gt;-->
-            <!--<id>java.net-staging</id>-->
-            <!--<url>https://maven.java.net/content/repositories/staging/</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
+        <repository>
+            <!-- com.sun.xml.messaging.saaj / saaj-impl / 1.3.26-SNAPSHOT -->
+            <id>java.net-snapshots</id>
+            <url>https://maven.java.net/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <!-- org.jvnet.staxex / stax-ex / 1.7.7-->
+            <id>java.net-staging</id>
+            <url>https://maven.java.net/content/repositories/staging/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 </project>
