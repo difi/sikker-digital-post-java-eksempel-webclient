@@ -13,7 +13,7 @@ namespace :yt do
   jmeter_test_filename = "test-digipost-eboks.jmx"
   jmeter_digipost_test_filename = "digipost_yt_testbrukere.csv"
   jmeter_eboks_test_filename = "eboks_yt_testbrukere.csv"
-  testavsender_war_filename = "webclient-0.0.5-SNAPSHOT.war"
+  testavsender_war_filename = "testavsender-1.0.0-SNAPSHOT.war"
   testavsender_config_filename = "configuration.properties"
   tomcat_config_filename="tomcat7.conf"
   tomcat_server_xml_filename="server.xml"
@@ -45,13 +45,13 @@ namespace :yt do
 	  # Overrides linux limits configuration
 	  sudo :cp, "-f", "#{fetch(:tmp_path)}/#{linux_limits_filename} /etc/security/#{linux_limits_filename}"
 	  # Installs Oracles JDK and set as default JVM
-	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/7u67-b01/jdk-7u67-linux-x64.rpm'
-	  sudo "rpm -i jdk-7u67-linux-x64.rpm || :"
-	  sudo "/usr/sbin/alternatives --install /usr/bin/java java /usr/java/jdk1.7.0_67/bin/java 20000"
+	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.rpm'
+	  sudo "rpm -i jdk-8u111-linux-x64.rpm || :"
+	  sudo "/usr/sbin/alternatives --install /usr/bin/java java /usr/java/jdk1.8.0_111/bin/java 20000"
 	  # Installs JCE
-	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip'
-	  sudo "unzip -o UnlimitedJCEPolicyJDK7.zip"
-	  sudo :cp, "-f", "UnlimitedJCEPolicy/* /usr/java/jdk1.7.0_67/jre/lib/security/"
+	  sudo 'wget -nc --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip'
+	  sudo "unzip -o jce_policy-8.zip"
+	  sudo :cp, "-f", "UnlimitedJCEPolicyJDK8/* /usr/java/jdk1.8.0_111/jre/lib/security/"
 	  # Installs tomcat
 	  sudo "yum install tomcat7 -y"
 	  # Enables tomcat service

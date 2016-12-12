@@ -6,7 +6,7 @@ import no.difi.sdp.client2.domain.*;
 import no.difi.sdp.client2.domain.digital_post.DigitalPost;
 import no.difi.sdp.client2.domain.kvittering.ForretningsKvittering;
 import no.difi.sdp.client2.domain.kvittering.KvitteringForespoersel;
-import no.difi.sdp.webclient.configuration.util.CryptoUtil;
+import no.difi.sdp.testavsender.configuration.util.CryptoUtil;
 import no.digipost.api.representations.Organisasjonsnummer;
 import org.junit.Ignore;
 import org.junit.Test;
