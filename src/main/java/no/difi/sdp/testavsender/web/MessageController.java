@@ -25,10 +25,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -459,9 +461,6 @@ public class MessageController {
 		return "show_message_list_page";
 	}
 
-
-
-
     @RequestMapping(method = RequestMethod.GET, value = "/report")
     public String showReportPage(Model model) {
     	List<Object[]> countByStatus = messageService.getCountByStatus();
@@ -483,13 +482,11 @@ public class MessageController {
 		writeReportColumn(writer, "postboxAddress", false);
 		writeReportColumn(writer, "status", false);
 		writeReportColumn(writer, "date", false);
-		writeReportColumn(writer, "requestSentDate", false);
-		writeReportColumn(writer, "responseReceivedDate", false);
+		writeReportColumn(writer, "requestSendtime", false);
 		writeReportColumn(writer, "completedDate", false);
 		writeReportColumn(writer, "receiptType", false);
 		writeReportColumn(writer, "receiptDate", false);
-		writeReportColumn(writer, "receiptRequestSentDate", false);
-		writeReportColumn(writer, "receiptResponseReceivedDate", false);
+		writeReportColumn(writer, "receiptResponseTime", false);
 		writeReportColumn(writer, "receiptCompletedDate", false);
 		writeReportColumn(writer, "receiptAckRequestSentDate", false);
 		writeReportColumn(writer, "receiptAckResponseReceivedDate", false);
@@ -504,13 +501,13 @@ public class MessageController {
 			writeReportColumn(writer, (String) message[5], false);
 			writeReportColumn(writer, (MessageStatus) message[6], false);
 			writeReportColumn(writer, (Date) message[7], false);
-			writeReportColumn(writer, (Date) message[8], false);
-			writeReportColumn(writer, (Date) message[9], false);
+			long requestSendtime = getTimeDiff((Date) message[8], (Date) message[9]);
+			writeReportColumn(writer, requestSendtime, false);
 			writeReportColumn(writer, (Date) message[10], false);
 			writeReportColumn(writer, (String) message[11], false);
 			writeReportColumn(writer, (Date) message[12], false);
-			writeReportColumn(writer, (Date) message[13], false);
-			writeReportColumn(writer, (Date) message[14], false);
+			long receiptResponseTime  = getTimeDiff((Date) message[13], (Date) message[14]);
+			writeReportColumn(writer, receiptResponseTime , false);
 			writeReportColumn(writer, (Date) message[15], false);
 			writeReportColumn(writer, (Date) message[16], false);
 			writeReportColumn(writer, (Date) message[17], false);
@@ -519,25 +516,44 @@ public class MessageController {
     	return writer.toString();
     }
 
-    private void writeReportColumn(StringWriter writer, Boolean data, boolean lastColumn) {
+	private void writeReportColumn(StringWriter writer, Boolean data, boolean lastColumn) {
         writer.write(data == null ? "" : data.toString());
-        writer.write(lastColumn ? "\n" : "\t");
+        writer.write(lastColumn ? "\n" : ",");
     }
 
     private void writeReportColumn(StringWriter writer, Enum<?> data, boolean lastColumn) {
     	writer.write(data == null ? "" : data.toString());
-    	writer.write(lastColumn ? "\n" : "\t");
+    	writer.write(lastColumn ? "\n" : ",");
     }
 
     private void writeReportColumn(StringWriter writer, String data, boolean lastColumn) {
     	writer.write(data == null ? "" : data);
-    	writer.write(lastColumn ? "\n" : "\t");
+    	writer.write(lastColumn ? "\n" : ",");
     }
 
     private void writeReportColumn(StringWriter writer, Date data, boolean lastColumn) {
-    	writer.write(data == null ? "" : String.valueOf(data.getTime()));
-    	writer.write(lastColumn ? "\n" : "\t");
+		writer.write(data == null ? "" : getIso8601DateTimeString(data));
+    	writer.write(lastColumn ? "\n" : ",");
     }
+
+	private void writeReportColumn(StringWriter writer, long data, boolean lastColumn) {
+		writer.write(String.valueOf(data));
+		writer.write(lastColumn ? "\n" : ",");
+	}
+
+	private long getTimeDiff(Date date1, Date date2) {
+		if (date1 == null || date2 == null)
+			return -1L;
+
+		return date2.getTime() - date1.getTime();
+	}
+
+	private String getIso8601DateTimeString(Date data) {
+		ZonedDateTime date = ZonedDateTime.ofInstant(data.toInstant(), ZoneId.systemDefault());
+		String dateStr = DateTimeFormatter.ISO_DATE_TIME.format(date);
+		int index = dateStr.lastIndexOf("[");
+		return index > 0 ? dateStr.substring(0, index) : dateStr;
+	}
 
     @ModelAttribute("oppslagstjenestenUrl")
 	private String oppslagstjenestenUrl() {
